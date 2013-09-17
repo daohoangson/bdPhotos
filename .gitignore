@@ -1,3 +1,7 @@
 .DS_Store
 *.devhelper
 library/bdPhotos/DevHelper/Generated
+js/bdPhotos/attachment_editor.js
+js/bdPhotos/comments_simple.js
+js/bdPhotos/geo.js
+library/bdPhotos/FileSums.php

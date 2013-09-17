@@ -1,0 +1,24 @@
+<?php
+
+class bdPhotos_Option
+{
+	public static function get($key, $subKey = null)
+	{
+		$options = XenForo_Application::getOptions();
+
+		switch ($key)
+		{
+			case 'navTabId':
+				return 'bdPhotos';
+			case 'navTabPosition':
+				return 'middle';
+
+			// TODO
+			case 'commentsPerPage':
+				return 20;
+		}
+
+		return $options->get('bdPhotos_' . $key, $subKey);
+	}
+
+}

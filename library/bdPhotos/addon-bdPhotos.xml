@@ -1,0 +1,1467 @@
+<?xml version="1.0" encoding="utf-8"?>
+<addon addon_id="bdPhotos" title="[bd] Photos" version_string="0.9-dev" version_id="1" url="" install_callback_class="bdPhotos_Installer" install_callback_method="install" uninstall_callback_class="bdPhotos_Installer" uninstall_callback_method="uninstall">
+  <admin_navigation/>
+  <admin_permissions/>
+  <admin_style_properties/>
+  <admin_templates>
+    <template title="bdphotos_device_code_delete"><![CDATA[<xen:title>{xen:phrase bdphotos_device_code_confirm_deletion}: {$deviceCode.device_id}</xen:title>
+<xen:h1>{xen:phrase bdphotos_device_code_confirm_deletion}</xen:h1>
+
+<xen:navigation>
+	<xen:breadcrumb href="{xen:adminlink 'photo-device-codes/edit', $deviceCode}">{$deviceCode.device_id}</xen:breadcrumb>
+</xen:navigation>
+
+<xen:require css="delete_confirmation.css" />
+
+<xen:form action="{xen:adminlink 'photo-device-codes/delete', $deviceCode}" class="deleteConfirmForm formOverlay">
+
+	<p>{xen:phrase bdphotos_device_code_please_confirm}:</p>
+	<strong><a href="{xen:adminlink 'photo-device-codes/edit', $deviceCode}">{$deviceCode.device_id}</a></strong>
+
+	<xen:submitunit save="{xen:phrase bdphotos_device_code_delete}" />
+
+	<input type="hidden" name="_xfConfirm" value="1" />
+</xen:form>]]></template>
+    <template title="bdphotos_device_code_edit"><![CDATA[<xen:title>{xen:if '{$deviceCode.device_code_id}', '{xen:phrase bdphotos_device_code_edit}', '{xen:phrase bdphotos_device_code_add}'}</xen:title>
+
+<xen:form action="{xen:adminlink 'photo-device-codes/save'}" class="AutoValidator" data-redirect="yes">
+
+	
+	<xen:textboxunit label="{xen:phrase bdphotos_manufacture}:" name="manufacture" value="{$deviceCode.manufacture}" />
+	<xen:textboxunit label="{xen:phrase bdphotos_code}:" name="code" value="{$deviceCode.code}" />
+	<xen:textboxunit label="{xen:phrase bdphotos_device_id}:" name="device_id" value="{$deviceCode.device_id}" data-liveTitleTemplate="{xen:if {$deviceCode.device_code_id},
+		'{xen:phrase bdphotos_device_code_edit}: <em>%s</em>',
+		'{xen:phrase bdphotos_device_code_add}: <em>%s</em>'}" />
+
+	<xen:submitunit save="{xen:phrase bdphotos_device_code_save}">
+		<input type="button" name="delete" value="{xen:phrase bdphotos_device_code_delete}"
+			accesskey="d" class="button OverlayTrigger"
+			data-href="{xen:adminlink 'photo-device-codes/delete', $deviceCode}"
+			{xen:if '!{$deviceCode.device_code_id}', 'style="display: none"'}
+		/>
+	</xen:submitunit>
+
+	<input type="hidden" name="device_code_id" value="{$deviceCode.device_code_id}" />
+</xen:form>]]></template>
+    <template title="bdphotos_device_code_list"><![CDATA[<xen:title>{xen:phrase bdphotos_device_codes}</xen:title>
+
+<xen:topctrl>
+	<a href="{xen:adminlink 'photo-device-codes/add'}" class="button" accesskey="a">+ {xen:phrase bdphotos_device_code_add}</a>
+</xen:topctrl>
+
+<xen:require css="filter_list.css" />
+<xen:require js="js/xenforo/filter_list.js" />
+
+<xen:form action="{xen:adminlink 'photo-device-codes'}" class="section">
+	<xen:if is="{$deviceCodes}">
+		<h2 class="subHeading">
+			<xen:include template="filter_list_controls" />
+			{xen:phrase bdphotos_device_codes}
+		</h2>
+
+		<ol class="FilterList Scrollable">
+			<xen:include template="bdphotos_device_code_list_items" />
+		</ol>
+
+		<p class="sectionFooter">{xen:phrase showing_x_of_y_items, 'count=<span class="FilterListCount">{xen:count $deviceCodes}</span>', 'total={xen:count $deviceCodes}'}</p>
+	<xen:else />
+		<div class="noResults">{xen:phrase bdphotos_device_code_no_results}</div>
+	</xen:if>
+</xen:form>]]></template>
+    <template title="bdphotos_device_code_list_items"><![CDATA[<xen:foreach loop="$deviceCodes" value="$deviceCode">
+	<xen:listitem
+		id="{$deviceCode.device_code_id}"
+		href="{xen:adminlink 'photo-device-codes/edit', $deviceCode}"
+		delete="{xen:adminlink 'photo-device-codes/delete', $deviceCode}">
+		<xen:label>{$deviceCode.device_id}</xen:label>
+	</xen:listitem>
+</xen:foreach>]]></template>
+    <template title="bdphotos_location_delete"><![CDATA[<xen:title>{xen:phrase bdphotos_location_confirm_deletion}: {$location.location_name}</xen:title>
+<xen:h1>{xen:phrase bdphotos_location_confirm_deletion}</xen:h1>
+
+<xen:navigation>
+	<xen:breadcrumb href="{xen:adminlink 'photo-locations/edit', $location}">{$location.location_name}</xen:breadcrumb>
+</xen:navigation>
+
+<xen:require css="delete_confirmation.css" />
+
+<xen:form action="{xen:adminlink 'photo-locations/delete', $location}" class="deleteConfirmForm formOverlay">
+
+	<p>{xen:phrase bdphotos_location_please_confirm}:</p>
+	<strong><a href="{xen:adminlink 'photo-locations/edit', $location}">{$location.location_name}</a></strong>
+
+	<xen:submitunit save="{xen:phrase bdphotos_location_delete}" />
+
+	<input type="hidden" name="_xfConfirm" value="1" />
+</xen:form>]]></template>
+    <template title="bdphotos_location_edit"><![CDATA[<xen:title>{xen:if '{$location.location_id}', '{xen:phrase bdphotos_location_edit}', '{xen:phrase bdphotos_location_add}'}</xen:title>
+
+<xen:form action="{xen:adminlink 'photo-locations/save'}" class="AutoValidator" data-redirect="yes">
+
+	
+	<xen:textboxunit label="{xen:phrase bdphotos_location_name}:" name="location_name" value="{$location.location_name}" data-liveTitleTemplate="{xen:if {$location.location_id},
+		'{xen:phrase bdphotos_location_edit}: <em>%s</em>',
+		'{xen:phrase bdphotos_location_add}: <em>%s</em>'}" />
+	<xen:textboxunit label="{xen:phrase bdphotos_location_lat}:" name="location_lat" value="{$location.location_lat}" />
+	<xen:textboxunit label="{xen:phrase bdphotos_location_lng}:" name="location_lng" value="{$location.location_lng}" />
+
+	<xen:submitunit save="{xen:phrase bdphotos_location_save}">
+		<input type="button" name="delete" value="{xen:phrase bdphotos_location_delete}"
+			accesskey="d" class="button OverlayTrigger"
+			data-href="{xen:adminlink 'photo-locations/delete', $location}"
+			{xen:if '!{$location.location_id}', 'style="display: none"'}
+		/>
+	</xen:submitunit>
+
+	<input type="hidden" name="location_id" value="{$location.location_id}" />
+</xen:form>]]></template>
+    <template title="bdphotos_location_list"><![CDATA[<xen:title>{xen:phrase bdphotos_locations}</xen:title>
+
+<xen:topctrl>
+	<a href="{xen:adminlink 'photo-locations/add'}" class="button" accesskey="a">+ {xen:phrase bdphotos_location_add}</a>
+</xen:topctrl>
+
+<xen:require css="filter_list.css" />
+<xen:require js="js/xenforo/filter_list.js" />
+
+<xen:form action="{xen:adminlink 'photo-locations'}" class="section">
+	<xen:if is="{$locations}">
+		<h2 class="subHeading">
+			<xen:include template="filter_list_controls" />
+			{xen:phrase bdphotos_locations}
+		</h2>
+
+		<ol class="FilterList Scrollable">
+			<xen:include template="bdphotos_location_list_items" />
+		</ol>
+
+		<p class="sectionFooter">{xen:phrase showing_x_of_y_items, 'count=<span class="FilterListCount">{xen:count $locations}</span>', 'total={xen:count $locations}'}</p>
+	<xen:else />
+		<div class="noResults">{xen:phrase bdphotos_location_no_results}</div>
+	</xen:if>
+</xen:form>]]></template>
+    <template title="bdphotos_location_list_items"><![CDATA[<xen:foreach loop="$locations" value="$location">
+	<xen:listitem
+		id="{$location.location_id}"
+		href="{xen:adminlink 'photo-locations/edit', $location}"
+		delete="{xen:adminlink 'photo-locations/delete', $location}">
+		<xen:label>{$location.location_name}</xen:label>
+	</xen:listitem>
+</xen:foreach>]]></template>
+  </admin_templates>
+  <admin_template_modifications/>
+  <code_events/>
+  <code_event_listeners>
+    <listener event_id="file_health_check" execute_order="10" callback_class="bdPhotos_Listener" callback_method="file_health_check" active="1" hint="" description=""/>
+    <listener event_id="init_dependencies" execute_order="10" callback_class="bdPhotos_Listener" callback_method="init_dependencies" active="1" hint="" description=""/>
+    <listener event_id="load_class" execute_order="10" callback_class="bdPhotos_Listener" callback_method="load_class" active="1" hint="" description=""/>
+    <listener event_id="navigation_tabs" execute_order="10" callback_class="bdPhotos_Listener" callback_method="navigation_tabs" active="1" hint="" description=""/>
+    <listener event_id="template_create" execute_order="10" callback_class="bdPhotos_Listener" callback_method="template_create" active="1" hint="" description=""/>
+  </code_event_listeners>
+  <cron>
+    <entry entry_id="bdPhotos_deviceFlickr" cron_class="bdPhotos_CronEntry_Device" cron_method="updateFromFlickr" active="1"><![CDATA[{"day_type":"dom","dom":["6"],"hours":["6"],"minutes":["6"]}]]></entry>
+  </cron>
+  <email_templates/>
+  <email_template_modifications/>
+  <optiongroups>
+    <group group_id="bdPhotos" display_order="9999" debug_only="0"/>
+    <option option_id="bdPhotos_doExifRotate" edit_format="onoff" data_type="unsigned_integer" can_backup="1">
+      <default_value>1</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="bdPhotos" display_order="500"/>
+    </option>
+    <option option_id="bdPhotos_doStrip" edit_format="onoff" data_type="unsigned_integer" can_backup="1">
+      <default_value>0</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="bdPhotos" display_order="500"/>
+    </option>
+    <option option_id="bdPhotos_flickrApiKey" edit_format="textbox" data_type="string" can_backup="1">
+      <default_value></default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="bdPhotos" display_order="1000"/>
+    </option>
+    <option option_id="bdPhotos_googleMapsApiKey" edit_format="textbox" data_type="string" can_backup="1">
+      <default_value></default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="bdPhotos" display_order="1000"/>
+    </option>
+    <option option_id="bdPhotos_maxDimensions" edit_format="template" data_type="array" can_backup="1">
+      <default_value></default_value>
+      <edit_format_params>option_template_attachmentMaxDimensions</edit_format_params>
+      <sub_options>width
+height</sub_options>
+      <relation group_id="bdPhotos" display_order="2010"/>
+    </option>
+    <option option_id="bdPhotos_maxFileSize" edit_format="spinbox" data_type="unsigned_integer" can_backup="1">
+      <default_value>10240</default_value>
+      <edit_format_params>min=0
+step=1024</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="bdPhotos" display_order="2000"/>
+    </option>
+  </optiongroups>
+  <permissions>
+    <permission_groups/>
+    <permissions>
+      <permission permission_group_id="general" permission_id="bdPhotos_albumComment" permission_type="flag" depend_permission_id="bdPhotos_view" default_value="unset" interface_group_id="bdPhotos" display_order="200"/>
+      <permission permission_group_id="general" permission_id="bdPhotos_albumLike" permission_type="flag" depend_permission_id="bdPhotos_view" default_value="unset" interface_group_id="bdPhotos" display_order="200"/>
+      <permission permission_group_id="general" permission_id="bdPhotos_downloadFull" permission_type="flag" depend_permission_id="bdPhotos_view" default_value="unset" interface_group_id="bdPhotos" display_order="400"/>
+      <permission permission_group_id="general" permission_id="bdPhotos_editAll" permission_type="flag" depend_permission_id="bdPhotos_upload" default_value="unset" interface_group_id="bdPhotos_moderator" display_order="100"/>
+      <permission permission_group_id="general" permission_id="bdPhotos_photoComment" permission_type="flag" depend_permission_id="bdPhotos_view" default_value="unset" interface_group_id="bdPhotos" display_order="300"/>
+      <permission permission_group_id="general" permission_id="bdPhotos_photoLike" permission_type="flag" depend_permission_id="bdPhotos_view" default_value="unset" interface_group_id="bdPhotos" display_order="300"/>
+      <permission permission_group_id="general" permission_id="bdPhotos_upload" permission_type="flag" depend_permission_id="bdPhotos_view" default_value="unset" interface_group_id="bdPhotos" display_order="100"/>
+      <permission permission_group_id="general" permission_id="bdPhotos_view" permission_type="flag" default_value="unset" interface_group_id="bdPhotos" display_order="1"/>
+      <permission permission_group_id="general" permission_id="bdPhotos_viewAll" permission_type="flag" depend_permission_id="bdPhotos_view" default_value="unset" interface_group_id="bdPhotos_moderator" display_order="1"/>
+    </permissions>
+    <interface_groups>
+      <interface_group interface_group_id="bdPhotos" display_order="9999"/>
+      <interface_group interface_group_id="bdPhotos_moderator" display_order="9999"/>
+    </interface_groups>
+  </permissions>
+  <phrases>
+    <phrase title="bdphotos_add_photo" version_id="1" version_string="0.9-dev"><![CDATA[Add Photo]]></phrase>
+    <phrase title="bdphotos_album" version_id="1" version_string="0.9-dev"><![CDATA[Album]]></phrase>
+    <phrase title="bdphotos_albums" version_id="1" version_string="0.9-dev"><![CDATA[Albums]]></phrase>
+    <phrase title="bdphotos_album_description" version_id="1" version_string="0.9-dev"><![CDATA[Description]]></phrase>
+    <phrase title="bdphotos_album_name" version_id="1" version_string="0.9-dev"><![CDATA[Album Name]]></phrase>
+    <phrase title="bdphotos_album_not_found" version_id="1" version_string="0.9-dev"><![CDATA[The requested album could not be found.]]></phrase>
+    <phrase title="bdphotos_are_you_sure_delete_album_x" version_id="1" version_string="0.9-dev"><![CDATA[Are you sure that you want to delete the album {album}?]]></phrase>
+    <phrase title="bdphotos_code" version_id="1" version_string="0.9-dev"><![CDATA[Code]]></phrase>
+    <phrase title="bdphotos_create_album" version_id="1" version_string="0.9-dev"><![CDATA[Create Album]]></phrase>
+    <phrase title="bdphotos_create_new_album" version_id="1" version_string="0.9-dev"><![CDATA[Create New Album]]></phrase>
+    <phrase title="bdphotos_delete_album" version_id="1" version_string="0.9-dev"><![CDATA[Delete Album]]></phrase>
+    <phrase title="bdphotos_device" version_id="1" version_string="0.9-dev"><![CDATA[Device]]></phrase>
+    <phrase title="bdphotos_device_code" version_id="1" version_string="0.9-dev"><![CDATA[Device Code]]></phrase>
+    <phrase title="bdphotos_device_codes" version_id="1" version_string="0.9-dev"><![CDATA[Device Codes]]></phrase>
+    <phrase title="bdphotos_device_code_add" version_id="1" version_string="0.9-dev"><![CDATA[Add New Device Code]]></phrase>
+    <phrase title="bdphotos_device_code_confirm_deletion" version_id="1" version_string="0.9-dev"><![CDATA[Confirm Deletion of Device Code]]></phrase>
+    <phrase title="bdphotos_device_code_delete" version_id="1" version_string="0.9-dev"><![CDATA[Delete Device Code]]></phrase>
+    <phrase title="bdphotos_device_code_edit" version_id="1" version_string="0.9-dev"><![CDATA[Edit Device Code]]></phrase>
+    <phrase title="bdphotos_device_code_not_found" version_id="1" version_string="0.9-dev"><![CDATA[The requested device code could not be found]]></phrase>
+    <phrase title="bdphotos_device_code_no_results" version_id="1" version_string="0.9-dev"><![CDATA[No device code could be found...]]></phrase>
+    <phrase title="bdphotos_device_code_please_confirm" version_id="1" version_string="0.9-dev"><![CDATA[Please confirm that you want to delete the following device code]]></phrase>
+    <phrase title="bdphotos_device_code_save" version_id="1" version_string="0.9-dev"><![CDATA[Save Device Code]]></phrase>
+    <phrase title="bdphotos_device_id" version_id="1" version_string="0.9-dev"><![CDATA[Device Id]]></phrase>
+    <phrase title="bdphotos_dimensions" version_id="1" version_string="0.9-dev"><![CDATA[Dimensions]]></phrase>
+    <phrase title="bdphotos_download_full" version_id="1" version_string="0.9-dev"><![CDATA[Download Fullsize]]></phrase>
+    <phrase title="bdphotos_edit_album" version_id="1" version_string="0.9-dev"><![CDATA[Edit Album]]></phrase>
+    <phrase title="bdphotos_from_album" version_id="1" version_string="0.9-dev"><![CDATA[Album]]></phrase>
+    <phrase title="bdphotos_location" version_id="1" version_string="0.9-dev"><![CDATA[Location]]></phrase>
+    <phrase title="bdphotos_locations" version_id="1" version_string="0.9-dev"><![CDATA[Locations]]></phrase>
+    <phrase title="bdphotos_location_add" version_id="1" version_string="0.9-dev"><![CDATA[Add New Location]]></phrase>
+    <phrase title="bdphotos_location_confirm_deletion" version_id="1" version_string="0.9-dev"><![CDATA[Confirm Deletion of Location]]></phrase>
+    <phrase title="bdphotos_location_delete" version_id="1" version_string="0.9-dev"><![CDATA[Delete Location]]></phrase>
+    <phrase title="bdphotos_location_edit" version_id="1" version_string="0.9-dev"><![CDATA[Edit Location]]></phrase>
+    <phrase title="bdphotos_location_lat" version_id="1" version_string="0.9-dev"><![CDATA[Location Lat]]></phrase>
+    <phrase title="bdphotos_location_lng" version_id="1" version_string="0.9-dev"><![CDATA[Location Lng]]></phrase>
+    <phrase title="bdphotos_location_name" version_id="1" version_string="0.9-dev"><![CDATA[Location Name]]></phrase>
+    <phrase title="bdphotos_location_not_found" version_id="1" version_string="0.9-dev"><![CDATA[The requested location could not be found]]></phrase>
+    <phrase title="bdphotos_location_no_results" version_id="1" version_string="0.9-dev"><![CDATA[No location could be found...]]></phrase>
+    <phrase title="bdphotos_location_please_confirm" version_id="1" version_string="0.9-dev"><![CDATA[Please confirm that you want to delete the following location]]></phrase>
+    <phrase title="bdphotos_location_save" version_id="1" version_string="0.9-dev"><![CDATA[Save Location]]></phrase>
+    <phrase title="bdphotos_manufacture" version_id="1" version_string="0.9-dev"><![CDATA[Manufacture]]></phrase>
+    <phrase title="bdphotos_navigation_tab_title" global_cache="1" version_id="1" version_string="0.9-dev"><![CDATA[Photos]]></phrase>
+    <phrase title="bdphotos_near_lowercase" version_id="1" version_string="0.9-dev"><![CDATA[near]]></phrase>
+    <phrase title="bdphotos_not_published" version_id="1" version_string="0.9-dev"><![CDATA[Not Published]]></phrase>
+    <phrase title="bdphotos_one_photo" version_id="1" version_string="0.9-dev"><![CDATA[1 photo]]></phrase>
+    <phrase title="bdphotos_photo" version_id="1" version_string="0.9-dev"><![CDATA[Photo]]></phrase>
+    <phrase title="bdphotos_photos" version_id="1" version_string="0.9-dev"><![CDATA[Photos]]></phrase>
+    <phrase title="bdphotos_photo_caption" version_id="1" version_string="0.9-dev"><![CDATA[Photo Caption]]></phrase>
+    <phrase title="bdphotos_photo_info" version_id="1" version_string="0.9-dev"><![CDATA[Photo Information]]></phrase>
+    <phrase title="bdphotos_photo_location" version_id="1" version_string="0.9-dev"><![CDATA[Photo Location]]></phrase>
+    <phrase title="bdphotos_photo_not_found" version_id="1" version_string="0.9-dev"><![CDATA[The requested photo could not be found.]]></phrase>
+    <phrase title="bdphotos_previous" version_id="1" version_string="0.9-dev"><![CDATA[Previous]]></phrase>
+    <phrase title="bdphotos_publish_album" version_id="1" version_string="0.9-dev"><![CDATA[Publish Album]]></phrase>
+    <phrase title="bdphotos_taken" version_id="1" version_string="0.9-dev"><![CDATA[Taken]]></phrase>
+    <phrase title="bdphotos_use_as_album_cover_photo" version_id="1" version_string="0.9-dev"><![CDATA[Album Cover]]></phrase>
+    <phrase title="bdphotos_with_lowercase" version_id="1" version_string="0.9-dev"><![CDATA[with]]></phrase>
+    <phrase title="bdphotos_x_liked_your_photo_in_the_album_y" version_id="1" version_string="0.9-dev"><![CDATA[{name} liked your photo in the album {album_name}.]]></phrase>
+    <phrase title="bdphotos_x_photos" version_id="1" version_string="0.9-dev"><![CDATA[{x} photos]]></phrase>
+    <phrase title="bdphotos_x_photos_will_be_deleted_unrecoverable" version_id="1" version_string="0.9-dev"><![CDATA[All {count} photos will be deleted and made unrecoverable.]]></phrase>
+    <phrase title="bdphotos_your_albums" global_cache="1" version_id="1" version_string="0.9-dev"><![CDATA[Your Albums]]></phrase>
+    <phrase title="bdphotos_your_photos" version_id="1" version_string="0.9-dev"><![CDATA[Your Photos]]></phrase>
+    <phrase title="bdphotos_you_sure_you_want_to_like_this_photo" version_id="1" version_string="0.9-dev"><![CDATA[Are you sure you want to like this post?]]></phrase>
+    <phrase title="bdphotos_you_sure_you_want_to_unlike_this_photo" version_id="1" version_string="0.9-dev"><![CDATA[Are you sure you want to unlike this photo?]]></phrase>
+    <phrase title="cron_entry_bdPhotos_deviceFlickr" version_id="1" version_string="0.9-dev"><![CDATA[[bd] Photos: Update devices from Flickr]]></phrase>
+    <phrase title="option_bdPhotos_doExifRotate" version_id="1" version_string="0.9-dev"><![CDATA[Auto-Fix Rotation]]></phrase>
+    <phrase title="option_bdPhotos_doExifRotate_explain" version_id="1" version_string="0.9-dev"><![CDATA[Enable this option to use orientation value from EXIF data to fix rotation of thumbnails. Doing this may cause performance issue with the server because rotating image uses lots of resource.]]></phrase>
+    <phrase title="option_bdPhotos_doStrip" version_id="1" version_string="0.9-dev"><![CDATA[Strip Photo]]></phrase>
+    <phrase title="option_bdPhotos_doStrip_explain" version_id="1" version_string="0.9-dev"><![CDATA[Enable this option to strip EXIF data from uploaded photo to protect member privacy. Doing this may affect photo quality because the file has to be decompressed and compressed again.]]></phrase>
+    <phrase title="option_bdPhotos_flickrApiKey" version_id="1" version_string="0.9-dev"><![CDATA[Flickr API Key]]></phrase>
+    <phrase title="option_bdPhotos_flickrApiKey_explain" version_id="1" version_string="0.9-dev"><![CDATA[You need to apply for Flickr API access at <a href="http://www.flickr.com/services/apps/create/apply/" target="_blank" tabindex="-1">www.flickr.com</a> to update Devices automatically.]]></phrase>
+    <phrase title="option_bdPhotos_googleMapsApiKey" version_id="1" version_string="0.9-dev"><![CDATA[Google Maps API Key]]></phrase>
+    <phrase title="option_bdPhotos_googleMapsApiKey_explain" version_id="1" version_string="0.9-dev"><![CDATA[You need to apply for Maps API access at <a href="https://code.google.com/apis/console" target="_blank" tabindex="-1">Google API Console</a> to use maps and other geo-related features.]]></phrase>
+    <phrase title="option_bdPhotos_maxDimensions" version_id="1" version_string="0.9-dev"><![CDATA[Maximum Photo Dimensions]]></phrase>
+    <phrase title="option_bdPhotos_maxDimensions_explain" version_id="1" version_string="0.9-dev"><![CDATA[The maximum allowed dimensions for photo (width x height). Use 0 or blank to not restrict dimensions.]]></phrase>
+    <phrase title="option_bdPhotos_maxFileSize" version_id="1" version_string="0.9-dev"><![CDATA[Maximum Photo File Size (KB)]]></phrase>
+    <phrase title="option_bdPhotos_maxFileSize_explain" version_id="1" version_string="0.9-dev"><![CDATA[Provide the maximum photo file size in kilobytes (KB). Photos over this size will be rejected. Use 0 to not restrict file size.]]></phrase>
+    <phrase title="option_group_bdPhotos" version_id="1" version_string="0.9-dev"><![CDATA[[bd] Photos]]></phrase>
+    <phrase title="option_group_bdPhotos_description" version_id="1" version_string="0.9-dev"><![CDATA[]]></phrase>
+    <phrase title="permission_general_bdPhotos_albumComment" version_id="1" version_string="0.9-dev"><![CDATA[Comment album]]></phrase>
+    <phrase title="permission_general_bdPhotos_albumLike" version_id="1" version_string="0.9-dev"><![CDATA[Like album]]></phrase>
+    <phrase title="permission_general_bdPhotos_downloadFull" version_id="1" version_string="0.9-dev"><![CDATA[Download Fullsize Photo]]></phrase>
+    <phrase title="permission_general_bdPhotos_editAll" version_id="1" version_string="0.9-dev"><![CDATA[Edit all]]></phrase>
+    <phrase title="permission_general_bdPhotos_photoComment" version_id="1" version_string="0.9-dev"><![CDATA[Comment on photo]]></phrase>
+    <phrase title="permission_general_bdPhotos_photoLike" version_id="1" version_string="0.9-dev"><![CDATA[Like photo]]></phrase>
+    <phrase title="permission_general_bdPhotos_upload" version_id="1" version_string="0.9-dev"><![CDATA[Upload]]></phrase>
+    <phrase title="permission_general_bdPhotos_view" version_id="1" version_string="0.9-dev"><![CDATA[View]]></phrase>
+    <phrase title="permission_general_bdPhotos_viewAll" version_id="1" version_string="0.9-dev"><![CDATA[View all]]></phrase>
+    <phrase title="permission_interface_bdPhotos" version_id="1" version_string="0.9-dev"><![CDATA[[bd] Photos: General Permissions]]></phrase>
+    <phrase title="permission_interface_bdPhotos_moderator" version_id="1" version_string="0.9-dev"><![CDATA[[bd] Photos: Moderator Permissions]]></phrase>
+    <phrase title="style_property_bdPhotos_thumbnailHeight_description_master" version_id="1" version_string="0.9-dev"><![CDATA[]]></phrase>
+    <phrase title="style_property_bdPhotos_thumbnailHeight_master" version_id="1" version_string="0.9-dev"><![CDATA[Thumbnail Height]]></phrase>
+    <phrase title="style_property_bdPhotos_thumbnailWidth_description_master" version_id="1" version_string="0.9-dev"><![CDATA[]]></phrase>
+    <phrase title="style_property_bdPhotos_thumbnailWidth_master" version_id="1" version_string="0.9-dev"><![CDATA[Thumbnail Width]]></phrase>
+    <phrase title="style_property_bdPhotos_viewWidthOrHeight_description_master" version_id="1" version_string="0.9-dev"><![CDATA[]]></phrase>
+    <phrase title="style_property_bdPhotos_viewWidthOrHeight_master" version_id="1" version_string="0.9-dev"><![CDATA[View Size]]></phrase>
+    <phrase title="style_property_group_bdPhotos_master" version_id="1" version_string="0.9-dev"><![CDATA[[bd] Photos]]></phrase>
+    <phrase title="style_property_group_bdPhotos_master_desc" version_id="1" version_string="0.9-dev"><![CDATA[]]></phrase>
+  </phrases>
+  <route_prefixes>
+    <route_type type="admin">
+      <prefix original_prefix="photo-device-codes" class="bdPhotos_Route_PrefixAdmin_DeviceCode" build_link="data_only"/>
+      <prefix original_prefix="photo-locations" class="bdPhotos_Route_PrefixAdmin_Location" build_link="data_only"/>
+    </route_type>
+    <route_type type="public">
+      <prefix original_prefix="photos" class="bdPhotos_Route_Prefix_Photos" build_link="data_only"/>
+      <prefix original_prefix="photos-meta" class="bdPhotos_Route_Prefix_Metadata" build_link="all"/>
+    </route_type>
+  </route_prefixes>
+  <style_properties>
+    <property property_name="bdPhotos_thumbnailWidth" property_type="scalar" definition="1" group_name="bdPhotos" title="Thumbnail Width" description="" css_components="" scalar_type="number" scalar_parameters="" display_order="1000" sub_group="thumbnail"><![CDATA[300]]></property>
+    <property property_name="bdPhotos_thumbnailHeight" property_type="scalar" definition="1" group_name="bdPhotos" title="Thumbnail Height" description="" css_components="" scalar_type="number" scalar_parameters="" display_order="1000" sub_group="thumbnail"><![CDATA[300]]></property>
+    <property property_name="bdPhotos_viewWidthOrHeight" property_type="scalar" definition="1" group_name="bdPhotos" title="View Size" description="" css_components="" scalar_type="number" scalar_parameters="" display_order="1000" sub_group="view"><![CDATA[800]]></property>
+    <group group_name="bdPhotos" display_order="9999">
+      <title>[bd] Photos</title>
+      <description></description>
+    </group>
+  </style_properties>
+  <templates>
+    <template title="bdphotos.css" version_id="1" version_string="0.9-dev"><![CDATA[.bdPhotos_AlbumList
+{
+}
+{xen:helper clearfix, '.bdPhotos_AlbumList'}
+
+	.bdPhotos_AlbumList_Album
+	{
+		float: left;
+		padding: 0;
+	}
+		.bdPhotos_AlbumList_Album .container
+		{
+			border: 1px solid {xen:property faintTextColor};
+			margin: 10px;
+			width: {xen:helper bdPhotos_formatCssProperty, pixel, {xen:property bdPhotos_thumbnailWidth}};
+		}
+
+		.bdPhotos_AlbumList_Album .cover
+		{
+			height: {xen:helper bdPhotos_formatCssProperty, pixel, {xen:property bdPhotos_thumbnailHeight}};
+			margin: 0;
+			padding: 0;
+			width: {xen:helper bdPhotos_formatCssProperty, pixel, {xen:property bdPhotos_thumbnailWidth}};
+		}
+
+		.bdPhotos_AlbumList_Album .controls
+		{
+			border-top: 1px solid {xen:property faintTextColor};
+			display: block;
+			margin: 0;
+			padding: 0;
+			width: 100%;
+		}
+			.bdPhotos_AlbumList_Album .controls-container
+			{
+				margin: 10px;
+			}
+
+			.bdPhotos_AlbumList_Album .controls .name,
+			.bdPhotos_AlbumList_Album .controls .stats
+			{
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+			}
+
+.bdPhotos_AlbumHead
+{
+	text-align: center;
+}
+	.bdPhotos_AlbumHead .name
+	{
+		font-size: 16px;
+		font-weight: bold;
+	}
+	.bdPhotos_AlbumHead .album-info
+	{
+		font-size: 11px;
+		margin-bottom: 5px;
+	}
+	.bdPhotos_AlbumHead .description
+	{
+		margin: auto auto;
+		max-width: 500px;
+		width: 100%;
+	}
+
+.bdPhotos_PhotoList
+{
+}
+{xen:helper clearfix, '.bdPhotos_PhotoList'}
+
+	.bdPhotos_PhotoList_Photo
+	{
+		float: left;
+		padding: 0;
+	}
+
+		.bdPhotos_PhotoList_Photo .container
+		{
+			margin: 10px;
+			width: {xen:helper bdPhotos_formatCssProperty, pixel, {xen:property bdPhotos_thumbnailWidth}};
+			position: relative;
+		}
+
+		.bdPhotos_PhotoList_Photo.big2 .container
+		{
+			width: {xen:helper bdPhotos_formatCssProperty, pixel, {xen:calc '({xen:property bdPhotos_thumbnailWidth} * 2) + 20'}};
+		}
+
+		.bdPhotos_PhotoList_Photo .photo
+		{
+			height: {xen:helper bdPhotos_formatCssProperty, pixel, {xen:property bdPhotos_thumbnailHeight}};
+			margin: 0;
+			padding: 0;
+			width: {xen:helper bdPhotos_formatCssProperty, pixel, {xen:property bdPhotos_thumbnailWidth}};
+		}
+		.bdPhotos_PhotoList_Photo.big2 .photo
+		{
+			height: {xen:helper bdPhotos_formatCssProperty, pixel, {xen:calc '({xen:property bdPhotos_thumbnailHeight} * 2) + 20'}};
+			width: {xen:helper bdPhotos_formatCssProperty, pixel, {xen:calc '({xen:property bdPhotos_thumbnailWidth} * 2) + 20'}};
+		}
+
+		.bdPhotos_PhotoList_Photo .controls
+		{
+			display: block;
+			margin: 0;
+			position: absolute;
+			padding: 0;
+			width: 100%;
+
+			-webkit-transition: opacity 0.2s ease-out;
+			opacity: 0;
+		}
+
+		.bdPhotos_PhotoList_Photo:hover .controls
+		{
+			opacity: 1;
+		}
+
+		.bdPhotos_PhotoList_Photo .controls.top
+		{
+			top: 0;
+		}
+
+		.bdPhotos_PhotoList_Photo .controls.bottom
+		{
+			bottom: 0;
+		}
+
+		.bdPhotos_PhotoList_Photo .controls.bottom.gradient
+		{
+			background: url({xen:property imagePath}/bdPhotos/bottom_gradient.png) repeat-x;
+			height: {xen:helper bdPhotos_formatCssProperty, pixel, {xen:calc '{xen:property bdPhotos_thumbnailHeight} / 3'}};
+		}
+
+		.bdPhotos_PhotoList_Photo .controls.below
+		{
+			background: {xen:property primaryLightest};
+			height: 75px;
+			overflow: hidden;
+			opacity: 1;
+			position: relative;
+		}
+
+			.bdPhotos_PhotoList_Photo .controls-container
+			{
+				margin: 10px;
+			}
+
+			.bdPhotos_PhotoList_Photo .controls.show-uploader .buttons,
+			.bdPhotos_PhotoList_Photo .controls.show-uploader .caption
+			{
+				margin-left: 60px;
+				padding-left: 5px;
+			}
+
+			.bdPhotos_PhotoList_Photo .controls .buttons
+			{
+				border-top: 1px solid white;
+				padding: 10px;
+				overflow: hidden;
+			}
+			.bdPhotos_PhotoList_Photo .controls .caption
+			{
+				color: white; /* for the ellipsis */
+				font-weight: bold;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				padding: 10px;
+				white-space: nowrap;
+			}
+
+			.bdPhotos_PhotoList_Photo .controls.top label,
+			.bdPhotos_PhotoList_Photo .controls.bottom a,
+			.bdPhotos_PhotoList_Photo .controls.bottom span,
+			.bdPhotos_PhotoList_Photo .controls.bottom dt,
+			.bdPhotos_PhotoList_Photo .controls.bottom dd
+			{
+				color: white;
+				text-shadow: 0 0 3px rgba(0, 0, 0, .75);
+			}
+
+			.bdPhotos_PhotoList_Photo .controls .avatar
+			{
+				display: block;
+				float: left;
+				overflow: hidden;
+				width: 60px;
+			}
+				.bdPhotos_PhotoList_Photo .controls .avatar img
+				{
+					background: transparent;
+					border: 0;
+					border-right: 1px dashed white;
+					border-radius: 0;
+					height: auto;
+					margin: 6px auto;
+					padding: 5px;
+					width: 48px;
+				}
+
+			.bdPhotos_PhotoList_Photo .controls .buttons dl,
+			.bdPhotos_PhotoList_Photo .controls .buttons dt,
+			.bdPhotos_PhotoList_Photo .controls .buttons dd,
+			.bdPhotos_PhotoList_Photo .controls .buttons a
+			{
+				float: left;
+			}
+			.bdPhotos_PhotoList_Photo .controls .buttons a:hover { text-decoration: none; }
+			.bdPhotos_PhotoList_Photo .controls .buttons dl { margin-right: 5px; }
+			.bdPhotos_PhotoList_Photo .controls .buttons dt { display: none; }
+			.bdPhotos_PhotoList_Photo .controls .buttons .icon
+			{
+				background: url({xen:property imagePath}/bdPhotos/sprites.png) no-repeat;
+				margin-left: 3px;
+				padding-left: 18px;
+			}
+				.bdPhotos_PhotoList_Photo .controls .buttons .views .icon { background-position: 0 0 }
+				.bdPhotos_PhotoList_Photo .controls .buttons .likes .icon { background-position: 0 -32px }
+				.bdPhotos_PhotoList_Photo .controls .buttons .likes.unlike .icon { background-position: 0 -96px }
+				.bdPhotos_PhotoList_Photo .controls .buttons a.likes:hover .icon { background-position: 0 -48px }
+				.bdPhotos_PhotoList_Photo .controls .buttons .comments .icon { background-position: 0 -64px }
+				.bdPhotos_PhotoList_Photo .controls .buttons a.comments:hover .icon { background-position: 0 -80px }
+
+.bdPhotos_Photo
+{
+}
+
+	.bdPhotos_Photo .set-navigation
+	{
+		text-align: right;
+	}
+		.bdPhotos_Photo .set-navigation a
+		{
+			font-size: 11px;
+		}
+
+	.bdPhotos_Photo .photo
+	{
+		background: {xen:property primaryLightest};
+		min-height: {xen:helper bdPhotos_formatCssProperty, pixel, {xen:calc '{xen:property bdPhotos_viewWidthOrHeight} / 2'}};
+		text-align: center;
+		width: 100%;
+	}
+		.bdPhotos_Photo .photo img
+		{
+			display: block;
+			margin: auto auto;
+			vertical-align: middle;
+		}
+
+.bdPhotos_sidebarPhotoInfo .bdPhotos_snippetLocationStaticMap
+{
+	width: 100% !important;
+}
+
+.bdPhotos_AttachmentEditor .AttachedFile#AttachedFileTemplate
+{
+	display: none;
+}
+	.bdPhotos_AttachmentEditor .button.AttachmentDeleter
+	{
+		display: inline !important;
+		float: right;
+	}
+	.bdPhotos_AttachmentEditor .Filename input
+	{
+		width: {xen:helper bdPhotos_formatCssProperty, pixel, {xen:calc '{xen:property bdPhotos_thumbnailWidth} - 30'}};
+	}
+	.bdPhotos_albumAddPhoto .bdPhotos_AttachmentEditor .cover
+	{
+		display: none;
+	}
+
+<xen:include template="bdphotos_responsive.css" />
+]]></template>
+    <template title="bdphotos_album_add_photo" version_id="1" version_string="0.9-dev"><![CDATA[<xen:title>{xen:phrase bdphotos_add_photo}: {$album.album_name}</xen:title>
+<xen:h1>{xen:phrase bdphotos_add_photo}</xen:h1>
+
+<xen:if is="{$breadcrumbs}">
+	<xen:navigation>
+		<xen:breadcrumb source="$breadcrumbs" />
+	</xen:navigation>
+</xen:if>
+
+<form action="{xen:link 'photos/albums/save', $album}" method="post"
+	class="xenForm AutoValidator bdPhotos_albumAddPhoto"
+	data-redirect="on">
+
+	<fieldset>
+		<div class="ctrlUnit AttachedFilesUnit">
+			<xen:include template="bdphotos_attachment_editor">
+				<xen:set var="$attachments" value="" />
+			</xen:include>
+		</div>
+		
+		<dl class="ctrlUnit submitUnit">
+			<dt></dt>
+			<dd>
+				<input type="submit" value="{xen:phrase save}" accesskey="s" class="button primary" />
+				<xen:include template="attachment_upload_button" />
+			</dd>
+		</dl>
+	</fieldset>
+
+	<input type="hidden" name="_xfToken" value="{$visitor.csrf_token_page}" />
+</form>]]></template>
+    <template title="bdphotos_album_delete" version_id="1" version_string="0.9-dev"><![CDATA[<xen:title>{xen:phrase bdphotos_delete_album}: {$album.album_name}</xen:title>
+<xen:h1>{xen:phrase bdphotos_delete_album}</xen:h1>
+
+<xen:if is="{$breadcrumbs}">
+	<xen:navigation>
+		<xen:breadcrumb source="$breadcrumbs" />
+	</xen:navigation>
+</xen:if>
+
+<form action="{xen:link 'photos/albums/delete', $album}" method="post"
+	class="xenForm AutoValidator"
+	data-redirect="on">
+
+	<p>
+		{xen:phrase bdphotos_are_you_sure_delete_album_x, 'album={$album.album_name}'}
+		{xen:phrase bdphotos_x_photos_will_be_deleted_unrecoverable, 'count={xen:number $album.photo_count}'}
+	</p>
+
+	<dl class="ctrlUnit submitUnit">
+		<dt></dt>
+		<dd>
+			<input type="submit" value="{xen:phrase bdphotos_delete_album}" class="button primary" />
+		</dd>
+	</dl>
+
+	<input type="hidden" name="_xfToken" value="{$visitor.csrf_token_page}" />
+	<input type="hidden" name="_xfConfirm" value="1" />
+</form>]]></template>
+    <template title="bdphotos_album_edit" version_id="1" version_string="0.9-dev"><![CDATA[<xen:title>
+	{xen:if '{$album.album_id}',
+		'{xen:phrase bdphotos_edit_album}: {$album.album_name}',
+		'{xen:phrase bdphotos_create_new_album}'
+	}
+</xen:title>
+<xen:h1>
+	{xen:if '{$album.album_id}',
+		'{xen:phrase bdphotos_edit_album}',
+		'{xen:phrase bdphotos_create_new_album}'
+	}
+</xen:h1>
+
+<xen:if is="{$breadcrumbs}">
+	<xen:navigation>
+		<xen:breadcrumb source="$breadcrumbs" />
+	</xen:navigation>
+</xen:if>
+
+<form action="{xen:link 'photos/albums/save', $album}" method="post"
+	class="AutoValidator bdPhotos_albumEdit"
+	data-redirect="on">
+	  
+	<fieldset class="xenForm">
+		<dl class="ctrlUnit">
+			<dt>
+				<label for="ctrl_album_name">{xen:phrase bdphotos_album_name}:</label>
+			</dt>
+			<dd>
+				<input type="text" name="album_name" class="textCtrl" id="ctrl_album_name" autofocus="true"
+					maxlength="100" value="{$album.album_name}"
+					{xen:if '!{$album.album_id}', 'data-liveTitleTemplate="{xen:phrase bdphotos_create_new_album}: <em>%s</em>"'}
+					/>
+			</dd>
+		</dl>
+
+		<dl class="ctrlUnit">
+			<dt>
+				<label for="ctrl_album_description">{xen:phrase bdphotos_album_description}:</label>
+			</dt>
+			<dd>
+				<textarea name="album_description" class="textCtrl Elastic" id="ctrl_album_description" rows="5">{$album.album_description}</textarea>
+			</dd>
+		</dl>
+		
+		<dl class="ctrlUnit">
+			<dt>&nbsp;</dt>
+			<dd>
+				<ul>
+					<li><label>
+						<input type="checkbox" name="album_publish_date" value="{$serverTime}" {xen:checked '!isset({$album.album_publish_date}) OR {$album.album_publish_date} > 0'} />
+						{xen:phrase bdphotos_publish_album}
+					</label></li>
+				</ul>
+			</dd>
+		</dl>
+	</fieldset>
+
+	<div class="ctrlUnit AttachedFilesUnit">
+		<xen:include template="bdphotos_attachment_editor">
+			<xen:set var="$attachments" value="{$attachmentParams.attachments}" />
+		</xen:include>
+	</div>
+
+	<fieldset class="xenForm">
+		<dl class="ctrlUnit submitUnit">
+			<dt></dt>
+			<dd>
+				<input type="submit" value="{xen:if '{$album.album_id}', {xen:phrase save}, {xen:phrase bdphotos_create_album}}" accesskey="s" class="button primary" />
+				<xen:include template="attachment_upload_button" />
+			</dd>
+		</dl>
+	</fieldset>
+
+	<input type="hidden" name="_xfToken" value="{$visitor.csrf_token_page}" />
+	<input type="hidden" name="is_album_edit" value="1" />
+</form>]]></template>
+    <template title="bdphotos_album_index" version_id="1" version_string="0.9-dev"><![CDATA[<xen:title>{xen:phrase bdphotos_albums}</xen:title>
+
+<xen:if is="{$canUpload}">
+	<xen:topctrl>
+		<a href="{xen:link 'photos/albums/new'}" class="callToAction"><span>{xen:phrase bdphotos_create_new_album}</span></a>
+	</xen:topctrl>
+</xen:if>
+
+<xen:include template="bdphotos_album_list">
+	<xen:set var="$showUploader">1</xen:set>
+</xen:include>]]></template>
+    <template title="bdphotos_album_list" version_id="1" version_string="0.9-dev"><![CDATA[<xen:require css="bdphotos.css" />
+
+<ol class="bdPhotos_AlbumList">
+	<xen:foreach loop="$albums" value="$album">
+		<xen:include template="bdphotos_album_list_album" />
+	</xen:foreach>
+</ol>]]></template>
+    <template title="bdphotos_album_list_album" version_id="1" version_string="0.9-dev"><![CDATA[<xen:require css="bdphotos.css" />
+
+<li class="bdPhotos_AlbumList_Album {xen:if '!{$album.album_publish_date}', 'not-published'}" id="album{$album.album_id}">
+	
+	<div class="container">
+
+		<xen:if is="{$album.coverObj}">
+			<div class="cover"><a href="{xen:link photos/albums, $album}">{xen:raw $album.coverObj}</a></div>
+		<xen:else />
+			<div class="cover nocvoer">&nbsp;</div>
+		</xen:if>
+
+		<div class="controls">
+			<div class="controls-container">
+				<div class="name">
+					<a href="{xen:link photos/albums, $album}">{$album.album_name}</a>
+					<xen:if is="!{$album.album_publish_date}">
+						<span class="not-published-notice muted">({xen:phrase bdphotos_not_published})</span>
+					</xen:if>
+				</div>
+
+				<div class="stats">
+					<xen:if is="{$showUploader}">
+						<xen:username user="$album" rich="true" href="{xen:link members/albums, $album}" class="NoOverlay" />,
+					</xen:if>
+					<xen:if is="{$album.photo_count} == 1">
+						{xen:phrase bdphotos_one_photo}
+					<xen:else />
+						{xen:phrase bdphotos_x_photos, 'x={xen:number $album.photo_count, 0}'}
+					</xen:if>
+				</div>
+			</div>
+		</div>
+
+	</div>
+
+</li>]]></template>
+    <template title="bdphotos_album_or_photo_comment" version_id="1" version_string="0.9-dev"><![CDATA[<xen:require css="message_simple.css" />
+
+<li class="comment secondaryContent {xen:if $comment.isIgnored, ignored}">
+	<xen:avatar user="$comment" size="s" img="true" />
+
+	<div class="commentInfo">
+		<div class="commentContent">
+			<xen:username user="$comment" class="poster" />
+			<article><blockquote>{xen:helper bodytext, $comment.message}</blockquote></article>
+		</div>
+		<div class="commentControls">
+			<xen:datetime time="$comment.comment_date" class="muted" />
+			<xen:if is="{$comment.canDelete}"><a href="{$deleteLink}" class="OverlayTrigger item control delete"><span></span>{xen:phrase delete}</a></xen:if>
+		</div>
+	</div>
+</li>]]></template>
+    <template title="bdphotos_album_view" version_id="1" version_string="0.9-dev"><![CDATA[<xen:title>{$album.album_name} {xen:phrase by_x, 'name={$uploader.username}'}</xen:title>
+<xen:h1></xen:h1>
+
+<xen:if is="{$breadcrumbs}">
+	<xen:navigation>
+		<xen:breadcrumb source="$breadcrumbs" />
+	</xen:navigation>
+</xen:if>
+
+<xen:container var="$head.canonical">
+	<link rel="canonical" href="{xen:link 'canonical:photos/albums', $album}" />
+</xen:container>
+<xen:container var="$head.openGraph">
+	<xen:include template="open_graph_meta">
+		<xen:set var="$url">{xen:link 'canonical:photos/albums', $album}</xen:set>
+		<xen:set var="$title">{$album.album_name}</xen:set>
+		<xen:set var="$avatar">{$album.ogObj}</xen:set>
+	</xen:include>
+</xen:container>
+
+<xen:if is="{$canEditAlbum}">
+	<xen:topctrl>
+		<a href="{xen:link 'photos/albums/add-photo', $album}" class="callToAction"><span>{xen:phrase bdphotos_add_photo}</span></a>
+	</xen:topctrl>
+</xen:if>
+
+<xen:require css="bdphotos.css" />
+
+<div itemscope="itemscope" itemtype="http://schema.org/ImageGallery">
+	<div class="bdPhotos_AlbumHead">
+		<h3 class="name" itemprop="name">{$album.album_name}</h3>
+		<div class="album-info faint">
+			<xen:username user="$uploader" rel="author" />,
+			<xen:if is="{$album.album_publish_date}">
+				<xen:datetime time="{$album.album_publish_date}" itemprop="datePublished" datetime="{xen:date $album.album_publish_date, 'Y-m-d'}" />
+			<xen:else />
+				{xen:phrase bdphotos_not_published}
+			</xen:if>
+		</div>
+		<xen:if is="{$album.album_description}"><div class="description" itemprop="description">{$album.album_description}</div></xen:if>
+	</div>
+	
+	<xen:include template="bdphotos_photo_list">
+		<xen:set var="$parentItemType">ImageGallery</xen:set>
+		<xen:set var="$coverPhotoId">{$album.cover_photo_id}</xen:set>
+	</xen:include>
+	<xen:edithint template="bdphotos_photo_list_photo" />
+</div>]]></template>
+    <template title="bdphotos_alert_photo_like" version_id="1" version_string="0.9-dev"><![CDATA[{xen:phrase bdphotos_x_liked_your_photo_in_the_album_y,
+	'name={xen:helper username, $user, 'subject'}',
+	'album_name=<a href="{xen:link photos, $content}" class="PopupItemLink">{$content.album_name}</a>'}]]></template>
+    <template title="bdphotos_attachment_editor" version_id="1" version_string="0.9-dev"><![CDATA[<xen:if is="{$attachmentParams}">
+
+	<xen:require js="js/xenforo/attachment_editor.js" />
+	<xen:require js="js/bdPhotos/attachment_editor.js" />
+	<xen:require css="bdphotos.css" />
+
+	<div class="bdPhotos_AttachmentEditor">
+
+		<div class="NoAttachments"></div>
+
+		<ol class="AttachmentList New bdPhotos_PhotoList">
+			<xen:include template="bdphotos_attachment_editor_attachment">
+				<xen:set var="$isTemplate">1</xen:set>
+				<xen:set var="$attachment"></xen:set>
+			</xen:include>
+			<xen:if is="{$photos}">
+				<xen:foreach loop="$photos" value="$attachment">
+					<xen:include template="bdphotos_attachment_editor_attachment" />
+				</xen:foreach>
+			</xen:if>
+			<xen:if is="{$attachments}">
+				<xen:foreach loop="$attachments" value="$attachment">
+					<xen:include template="bdphotos_attachment_editor_attachment" />
+				</xen:foreach>
+			</xen:if>
+		</ol>
+
+		<input type="hidden" name="attachment_hash" value="{$attachmentParams.hash}" />
+
+	</div>
+
+</xen:if>]]></template>
+    <template title="bdphotos_attachment_editor_attachment" version_id="1" version_string="0.9-dev"><![CDATA[<xen:require css="bdphotos.css" />
+
+<xen:include template="bdphotos_require_js_geo" />
+
+<li id="{xen:if $isTemplate, 'AttachedFileTemplate', 'attachment{$attachment.attachment_id}'}"
+	class="AttachedFile AttachedImage bdPhotos_PhotoList_Photo">
+
+	<div class="container">
+		<div class="Thumbnail photo">
+			<xen:if is="{$attachment}">
+				{xen:raw $attachment.photoObj}
+			</xen:if>
+		</div>
+		
+		<div class="controls top">
+			<div class="controls-container">
+				<input type="button" value="{xen:phrase delete}" class="button smallButton AttachmentDeleter" data-href="{xen:link 'attachments/delete', $attachment}" />
+
+				<label class="cover">
+					<input type="radio" name="cover_photo_id" value="{$attachment.attachment_id}" {xen:checked '{$album} AND {$album.cover_photo_id} == {$attachment.photo_id}'}/>
+					{xen:phrase bdphotos_use_as_album_cover_photo}
+				</label>
+			</div>
+		</div>
+
+		<div class="AttachmentText controls below">
+			<div class="controls-container">
+				<xen:if is="{$isTemplate}">
+					<div class="Filename"><a href="{xen:link attachments, $attachment}" target="_blank">{xen:if $attachment, $attachment.filename, ''}</a></div>
+
+					<input type="button" value="{xen:phrase cancel}" class="button smallButton AttachmentCanceller" />
+
+					<span class="ProgressMeter"><span class="ProgressGraphic">&nbsp;</span><span class="ProgressCounter">0%</span></span>
+				<xen:else />
+					<div class="Filename">
+						<input type="text" name="photo_caption[{$attachment.attachment_id}]" class="textCtrl" placeholder="{xen:phrase bdphotos_photo_caption}" value="{$attachment.photo_caption}" />
+					</div>
+
+					<xen:if hascontent="true">
+						<ul class="metadata">
+							<xen:contentcheck>
+
+								<xen:if is="{$attachment.device_id} AND {$attachment.device_name}">
+									<li><label class="device">
+										<input type="hidden" name="device_id[{$attachment.attachment_id}]" value="0" />
+										<input type="checkbox" name="device_id[{$attachment.attachment_id}]" value="{$attachment.device_id}" checked="checked" />
+										{xen:phrase bdphotos_taken} {xen:phrase bdphotos_with_lowercase}
+										<xen:include template="bdphotos_snippet_device_name">
+											<xen:map from="$attachment" to="$device" />
+										</xen:include>
+									</label></li>
+								</xen:if>
+
+								<xen:if is="{$attachment.location_id} AND {$attachment.location_name}">
+									<li><label class="location">
+										<input type="hidden" name="location_id[{$attachment.attachment_id}]" value="0" />
+										<input type="checkbox" name="location_id[{$attachment.attachment_id}]" value="{$attachment.location_id}" checked="checked" />
+										{xen:phrase bdphotos_taken} {xen:phrase bdphotos_near_lowercase}
+										<xen:include template="bdphotos_snippet_location_name">
+											<xen:map from="$attachment" to="$location" />
+										</xen:include>
+									</label></li>
+								</xen:if>
+
+							</xen:contentcheck>
+						</ul>
+					</xen:if>
+
+					<input type="hidden" name="photo_position[{$attachment.attachment_id}]" value="{$attachment.photo_position}" />
+				</xen:if>
+			</div>
+		</div>
+
+	</div>
+
+</li>]]></template>
+    <template title="bdphotos_navigation_tab_links" version_id="1" version_string="0.9-dev"><![CDATA[<ul class="secondaryContent blockLinksList">
+	<xen:hook name="bdphotos_navigation_tab_links">
+		<li><a href="{xen:link 'photos/albums'}">{xen:phrase bdphotos_albums}</a></li>
+		<xen:if is="{$visitor.user_id}"><li><a href="{xen:link 'members/photos', $visitor}">{xen:phrase bdphotos_your_photos}</a></li></xen:if>
+	</xen:hook>
+</ul>]]></template>
+    <template title="bdphotos_photo_index" version_id="1" version_string="0.9-dev"><![CDATA[<xen:title>{xen:phrase bdphotos_photos}</xen:title>
+
+<xen:if is="{$canUpload}">
+	<xen:topctrl>
+		<a href="{xen:link 'photos/albums/new'}" class="callToAction"><span>{xen:phrase bdphotos_create_new_album}</span></a>
+	</xen:topctrl>
+</xen:if>
+
+<xen:include template="bdphotos_photo_list">
+	<xen:set var="$showUploader">1</xen:set>
+	<xen:set var="$showAlbum">1</xen:set>
+</xen:include>]]></template>
+    <template title="bdphotos_photo_like" version_id="1" version_string="0.9-dev"><![CDATA[<xen:title>{xen:helper bdPhotos_snippetOrDefault, $photo.photo_caption, {xen:phrase bdphotos_photo}} {xen:phrase by_x, 'name={$uploader.username}'} - {xen:if $existingLike, '{xen:phrase unlike}', '{xen:phrase like}'}</xen:title>
+<xen:h1>{xen:if $existingLike, '{xen:phrase unlike}', '{xen:phrase like}'}</xen:h1>
+
+<xen:navigation>
+	<xen:breadcrumb source="$breadcrumbs" />
+	<xen:breadcrumb href="{xen:link full:photos, $photo}">{xen:helper bdPhotos_snippetOrDefault, $photo.photo_caption, {xen:phrase bdphotos_photo}}</xen:breadcrumb>
+</xen:navigation>
+
+<form action="{xen:link 'photos/like', $photo}" method="post" class="xenForm">
+
+	<dl class="ctrlUnit fullWidth surplusLabel">
+		<dt></dt>
+		<dd>
+			<xen:if is="{$existingLike}">
+				{xen:phrase bdphotos_you_sure_you_want_to_unlike_this_photo}
+			<xen:else />
+				{xen:phrase bdphotos_you_sure_you_want_to_like_this_photo}
+			</xen:if>
+		</dd>
+	</dl>
+
+	<dl class="ctrlUnit submitUnit">
+		<dt></dt>
+		<dd><input type="submit" value="{xen:if $existingLike, '{xen:phrase unlike}', '{xen:phrase like}'}" accesskey="s" class="button primary" autofocus="true" /></dd>
+	</dl>
+
+	<input type="hidden" name="_xfToken" value="{$visitor.csrf_token_page}" />
+</form>]]></template>
+    <template title="bdphotos_photo_likes_summary" version_id="1" version_string="0.9-dev"><![CDATA[<xen:if is="{$photo.photo_like_count}">
+	<xen:require css="likes_summary.css" />
+	<div class="likesSummary secondaryContent">
+		<span class="LikeText">
+			<xen:set var="$url">{xen:link photos/likes, $photo}</xen:set>
+			<xen:likes number="$photo.photo_like_count" users="$photo.photoLikeUsers" url="$url" liked="$photo.photo_like_date" />
+		</span>
+	</div>
+</xen:if>]]></template>
+    <template title="bdphotos_photo_list" version_id="1" version_string="0.9-dev"><![CDATA[<xen:require css="bdphotos.css" />
+
+<ol class="bdPhotos_PhotoList" {xen:if '{$parentItemType} == "ImageGallery"', 'itemprop="mainContentOfPage"'}>
+	<xen:foreach loop="$photos" value="$photo">
+		<xen:include template="bdphotos_photo_list_photo" />
+	</xen:foreach>
+</ol>]]></template>
+    <template title="bdphotos_photo_list_photo" version_id="1" version_string="0.9-dev"><![CDATA[<xen:require css="bdphotos.css" />
+
+<li class="bdPhotos_PhotoList_Photo {xen:if '!{$photo.publish_date}', 'not-published'}" id="photo{$photo.photo_id}" {xen:if '{$parentItemType} == "ImageGallery" AND {$coverPhotoId} == {$photo.photo_id}', 'itemprop="primaryImageOfPage"'} itemscope="itemscope" itemtype="http://schema.org/ImageObject">
+
+	<div class="container">
+	
+		<xen:if is="{$photo.photoObj}">
+			<div class="photo"><a href="{xen:link photos, $photo}" itemprop="contentURL">{xen:raw $photo.photoObj}</a></div>
+		<xen:else />
+			<div class="photo nophoto">&nbsp;</div>
+		</xen:if>
+	
+		<xen:comment><div class="controls top">&nbsp;</div></xen:comment>
+	
+		<div class="controls bottom gradient">&nbsp;</div>
+
+		<div class="controls bottom {xen:if '{$showUploader}', 'show-uploader'}">
+			<xen:if is="{$showUploader}">
+				<xen:avatar user="$photo" img="true" size="s" class="NoOverlay" href="{xen:link members/photos, $photo}" itemprop="author" />
+			</xen:if>
+			
+			<div class="caption">
+				<xen:if is="{$showAlbum}">
+					<span class="from-album faint">{xen:phrase bdphotos_from_album}:</span>
+					<a href="{xen:link photos/albums, $photo}">{$photo.album_name}</a>
+				<xen:else />
+					<a href="{xen:link photos, $photo}" itemprop="caption">{$photo.photo_caption}</a>
+				</xen:if>
+			</div>
+
+			<div class="buttons">
+				<dl class="views">
+					<dt>{xen:phrase views}:</dt>
+					<dd class="icon">{xen:number $photo.photo_view_count, 0}</dd>
+				</dl>
+
+				<xen:if is="{$photo.canLike}">
+					<a href="{xen:link photos/like, $photo, '_list=1'}" class="LikeLink likes {xen:if $photo.photo_like_date, unlike, like}" data-container="#likes-photo-{$photo.photo_id}">
+						<span class="LikeLabel icon">{xen:number $photo.photo_like_count, 0}</span>
+					</a>
+				<xen:else />
+					<dl class="likes">
+						<dt>{xen:phrase likes}:</dt>
+						<dd class="icon">{xen:number $photo.photo_like_count, 0}</dd>
+					</dl>
+				</xen:if>
+
+				<xen:if is="{$photo.canComment}">
+					<a href="{xen:link photos, $photo}" class="CommentLink comments">
+						<span class="icon">{xen:number $photo.photo_comment_count, 0}</span>
+					</a>
+				<xen:else />
+					<dl class="comments">
+						<dt>{xen:phrase comments}:</dt>
+						<dd class="icon">{xen:number $photo.photo_comment_count, 0}</dd>
+					</dl>
+				</xen:if>
+			</div>
+		</div>
+
+	</div>
+
+</li>]]></template>
+    <template title="bdphotos_photo_view" version_id="1" version_string="0.9-dev"><![CDATA[<xen:title>{xen:helper bdPhotos_snippetOrDefault, $photo.photo_caption, {xen:phrase bdphotos_photo}} {xen:phrase by_x, 'name={$uploader.username}'}</xen:title>
+<xen:h1></xen:h1>
+
+<xen:navigation>
+	<xen:breadcrumb source="$breadcrumbs" />
+</xen:navigation>
+
+<xen:container var="$head.canonical">
+	<link rel="canonical" href="{xen:link 'canonical:photos', $photo}" />
+</xen:container>
+<xen:container var="$head.openGraph">
+	<xen:include template="open_graph_meta">
+		<xen:set var="$url">{xen:link 'canonical:photos', $photo}</xen:set>
+		<xen:set var="$title">{$album.album_name}</xen:set>
+		<xen:set var="$avatar">{$photo.ogObj}</xen:set>
+	</xen:include>
+</xen:container>
+
+<xen:require css="bdphotos.css" />
+<xen:require css="message.css" />
+<xen:require css="message_simple.css" />
+
+<xen:require js="js/xenforo/comments_simple.js" />
+<xen:require js="js/bdPhotos/comments_simple.js" />
+
+<div class="bdPhotos_Photo {xen:if '!{$photo.publish_date}', 'not-published'}" id="photo{$photo.photo_id}">
+	
+	<xen:if hascontent="true">
+		<div class="set-navigation">
+			<xen:contentcheck>
+				<xen:if is="{$setPrev}">
+					<a href="{xen:link photos, $setPrev}">{xen:phrase bdphotos_previous}</a>
+				</xen:if>
+				<xen:if is="{$setPrev} AND {$setNext}">·</xen:if>
+				<xen:if is="{$setNext}">
+					<a href="{xen:link photos, $setNext}">{xen:phrase next}</a>
+				</xen:if>
+			</xen:contentcheck>
+		</div>
+	</xen:if>
+	
+	<xen:if is="{$photo.photoObj}">
+		<table class="photo" cellspacing="0" cellpadding="0" style="width: 100%">
+			<tr style="width: 100%">
+				<td style="width: 100%">{xen:raw $photo.photoObj}</td>
+			</tr>
+		</table>
+	<xen:else />
+		<div class="photo nophoto">&nbsp;</div>
+	</xen:if>
+	
+	<ol class="messageSimpleList" id="ProfilePostList">
+		<xen:include template="message_simple">
+			<xen:map from="$photoCaption" to="$message" />
+
+			<xen:set var="$messageId">photo-caption-{$photo.photo_id}</xen:set>
+
+			<xen:set var="$messageAfterTemplate">
+
+				<div class="messageMeta">
+						<div class="privateControls">
+							<a href="{xen:link 'photos', $photo}" title="{xen:phrase permalink}" class="item muted">
+								<xen:if is="{$photo.publish_date}">
+									<xen:datetime time="$photo.publish_date" />
+								<xen:else />
+									{xen:phrase bdphotos_not_published}
+								</xen:if>
+							</a>
+
+							<xen:if is="{$photo.canLike}">
+								<a href="{xen:link 'photos/like', $photo}" class="LikeLink item control {xen:if $photo.photo_like_date, unlike, like}" data-container="#likes-photo-{$photo.photo_id}"><span></span><span class="LikeLabel">{xen:if $photo.photo_like_date, {xen:phrase unlike}, {xen:phrase like}}</span></a>
+							</xen:if>
+							<xen:if is="{$photo.canComment}">
+								<a href="{xen:link 'photos/comment', $photo}" class="CommentPoster item control postComment" data-commentArea="#commentSubmit-photo-{$photo.photo_id}" style="display: none"><span></span>{xen:phrase comment_verb}</a>
+							</xen:if>
+						</div>
+				</div>
+
+				<ol class="messageResponse">
+
+					<li id="likes-photo-{$photo.photo_id}">
+						<xen:include template="bdphotos_photo_likes_summary" />
+					</li>
+					
+					<xen:if is="{$photo.canComment}">
+						<li id="commentSubmit-photo-{$photo.photo_id}" class="comment secondaryContent">
+							<xen:avatar user="$visitor" size="s" img="true" />
+							<div class="elements">
+								<textarea name="message" rows="2" class="textCtrl Elastic"></textarea>
+								<div class="submit"><input type="submit" class="button primary" value="{xen:phrase post_comment}" /></div>
+							</div>
+						</li>
+					</xen:if>
+
+					<xen:if is="{$comments}">
+
+						<xen:foreach loop="$comments" value="$comment">
+							<xen:include template="bdphotos_album_or_photo_comment">
+								<xen:set var="$deleteLink">{xen:link photos/comment-delete, $photo, 'comment={$comment.photo_comment_id}'}</xen:set>
+							</xen:include>
+						</xen:foreach>
+
+						<xen:if is="{$photo.photo_comment_count} > {xen:helper bdPhotos_getOption, commentsPerPage}">
+							<li class="commentMore secondaryContent">
+								<a href="{xen:link photos/comments, $photo}"
+									class="CommentLoader"
+									data-loadParams="{xen:escape {xen:helper json, {xen:array 'before={$firstComment.comment_date}'}}}">{xen:phrase view_previous_comments}...</a>
+							</li>
+						</xen:if>
+
+					</xen:if>
+
+				</ol>
+
+			</xen:set>
+		</xen:include>
+	</ol>
+
+</div>
+
+<xen:container var="$noVisitorPanel">1</xen:container>
+<xen:sidebar>
+	<xen:include template="bdphotos_sidebar_photo_info" />
+</xen:sidebar>]]></template>
+    <template title="bdphotos_require_js_geo" version_id="1" version_string="0.9-dev"><![CDATA[<xen:comment>// TODO</xen:comment>]]></template>
+    <template title="bdphotos_responsive.css" version_id="1" version_string="0.9-dev"><![CDATA[@media (max-width:{xen:helper bdPhotos_formatCssProperty, pixel, {xen:calc '{xen:property bdPhotos_thumbnailWidth} * 2.4'}})
+{
+	.bdPhotos_AlbumList_Album
+	{
+		width: 50%;
+	}
+		.bdPhotos_AlbumList_Album .container
+		{
+			margin: 5px;
+			width: auto;
+		}
+		.bdPhotos_AlbumList_Album .cover,
+		.bdPhotos_AlbumList_Album .cover a,
+		.bdPhotos_AlbumList_Album .cover img
+		{
+			display: block;
+			width: 100%;
+			height: auto;
+		}
+
+	.bdPhotos_PhotoList_Photo
+	{
+		width: 50%;
+	}
+		.bdPhotos_PhotoList_Photo .container
+		{
+			margin: 5px;
+			width: auto;
+		}
+		.bdPhotos_PhotoList_Photo .photo,
+		.bdPhotos_PhotoList_Photo .photo a,
+		.bdPhotos_PhotoList_Photo .photo img
+		{
+			display: block;
+			width: 100%;
+			height: auto;
+		}
+		.bdPhotos_PhotoList_Photo .controls
+		{
+			opacity: 1;
+		}
+		.bdPhotos_PhotoList_Photo .controls.bottom.gradient,
+		.bdPhotos_PhotoList_Photo .controls .buttons,
+		.bdPhotos_PhotoList_Photo .controls .stats,
+		.bdPhotos_PhotoList_Photo .controls .avatar,
+		.bdPhotos_PhotoList_Photo .controls .caption .from-album
+		{
+			display: none;
+		}
+		.bdPhotos_PhotoList_Photo .controls .caption
+		{
+			padding: 5px;
+		}
+		.bdPhotos_PhotoList_Photo .controls.show-uploader .caption
+		{
+			margin-left: 0;
+		}
+}
+
+@media (max-width:{xen:helper bdPhotos_formatCssProperty, pixel, {xen:calc '{xen:property bdPhotos_thumbnailWidth} * 1.2'}})
+{
+	.bdPhotos_AlbumList_Album
+	{
+		width: 100%;
+	}
+		.bdPhotos_AlbumList_Album .container
+		{
+			margin: 5px 0;
+		}
+		.bdPhotos_AlbumList_Album .controls .name
+		{
+			padding: 5px;
+		}
+		.bdPhotos_AlbumList_Album .controls .stats
+		{
+			display: none;
+		}
+	
+	.bdPhotos_PhotoList_Photo
+	{
+		width: 100%;
+	}
+		.bdPhotos_PhotoList_Photo .container
+		{
+			margin: 5px 0;
+		}
+}
+
+@media (max-width:{xen:helper bdPhotos_formatCssProperty, pixel, {xen:calc '{xen:property bdPhotos_viewWidthOrHeight} * 1.2 + {xen:property sidebar.width}'}})
+{
+	.bdPhotos_Photo .photo
+	{
+		min-height: 0;
+	}
+	.bdPhotos_Photo .photo img
+	{
+		width: 100%;
+		height: auto;
+	}
+}]]></template>
+    <template title="bdphotos_sidebar_photo_info" version_id="1" version_string="0.9-dev"><![CDATA[<xen:if is="{$photo}">
+	<xen:require css="bdphotos.css" />
+
+	<div class="section bdPhotos_sidebarPhotoInfo">
+		<div class="secondaryContent">
+			<h3>{xen:phrase bdphotos_photo_info}</h3>
+			<div class="pairsJustified">
+				<dl class="dimensions">
+					<dt>{xen:phrase bdphotos_dimensions}:</dt>
+					<dd>
+						<div>{$photo.width}x{$photo.height}</div>
+						
+						<xen:if is="{$photo.canDownloadFull}">
+							<div><a href="{xen:link photos/download/full, $photo}">{xen:phrase bdphotos_download_full}</a></div>
+						</xen:if>
+					</dd>
+				</dl>
+				<dl class="views">
+					<dt>{xen:phrase views}:</dt>
+					<dd>{xen:number $photo.photo_view_count, 0}</dd>
+				</dl>
+				<dl class="likes">
+					<dt>{xen:phrase likes}:</dt>
+					<dd>{xen:number $photo.photo_like_count, 0}</dd>
+				</dl>
+				<dl class="comments">
+					<dt>{xen:phrase comments}:</dt>
+					<dd>{xen:number $photo.photo_comment_count, 0}</dd>
+				</dl>
+
+				<xen:if is="{$photo.device_id}">
+					<dl class="device">
+						<dt>{xen:phrase bdphotos_device}:</dt>
+						<dd>
+							<xen:include template="bdphotos_snippet_device_name">
+								<xen:map from="$photo" to="$device" />
+							</xen:include>
+						</dd>
+					</dl>
+				</xen:if>
+				
+				<xen:if is="{$photo.location_id}">
+					<dl class="location">
+						<dt>{xen:phrase bdphotos_location}:</dt>
+						<dd>
+							<xen:include template="bdphotos_snippet_location_name">
+								<xen:map from="$photo" to="$location" />
+							</xen:include>
+						</dd>
+					</dl>
+
+					<xen:include template="bdphotos_snippet_location_static_map">
+						<xen:map from="$photo" to="$location" />
+						<xen:set var="$width">{xen:calc '0 + {xen:property sidebar.width}'}</xen:set>
+						<xen:set var="$height">{xen:calc '{xen:property sidebar.width} / 2'}</xen:set>
+					</xen:include>
+				</xen:if>
+			</div>
+		</div>
+	</div>
+</xen:if>]]></template>
+    <template title="bdphotos_snippet_device_name" version_id="1" version_string="0.9-dev"><![CDATA[<xen:if is="{$device.manufacture} OR {$device.code}">
+	<xen:set var="$title">{$device.manufacture} {$device.code}</xen:set>
+<xen:elseif is="{$device.deviceInfo._source} == 'api.flickr.com'" />
+	<xen:set var="$title">{$device.deviceInfo._nManufacture} {$device.deviceInfo._nCode}</xen:set>
+</xen:if>
+
+<span class="Tooltip" title="{$title}">
+	<a href="{xen:link photos/devices, $device}" target="_blank" tabindex="-1">
+		{$device.device_name}
+	</a>
+</span>]]></template>
+    <template title="bdphotos_snippet_location_name" version_id="1" version_string="0.9-dev"><![CDATA[<span>
+	<a href="{xen:link photos/locations, $location}" target="_blank" tabindex="-1">
+		{xen:helper bdPhotos_formatLocationName, $location}
+	</a>
+</span>]]></template>
+    <template title="bdphotos_snippet_location_static_map" version_id="1" version_string="0.9-dev"><![CDATA[<xen:set var="$imageUrl">{xen:helper bdPhotos_getStaticMapForLocation, $width, $height, $location}</xen:set>
+
+<xen:if is="{$imageUrl}">
+	<div class="bdPhotos_snippetLocationStaticMap" style="width: {$width}px; height: {$height}px; background: url({$imageUrl}) no-repeat center center">
+		&nbsp;
+	</div>
+</xen:if>]]></template>
+    <template title="bdphotos_uploader_albums" version_id="1" version_string="0.9-dev"><![CDATA[<xen:title>
+	<xen:if is="{$uploader.user_id} == {$visitor.user_id}">
+		{xen:phrase bdphotos_your_albums}
+	<xen:else />
+		{xen:phrase bdphotos_albums} {xen:phrase by_x, 'name={$uploader.username}'}
+	</xen:if>
+</xen:title>
+<xen:h1></xen:h1>
+
+<xen:navigation>
+	<xen:breadcrumb href="{xen:link members/photos, $uploader}">
+		{xen:if '{$uploader.user_id} == {$visitor.user_id}',
+			{xen:phrase bdphotos_your_photos},
+			{$uploader.username}
+		}
+	</xen:breadcrumb>
+</xen:navigation>
+
+<xen:if is="{$canUpload}">
+	<xen:topctrl>
+		<a href="{xen:link 'photos/albums/new'}" class="callToAction"><span>{xen:phrase bdphotos_create_new_album}</span></a>
+	</xen:topctrl>
+</xen:if>
+
+<xen:include template="bdphotos_album_list" />]]></template>
+    <template title="bdphotos_uploader_photos" version_id="1" version_string="0.9-dev"><![CDATA[<xen:title>
+	<xen:if is="{$uploader.user_id} == {$visitor.user_id}">
+		{xen:phrase bdphotos_your_photos}
+	<xen:else />
+		{xen:phrase bdphotos_photos} {xen:phrase by_x, 'name={$uploader.username}'}
+	</xen:if>
+</xen:title>
+<xen:h1></xen:h1>
+
+<xen:if is="{$canUpload}">
+	<xen:topctrl>
+		<a href="{xen:link 'photos/albums/new'}" class="callToAction"><span>{xen:phrase bdphotos_create_new_album}</span></a>
+	</xen:topctrl>
+</xen:if>
+
+<xen:include template="bdphotos_photo_list">
+	<xen:set var="$showAlbum">1</xen:set>
+</xen:include>]]></template>
+  </templates>
+  <public_template_modifications/>
+  <bb_code_media_sites/>
+</addon>
