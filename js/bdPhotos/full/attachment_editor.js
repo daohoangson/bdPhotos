@@ -1,5 +1,26 @@
 ! function($, window, document, _undefined)
 {
+	XenForo.bdPhotos_AttachmentUploader = function($uploader)
+	{
+		$uploader.bind(
+		{
+			AttachmentUploaded: function(e)
+			{
+				if (e.file)// SWFupload method
+				{
+					var $attachment = $('#' + e.file.id);
+					var $templateHtml = $(e.ajaxData.templateHtml);
+
+					var $controlsTop = $attachment.find('.controls.top');
+					$templateHtml.find('.controls.top').xfInsert('insertBefore', $controlsTop);
+					$controlsTop.xfRemove();
+				}
+			}
+		});
+	};
+
+	// *********************************************************************
+
 	XenForo.bdPhotos_RoiEditor = function($container)
 	{
 		var self = this;
@@ -99,6 +120,7 @@
 	// *********************************************************************
 
 	XenForo.register('.bdPhotos_AttachmentEditor', 'XenForo.AttachmentEditor');
+	XenForo.register('#AttachmentUploader', 'XenForo.bdPhotos_AttachmentUploader');
 	XenForo.register('.bdPhotos_RoiEditor', 'XenForo.bdPhotos_RoiEditor');
 
 }(jQuery, this, document);
