@@ -88,29 +88,14 @@ class bdPhotos_Model_Album extends XenForo_Model
 		return XenForo_Permission::hasPermission($viewingUser['permissions'], 'general', 'bdPhotos_albumComment');
 	}
 
-	public function prepareAlbum(array $album, array $viewingUser = null)
+	public function logAlbumView($albumId)
 	{
-		if (!empty($album['album_like_users']))
-		{
-			$photo['albumLikeUsers'] = unserialize($photo['album_like_users']);
-		}
-
-		$album['canEdit'] = $this->canEditAlbum($album, $null, $viewingUser);
-		$album['canDelete'] = $this->canDeleteAlbum($album, $null, $viewingUser);
-		$album['canLike'] = $this->canLikeAlbum($album, $null, $viewingUser);
-		$album['canComment'] = $this->canCommentAlbum($album, $null, $viewingUser);
-
-		return $photo;
-	}
-
-	public function prepareAlbums(array $albums, array $viewingUser = null)
-	{
-		foreach ($albums as &$album)
-		{
-			$album = $this->prepareAlbum($album, $viewingUser);
-		}
-
-		return $albums;
+		$this->_getDb()->query('
+			INSERT ' . (XenForo_Application::get('options')->enableInsertDelayed ? 'DELAYED' : '') . ' INTO xf_bdphotos_album_view
+				(album_id)
+			VALUES
+				(?)
+		', $albumId);
 	}
 
 	public function getAttachmentParams(array $album, array $viewingUser = null, $tempHash = null)
@@ -185,6 +170,48 @@ class bdPhotos_Model_Album extends XenForo_Model
 		}
 
 		return $breadcrumbs;
+	}
+
+	public function prepareAlbum(array $album, array $viewingUser = null)
+	{
+		if (!empty($album['album_like_users']))
+		{
+			$photo['albumLikeUsers'] = unserialize($photo['album_like_users']);
+		}
+
+		$album['canEdit'] = $this->canEditAlbum($album, $null, $viewingUser);
+		$album['canDelete'] = $this->canDeleteAlbum($album, $null, $viewingUser);
+		$album['canLike'] = $this->canLikeAlbum($album, $null, $viewingUser);
+		$album['canComment'] = $this->canCommentAlbum($album, $null, $viewingUser);
+
+		return $photo;
+	}
+
+	public function prepareAlbums(array $albums, array $viewingUser = null)
+	{
+		foreach ($albums as &$album)
+		{
+			$album = $this->prepareAlbum($album, $viewingUser);
+		}
+
+		return $albums;
+	}
+
+	public function updateAlbumViews()
+	{
+		$db = $this->_getDb();
+
+		$db->query('
+			UPDATE xf_bdphotos_album
+			INNER JOIN (
+				SELECT album_id, COUNT(*) AS total
+				FROM xf_bdphotos_album_view
+				GROUP BY album_id
+			) AS xf_av ON (xf_av.album_id = xf_bdphotos_album.album_id)
+			SET xf_bdphotos_album.album_view_count = xf_bdphotos_album.album_view_count + xf_av.total
+		');
+
+		$db->query('TRUNCATE TABLE xf_bdphotos_album_view');
 	}
 
 	/**

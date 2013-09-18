@@ -190,16 +190,26 @@ class bdPhotos_Installer
 	{
 		$db = XenForo_Application::getDb();
 
-		$db->query('CREATE TABLE IF NOT EXISTS `xf_bdphotos_photo_view` (
+		$db->query('
+			CREATE TABLE IF NOT EXISTS `xf_bdphotos_album_view` (
+				`album_id` INT(10) UNSIGNED NOT NULL,
+				KEY `album_id` (`album_id`)
+			) ENGINE = MEMORY;
+		');
+
+		$db->query('
+			CREATE TABLE IF NOT EXISTS `xf_bdphotos_photo_view` (
 				`photo_id` INT(10) UNSIGNED NOT NULL,
 				KEY `photo_id` (`photo_id`)
-			) ENGINE = MEMORY;');
+			) ENGINE = MEMORY;
+		');
 	}
 
 	public static function uninstallCustomized()
 	{
 		$db = XenForo_Application::getDb();
 
+		$db->query('DROP TABLE IF EXISTS `xf_bdphotos_album_view`');
 		$db->query('DROP TABLE IF EXISTS `xf_bdphotos_photo_view`');
 	}
 

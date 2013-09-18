@@ -44,6 +44,8 @@ class bdPhotos_ControllerPublic_Album extends bdPhotos_ControllerPublic_Abstract
 
 		$photos = $this->_getPhotoModel()->preparePhotos($album, $photos);
 
+		$this->_getAlbumModel()->logAlbumView($album['album_id']);
+
 		$viewParams = array(
 			'album' => $album,
 			'uploader' => $uploader,
