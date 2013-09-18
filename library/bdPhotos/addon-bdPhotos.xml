@@ -435,6 +435,7 @@ step=1024</edit_format_params>
 		{
 			height: {xen:helper bdPhotos_formatCssProperty, pixel, {xen:property bdPhotos_thumbnailHeight}};
 			margin: 0;
+			overflow: hidden;
 			padding: 0;
 			width: {xen:helper bdPhotos_formatCssProperty, pixel, {xen:property bdPhotos_thumbnailWidth}};
 		}
@@ -878,6 +879,7 @@ step=1024</edit_format_params>
 	'album_name=<a href="{xen:link photos, $content}" class="PopupItemLink">{$content.album_name}</a>'}]]></template>
     <template title="bdphotos_attachment_editor" version_id="1" version_string="0.9-dev"><![CDATA[<xen:if is="{$attachmentParams}">
 
+	<xen:require js="js/xenforo/avatar_editor.js" />
 	<xen:require js="js/xenforo/attachment_editor.js" />
 	<xen:require js="js/bdPhotos/attachment_editor.js" />
 	<xen:require css="bdphotos.css" />
@@ -977,6 +979,10 @@ step=1024</edit_format_params>
 					</xen:if>
 
 					<input type="hidden" name="photo_position[{$attachment.attachment_id}]" value="{$attachment.photo_position}" />
+					<div class="bdPhotos_RoiEditor">
+						<input type="hidden" name="roi[{$attachment.attachment_id}][0]" value="{$attachment.metadataArray.roi.0}" class="roi0" />
+						<input type="hidden" name="roi[{$attachment.attachment_id}][1]" value="{$attachment.metadataArray.roi.1}" class="roi1" />
+					</div>
 				</xen:if>
 			</div>
 		</div>

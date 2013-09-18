@@ -4,6 +4,7 @@ class bdPhotos_ViewPublic_Helper_Photo
 {
 	const SIZE_ORIGINAL = -1;
 	const SIZE_PRESET_THUMBNAIL = 'thumbnail';
+	const SIZE_PRESET_EDITOR = 'editor';
 	const SIZE_PRESET_VIEW = 'view';
 
 	public static $defaultTemplate = '<img src="%1$s" %2$s %3$s class="%4$s" %5$s />';
@@ -187,6 +188,18 @@ class bdPhotos_ViewPublic_Helper_Photo
 						$this->_height = 0;
 					}
 					break;
+				case self::SIZE_PRESET_EDITOR:
+					$spThumbnailWidth = XenForo_Template_Helper_Core::styleProperty('bdPhotos_thumbnailWidth');
+					$spThumbnailHeight = XenForo_Template_Helper_Core::styleProperty('bdPhotos_thumbnailHeight');
+
+					$this->_width = array(
+						'width' => max($spThumbnailWidth, $spThumbnailHeight),
+						'height' => max($spThumbnailWidth, $spThumbnailHeight),
+						'crop' => false,
+						'thumbnailFixedShorterSide' => true,
+					);
+					$this->_height = 0;
+					break;
 			}
 
 		}
@@ -212,10 +225,17 @@ class bdPhotos_ViewPublic_Helper_Photo
 				$extension = XenForo_Helper_File::getFileExtension($this->_data['filename']);
 				$cachePath = self::_getCachePath($filePath, $extension, $this->_width, $this->_height);
 
-				$options = array();
-				if (!empty($this->_data['metadataArray']['exif']))
+				if (!empty($this->_data['metadataArray']))
 				{
-					bdPhotos_Helper_Image::prepareOptionsFromExifData($options, $this->_data['metadataArray']['exif']);
+					$options = $this->_data['metadataArray'];
+					if (!empty($this->_data['metadataArray']['exif']))
+					{
+						bdPhotos_Helper_Image::prepareOptionsFromExifData($options, $this->_data['metadataArray']['exif']);
+					}
+				}
+				else
+				{
+					$options = array();
 				}
 
 				if (file_exists($cachePath) OR bdPhotos_Helper_Image::resizeAndCrop($filePath, $extension, $this->_width, $this->_height, $cachePath, $options))
@@ -341,7 +361,7 @@ class bdPhotos_ViewPublic_Helper_Photo
 	{
 		foreach ($photos as &$photo)
 		{
-			self::preparePhotoForDisplay($photo);
+			self::preparePhotoForDisplay($photo, $options);
 		}
 	}
 

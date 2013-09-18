@@ -4,7 +4,9 @@ class bdPhotos_DataWriter_Photo extends XenForo_DataWriter
 {
 	const OPTION_UPDATE_ALBUM_PHOTO_COUNT = 'updateAlbum_photoCount';
 	const OPTION_DELETE_ATTACHMENT = 'deleteAttachment';
+
 	const EXTRA_DATA_ATTACHMENT = 'attachment';
+	const EXTRA_DATA_ROI = 'roi';
 
 	public function bulkSetFromPhotoInput(array $photoInput)
 	{
@@ -14,7 +16,21 @@ class bdPhotos_DataWriter_Photo extends XenForo_DataWriter
 		{
 			if (is_array($value) AND isset($value[$photoId]) AND strval($value[$photoId]) !== '')
 			{
-				$this->set($key, $value[$photoId], '', array('ignoreInvalidFields' => true));
+				if ($key == self::EXTRA_DATA_ROI)
+				{
+					$this->setExtraData(self::EXTRA_DATA_ROI, $value[$photoId]);
+
+					if ($this->isUpdate())
+					{
+						// this function will be called again in _readMetadata
+						// which only runs when it isInsert()
+						$this->set('metadata', $this->_getMetadataWithRoi());
+					}
+				}
+				else
+				{
+					$this->set($key, $value[$photoId], '', array('ignoreInvalidFields' => true));
+				}
 			}
 		}
 	}
@@ -25,6 +41,24 @@ class bdPhotos_DataWriter_Photo extends XenForo_DataWriter
 			self::OPTION_UPDATE_ALBUM_PHOTO_COUNT => true,
 			self::OPTION_DELETE_ATTACHMENT => true,
 		);
+	}
+
+	protected function _getMetadataWithRoi()
+	{
+		$metadata = $this->get('metadata');
+
+		$roi = $this->getExtraData(self::EXTRA_DATA_ROI);
+		if (!empty($roi))
+		{
+			$metadata = @unserialize($metadata);
+			if (empty($metadata))
+			{
+				$metadata = array();
+			}
+			$metadata[bdPhotos_Helper_Image::OPTION_ROI] = $roi;
+		}
+
+		return $metadata;
 	}
 
 	protected function _preSave()
@@ -46,6 +80,8 @@ class bdPhotos_DataWriter_Photo extends XenForo_DataWriter
 			{
 				$this->_readMetadata();
 			}
+
+			$this->set('metadata', $this->_getMetadataWithRoi());
 		}
 	}
 
@@ -78,8 +114,6 @@ class bdPhotos_DataWriter_Photo extends XenForo_DataWriter
 		{
 			$metadata = bdPhotos_Helper_Metadata::readFromFile($filePath);
 
-			$this->set('metadata', $metadata);
-
 			if (!empty($metadata['exif']) AND bdPhotos_Option::get('doStrip'))
 			{
 				// EXIF data found, we should proceed to strip off EXIF data from the data file
@@ -95,9 +129,10 @@ class bdPhotos_DataWriter_Photo extends XenForo_DataWriter
 
 					// update EXIF data
 					$metadata['exif'] = bdPhotos_Helper_Metadata::cleanUpExifDataAfterStripping($metadata['exif']);
-					$this->set('metadata', $metadata);
 				}
 			}
+
+			$this->set('metadata', $metadata);
 		}
 	}
 

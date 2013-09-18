@@ -15,6 +15,21 @@ class bdPhotos_XenForo_ViewPublic_Attachment_DoUpload extends XFCP_bdPhotos_XenF
 			{
 				$attachment['metadataArray'] = bdPhotos_Helper_Metadata::readFromFile($filePath);
 
+				// perform smart ROI detection
+				// TODO: option for this?
+				// should update bdPhotos_DataWriter_Photo if this code is changed
+				$options = $attachment['metadataArray'];
+				if (!empty($attachment['metadataArray']['exif']))
+				{
+					bdPhotos_Helper_Image::prepareOptionsFromExifData($options, $attachment['metadataArray']['exif']);
+				}
+				$extension = XenForo_Helper_File::getFileExtension($attachment['filename']);
+				$roi = bdPhotos_Helper_Image::detectROI($filePath, $extension, $options);
+				if (!empty($roi))
+				{
+					$attachment['metadataArray'][bdPhotos_Helper_Image::OPTION_ROI] = $roi;
+				}
+
 				if (!empty($attachment['metadataArray']['lat']) AND !empty($attachment['metadataArray']['lng']))
 				{
 					$location = $attachmentModel->getModelFromCache('bdPhotos_Model_Location')->getLocationNear($attachment['metadataArray']['lat'], $attachment['metadataArray']['lng']);
@@ -34,7 +49,7 @@ class bdPhotos_XenForo_ViewPublic_Attachment_DoUpload extends XFCP_bdPhotos_XenF
 				}
 			}
 
-			bdPhotos_ViewPublic_Helper_Photo::preparePhotoForDisplay($attachment);
+			bdPhotos_ViewPublic_Helper_Photo::preparePhotoForDisplay($attachment, array('size_preset' => bdPhotos_ViewPublic_Helper_Photo::SIZE_PRESET_EDITOR));
 		}
 
 		return parent::_prepareAttachmentForJson($attachment);

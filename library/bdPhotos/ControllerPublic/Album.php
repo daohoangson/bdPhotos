@@ -142,7 +142,9 @@ class bdPhotos_ControllerPublic_Album extends bdPhotos_ControllerPublic_Abstract
 			'photo_position' => XenForo_Input::ARRAY_SIMPLE,
 			'device_id' => XenForo_Input::ARRAY_SIMPLE,
 			'location_id' => XenForo_Input::ARRAY_SIMPLE,
+			bdPhotos_DataWriter_Photo::EXTRA_DATA_ROI => XenForo_Input::ARRAY_SIMPLE,
 		));
+
 		$albumDw->setExtraData(bdPhotos_DataWriter_Album::EXTRA_DATA_PHOTO_INPUT, $photoInput);
 
 		$albumDw->save();

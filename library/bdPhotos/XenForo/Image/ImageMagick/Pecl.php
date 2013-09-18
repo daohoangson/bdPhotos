@@ -34,32 +34,41 @@ class bdPhotos_XenForo_Image_Imagemagick_Pecl extends XFCP_bdPhotos_XenForo_Imag
 		}
 	}
 
-	public function bdPhotos_getEntropy()
+	public function bdPhotos_getEntropy($x, $y, $width, $height)
 	{
 		foreach ($this->_image AS $frame)
 		{
-			$histogram = $frame->getImageHistogram();
+			$pixels = $frame->getPixelRegionIterator(intval($x), intval($y), intval($width), intval($height));
 			break;
 		}
 
 		$histSize = 0;
-		foreach ($histogram as $pixel)
-		{
-			$histSize += $pixel->getColorCount();
-		}
+		$histogram = array();
 
-		$hist = array();
-		foreach ($histogram as $pixel)
+		foreach ($pixels as $rowPixels)
 		{
-			$hist[] = $pixel->getColorCount() / $histSize;
+			foreach ($rowPixels as $pixel)
+			{
+				$color = $pixel->getColor();
+				$grayscale = floor(min(255, max(0, $color['r'] * 0.2989 + $color['g'] * 0.5870 + $color['b'] * 0.1140)));
+				if (empty($histogram[$grayscale]))
+				{
+					$histogram[$grayscale] = 1;
+				}
+				else
+				{
+					$histogram[$grayscale]++;
+				}
+				$histSize++;
+			}
 		}
 
 		$sum = 0;
-		foreach ($hist as $p)
+		foreach ($histogram as $p)
 		{
 			if ($p != 0)
 			{
-				$sum += $p * log($p, 2);
+				$sum += ($p / $histSize) * log($p, 2);
 			}
 		}
 
