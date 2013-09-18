@@ -27,15 +27,47 @@ class bdPhotos_XenForo_Image_Gd extends XFCP_bdPhotos_XenForo_Image_Gd
 			$this->_height = $tmp;
 		}
 	}
-	
+
 	public function bdPhotos_strip()
 	{
 		// gd always strips!
 	}
-	
+
 	public function bdPhotos_getEntropy()
 	{
-		// TODO
+		$this->_bdPhotos_fixOrientation();
+
+		$histSize = 0;
+		$histogram = array();
+
+		for ($i = 0; $i < $this->_height; $i++)
+		{
+			for ($j = 0; $j < $this->_width; $j++)
+			{
+				$rgb = imagecolorat($this->_image, $j, $i);
+				$grayscale = floor(min(255, max(0, (($rgb>>16) & 0xFF) * 0.2989 + (($rgb>>8) & 0xFF) * 0.5870 + ($rgb & 0xFF) * 0.1140)));
+				if (empty($histogram[$grayscale]))
+				{
+					$histogram[$grayscale] = 1;
+				}
+				else
+				{
+					$histogram[$grayscale]++;
+				}
+				$histSize++;
+			}
+		}
+
+		$sum = 0;
+		foreach ($histogram as $p)
+		{
+			if ($p != 0)
+			{
+				$sum += ($p / $histSize) * log($p, 2);
+			}
+		}
+
+		return -$sum;
 	}
 
 	protected function _bdPhotos_fixOrientation()

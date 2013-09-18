@@ -28,6 +28,8 @@ class bdPhotos_XenForo_Image_Imagemagick_Pecl extends XFCP_bdPhotos_XenForo_Imag
 
 	public function bdPhotos_strip()
 	{
+		$this->_bdPhotos_fixOrientation();
+
 		foreach ($this->_image AS $frame)
 		{
 			$frame->stripImage();
@@ -36,6 +38,8 @@ class bdPhotos_XenForo_Image_Imagemagick_Pecl extends XFCP_bdPhotos_XenForo_Imag
 
 	public function bdPhotos_getEntropy($x, $y, $width, $height)
 	{
+		$this->_bdPhotos_fixOrientation();
+
 		foreach ($this->_image AS $frame)
 		{
 			$pixels = $frame->getPixelRegionIterator(intval($x), intval($y), intval($width), intval($height));
