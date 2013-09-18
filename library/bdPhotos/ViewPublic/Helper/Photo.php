@@ -223,24 +223,26 @@ class bdPhotos_ViewPublic_Helper_Photo
 			if (file_exists($filePath) AND !empty($this->_data['filename']))
 			{
 				$extension = XenForo_Helper_File::getFileExtension($this->_data['filename']);
-				$cachePath = self::_getCachePath($filePath, $extension, $this->_width, $this->_height);
 
+				$options = array();
 				if (!empty($this->_data['metadataArray']))
 				{
-					$options = $this->_data['metadataArray'];
+					if (!empty($this->_data['metadataArray'][bdPhotos_Helper_Image::OPTION_ROI]))
+					{
+						$options[bdPhotos_Helper_Image::OPTION_ROI] = $this->_data['metadataArray'][bdPhotos_Helper_Image::OPTION_ROI];
+					}
+
 					if (!empty($this->_data['metadataArray']['exif']))
 					{
 						bdPhotos_Helper_Image::prepareOptionsFromExifData($options, $this->_data['metadataArray']['exif']);
 					}
 				}
-				else
-				{
-					$options = array();
-				}
+
+				$cachePath = self::_getCachePath($filePath, $extension, $this->_width, $this->_height, $options);
 
 				if (file_exists($cachePath) OR bdPhotos_Helper_Image::resizeAndCrop($filePath, $extension, $this->_width, $this->_height, $cachePath, $options))
 				{
-					$url = self::_getCacheUrl($filePath, $extension, $this->_width, $this->_height);
+					$url = self::_getCacheUrl($filePath, $extension, $this->_width, $this->_height, $options);
 					$width = $this->_width;
 					$height = $this->_height;
 				}
@@ -398,19 +400,19 @@ class bdPhotos_ViewPublic_Helper_Photo
 		return $url;
 	}
 
-	protected static function _getCachePath($filePath, $extension, $width, $height)
+	protected static function _getCachePath($filePath, $extension, $width, $height, array $options = array())
 	{
-		return sprintf('%s/%s', XenForo_Application::$externalDataPath, self::_getCachePartialPath($filePath, $extension, $width, $height));
+		return sprintf('%s/%s', XenForo_Application::$externalDataPath, self::_getCachePartialPath($filePath, $extension, $width, $height, $options));
 	}
 
-	protected static function _getCacheUrl($filePath, $extension, $width, $height)
+	protected static function _getCacheUrl($filePath, $extension, $width, $height, array $options = array())
 	{
-		return sprintf('%s/%s', XenForo_Application::$externalDataUrl, self::_getCachePartialPath($filePath, $extension, $width, $height));
+		return sprintf('%s/%s', XenForo_Application::$externalDataUrl, self::_getCachePartialPath($filePath, $extension, $width, $height, $options));
 	}
 
-	protected static function _getCachePartialPath($filePath, $extension, $width, $height)
+	protected static function _getCachePartialPath($filePath, $extension, $width, $height, array $options = array())
 	{
-		$filePathHash = md5($filePath);
+		$filePathHash = md5($filePath . serialize($options));
 		$divider = substr(md5($filePathHash), 0, 1);
 
 		if (is_numeric($width) AND is_numeric($height))
