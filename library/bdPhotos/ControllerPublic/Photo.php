@@ -53,6 +53,8 @@ class bdPhotos_ControllerPublic_Photo extends bdPhotos_ControllerPublic_Abstract
 		));
 
 		$photo = $this->_getPhotoModel()->preparePhoto($album, $photo);
+		
+		$this->_getPhotoModel()->logPhotoView($photo['photo_id']);
 
 		$viewParams = array(
 			'album' => $album,

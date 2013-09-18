@@ -160,6 +160,7 @@
   </code_event_listeners>
   <cron>
     <entry entry_id="bdPhotos_deviceFlickr" cron_class="bdPhotos_CronEntry_Device" cron_method="updateFromFlickr" active="1"><![CDATA[{"day_type":"dom","dom":["6"],"hours":["6"],"minutes":["6"]}]]></entry>
+    <entry entry_id="bdPhotos_viewsUpdate" cron_class="bdPhotos_CronEntry_Views" cron_method="update" active="1"><![CDATA[{"day_type":"dom","dom":["-1"],"hours":["-1"],"minutes":["29"]}]]></entry>
   </cron>
   <email_templates/>
   <email_template_modifications/>
@@ -287,6 +288,7 @@ step=1024</edit_format_params>
     <phrase title="bdphotos_you_sure_you_want_to_like_this_photo" version_id="1" version_string="0.9-dev"><![CDATA[Are you sure you want to like this post?]]></phrase>
     <phrase title="bdphotos_you_sure_you_want_to_unlike_this_photo" version_id="1" version_string="0.9-dev"><![CDATA[Are you sure you want to unlike this photo?]]></phrase>
     <phrase title="cron_entry_bdPhotos_deviceFlickr" version_id="1" version_string="0.9-dev"><![CDATA[[bd] Photos: Update devices from Flickr]]></phrase>
+    <phrase title="cron_entry_bdPhotos_viewsUpdate" version_id="1" version_string="0.9-dev"><![CDATA[[bd] Photos: Update View Counters]]></phrase>
     <phrase title="option_bdPhotos_doExifRotate" version_id="1" version_string="0.9-dev"><![CDATA[Auto-Fix Rotation]]></phrase>
     <phrase title="option_bdPhotos_doExifRotate_explain" version_id="1" version_string="0.9-dev"><![CDATA[Enable this option to use orientation value from EXIF data to fix rotation of thumbnails. Doing this may cause performance issue with the server because rotating image uses lots of resource.]]></phrase>
     <phrase title="option_bdPhotos_doStrip" version_id="1" version_string="0.9-dev"><![CDATA[Strip Photo]]></phrase>

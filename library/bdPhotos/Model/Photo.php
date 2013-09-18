@@ -109,6 +109,16 @@ class bdPhotos_Model_Photo extends XenForo_Model
 		return XenForo_Permission::hasPermission($viewingUser['permissions'], 'general', 'bdPhotos_downloadFull');
 	}
 
+	public function logPhotoView($photoId)
+	{
+		$this->_getDb()->query('
+			INSERT ' . (XenForo_Application::get('options')->enableInsertDelayed ? 'DELAYED' : '') . ' INTO xf_bdphotos_photo_view
+				(photo_id)
+			VALUES
+				(?)
+		', $photoId);
+	}
+
 	public function preparePhoto(array $album, array $photo, array $viewingUser = null)
 	{
 		if (isset($photo['attachment_id']))
@@ -140,6 +150,23 @@ class bdPhotos_Model_Photo extends XenForo_Model
 		}
 
 		return $photos;
+	}
+	
+	public function updatePhotoViews()
+	{
+		$db = $this->_getDb();
+
+		$db->query('
+			UPDATE xf_bdphotos_photo
+			INNER JOIN (
+				SELECT photo_id, COUNT(*) AS total
+				FROM xf_bdphotos_photo_view
+				GROUP BY photo_id
+			) AS xf_pv ON (xf_pv.photo_id = xf_bdphotos_photo.photo_id)
+			SET xf_bdphotos_photo.photo_view_count = xf_bdphotos_photo.photo_view_count + xf_pv.total
+		');
+
+		$db->query('TRUNCATE TABLE xf_bdphotos_photo_view');
 	}
 
 	/**

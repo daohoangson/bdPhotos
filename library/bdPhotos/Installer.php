@@ -188,12 +188,19 @@ class bdPhotos_Installer
 
 	public static function installCustomized($existingAddOn, $addOnData)
 	{
-		// customized install script goes here
+		$db = XenForo_Application::getDb();
+
+		$db->query('CREATE TABLE IF NOT EXISTS `xf_bdphotos_photo_view` (
+				`photo_id` INT(10) UNSIGNED NOT NULL,
+				KEY `photo_id` (`photo_id`)
+			) ENGINE = MEMORY;');
 	}
 
 	public static function uninstallCustomized()
 	{
-		// customized uninstall script goes here
+		$db = XenForo_Application::getDb();
+
+		$db->query('DROP TABLE IF EXISTS `xf_bdphotos_photo_view`');
 	}
-	
+
 }
