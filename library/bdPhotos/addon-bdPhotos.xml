@@ -231,6 +231,7 @@ step=1024</edit_format_params>
     <phrase title="bdphotos_album_name" version_id="1" version_string="0.9-dev"><![CDATA[Album Name]]></phrase>
     <phrase title="bdphotos_album_not_found" version_id="1" version_string="0.9-dev"><![CDATA[The requested album could not be found.]]></phrase>
     <phrase title="bdphotos_are_you_sure_delete_album_x" version_id="1" version_string="0.9-dev"><![CDATA[Are you sure that you want to delete the album {album}?]]></phrase>
+    <phrase title="bdphotos_care_to_add_some_photo_question" version_id="1" version_string="0.9-dev"><![CDATA[Care to <a href="{link}">add some photos</a>?]]></phrase>
     <phrase title="bdphotos_code" version_id="1" version_string="0.9-dev"><![CDATA[Code]]></phrase>
     <phrase title="bdphotos_create_album" version_id="1" version_string="0.9-dev"><![CDATA[Create Album]]></phrase>
     <phrase title="bdphotos_create_new_album" version_id="1" version_string="0.9-dev"><![CDATA[Create New Album]]></phrase>
@@ -278,6 +279,8 @@ step=1024</edit_format_params>
     <phrase title="bdphotos_previous" version_id="1" version_string="0.9-dev"><![CDATA[Previous]]></phrase>
     <phrase title="bdphotos_publish_album" version_id="1" version_string="0.9-dev"><![CDATA[Publish Album]]></phrase>
     <phrase title="bdphotos_taken" version_id="1" version_string="0.9-dev"><![CDATA[Taken]]></phrase>
+    <phrase title="bdphotos_there_is_no_albums_here" version_id="1" version_string="0.9-dev"><![CDATA[There is no albums here.]]></phrase>
+    <phrase title="bdphotos_there_is_no_photos_here" version_id="1" version_string="0.9-dev"><![CDATA[There is no photos here.]]></phrase>
     <phrase title="bdphotos_use_as_album_cover_photo" version_id="1" version_string="0.9-dev"><![CDATA[Album Cover]]></phrase>
     <phrase title="bdphotos_with_lowercase" version_id="1" version_string="0.9-dev"><![CDATA[with]]></phrase>
     <phrase title="bdphotos_x_commented_on_your_album_y" version_id="1" version_string="0.9-dev"><![CDATA[{name} commented on your album {album_name}.]]></phrase>
@@ -634,16 +637,16 @@ step=1024</edit_format_params>
 </xen:if>
 
 <form action="{xen:link 'photos/albums/save', $album}" method="post"
-	class="xenForm AutoValidator bdPhotos_albumAddPhoto"
+	class="AutoValidator bdPhotos_albumAddPhoto"
 	data-redirect="on">
 
-	<fieldset>
-		<div class="ctrlUnit AttachedFilesUnit">
-			<xen:include template="bdphotos_attachment_editor">
-				<xen:set var="$attachments" value="" />
-			</xen:include>
-		</div>
-		
+	<div class="ctrlUnit AttachedFilesUnit">
+		<xen:include template="bdphotos_attachment_editor">
+			<xen:set var="$attachments" value="" />
+		</xen:include>
+	</div>
+
+	<fieldset class="xenForm">
 		<dl class="ctrlUnit submitUnit">
 			<dt></dt>
 			<dd>
@@ -768,9 +771,21 @@ step=1024</edit_format_params>
 	</xen:topctrl>
 </xen:if>
 
-<xen:include template="bdphotos_album_list">
-	<xen:set var="$showUploader">1</xen:set>
-</xen:include>]]></template>
+<xen:if hascontent="true">
+	<xen:contentcheck>
+		<xen:include template="bdphotos_album_list">
+			<xen:set var="$showUploader">1</xen:set>
+		</xen:include>
+	</xen:contentcheck>
+<xen:else />
+	<div class="sectionMain">
+		<p>{xen:phrase bdphotos_there_is_no_albums_here}</p>
+
+		<xen:if is="{$canUpload}">
+			<p>{xen:phrase bdphotos_care_to_add_some_photo_question, 'link={xen:link photos/albums/new}'}</p>
+		</xen:if>
+	</div>
+</xen:if>]]></template>
     <template title="bdphotos_album_likes_summary" version_id="1" version_string="0.9-dev"><![CDATA[<xen:if is="{$album.album_like_count}">
 	<xen:require css="likes_summary.css" />
 	<div class="likesSummary secondaryContent">
@@ -780,13 +795,17 @@ step=1024</edit_format_params>
 		</span>
 	</div>
 </xen:if>]]></template>
-    <template title="bdphotos_album_list" version_id="1" version_string="0.9-dev"><![CDATA[<xen:require css="bdphotos.css" />
+    <template title="bdphotos_album_list" version_id="1" version_string="0.9-dev"><![CDATA[<xen:if hascontent="true">
+	<xen:require css="bdphotos.css" />
 
-<ol class="bdPhotos_AlbumList">
-	<xen:foreach loop="$albums" value="$album">
-		<xen:include template="bdphotos_album_list_album" />
-	</xen:foreach>
-</ol>]]></template>
+	<ol class="bdPhotos_AlbumList">
+		<xen:contentcheck>
+			<xen:foreach loop="$albums" value="$album">
+				<xen:include template="bdphotos_album_list_album" />
+			</xen:foreach>
+		</xen:contentcheck>
+	</ol>
+</xen:if>]]></template>
     <template title="bdphotos_album_list_album" version_id="1" version_string="0.9-dev"><![CDATA[<xen:require css="bdphotos.css" />
 
 <li class="bdPhotos_AlbumList_Album {xen:if '!{$album.album_publish_date}', 'not-published'}" id="album{$album.album_id}">
@@ -1106,10 +1125,22 @@ step=1024</edit_format_params>
 	</xen:topctrl>
 </xen:if>
 
-<xen:include template="bdphotos_photo_list">
-	<xen:set var="$showUploader">1</xen:set>
-	<xen:set var="$showAlbum">1</xen:set>
-</xen:include>]]></template>
+<xen:if hascontent="true">
+	<xen:contentcheck>
+		<xen:include template="bdphotos_photo_list">
+			<xen:set var="$showUploader">1</xen:set>
+			<xen:set var="$showAlbum">1</xen:set>
+		</xen:include>
+	</xen:contentcheck>
+<xen:else />
+	<div class="sectionMain">
+		<p>{xen:phrase bdphotos_there_is_no_photos_here}</p>
+
+		<xen:if is="{$canUpload}">
+			<p>{xen:phrase bdphotos_care_to_add_some_photo_question, 'link={xen:link photos/albums/new}'}</p>
+		</xen:if>
+	</div>
+</xen:if>]]></template>
     <template title="bdphotos_photo_like" version_id="1" version_string="0.9-dev"><![CDATA[<xen:title>{xen:helper bdPhotos_snippetOrDefault, $photo.photo_caption, {xen:phrase bdphotos_photo}} {xen:phrase by_x, 'name={$uploader.username}'} - {xen:if $existingLike, '{xen:phrase unlike}', '{xen:phrase like}'}</xen:title>
 <xen:h1>{xen:if $existingLike, '{xen:phrase unlike}', '{xen:phrase like}'}</xen:h1>
 
@@ -1147,13 +1178,17 @@ step=1024</edit_format_params>
 		</span>
 	</div>
 </xen:if>]]></template>
-    <template title="bdphotos_photo_list" version_id="1" version_string="0.9-dev"><![CDATA[<xen:require css="bdphotos.css" />
+    <template title="bdphotos_photo_list" version_id="1" version_string="0.9-dev"><![CDATA[<xen:if hascontent="true">
+	<xen:require css="bdphotos.css" />
 
-<ol class="bdPhotos_PhotoList" {xen:if '{$parentItemType} == "ImageGallery"', 'itemprop="mainContentOfPage"'}>
-	<xen:foreach loop="$photos" value="$photo">
-		<xen:include template="bdphotos_photo_list_photo" />
-	</xen:foreach>
-</ol>]]></template>
+	<ol class="bdPhotos_PhotoList" {xen:if '{$parentItemType} == "ImageGallery"', 'itemprop="mainContentOfPage"'}>
+		<xen:contentcheck>
+			<xen:foreach loop="$photos" value="$photo">
+				<xen:include template="bdphotos_photo_list_photo" />
+			</xen:foreach>
+		</xen:contentcheck>
+	</ol>
+</xen:if>]]></template>
     <template title="bdphotos_photo_list_photo" version_id="1" version_string="0.9-dev"><![CDATA[<xen:require css="bdphotos.css" />
 
 <li class="bdPhotos_PhotoList_Photo {xen:if '!{$photo.publish_date}', 'not-published'}" id="photo{$photo.photo_id}" {xen:if '{$parentItemType} == "ImageGallery" AND {$coverPhotoId} == {$photo.photo_id}', 'itemprop="primaryImageOfPage"'} itemscope="itemscope" itemtype="http://schema.org/ImageObject">
@@ -1550,7 +1585,19 @@ step=1024</edit_format_params>
 	</xen:topctrl>
 </xen:if>
 
-<xen:include template="bdphotos_album_list" />]]></template>
+<xen:if hascontent="true">
+	<xen:contentcheck>
+		<xen:include template="bdphotos_album_list" />
+	</xen:contentcheck>
+<xen:else />
+	<div class="sectionMain">
+		<p>{xen:phrase bdphotos_there_is_no_albums_here}</p>
+
+		<xen:if is="{$canUpload} AND {$uploader.user_id} == {$visitor.user_id}">
+			<p>{xen:phrase bdphotos_care_to_add_some_photo_question, 'link={xen:link photos/albums/new}'}</p>
+		</xen:if>
+	</div>
+</xen:if>]]></template>
     <template title="bdphotos_uploader_photos" version_id="1" version_string="0.9-dev"><![CDATA[<xen:title>
 	<xen:if is="{$uploader.user_id} == {$visitor.user_id}">
 		{xen:phrase bdphotos_your_photos}
@@ -1566,9 +1613,21 @@ step=1024</edit_format_params>
 	</xen:topctrl>
 </xen:if>
 
-<xen:include template="bdphotos_photo_list">
-	<xen:set var="$showAlbum">1</xen:set>
-</xen:include>]]></template>
+<xen:if hascontent="true">
+	<xen:contentcheck>
+		<xen:include template="bdphotos_photo_list">
+			<xen:set var="$showAlbum">1</xen:set>
+		</xen:include>
+	</xen:contentcheck>
+<xen:else />
+	<div class="sectionMain">
+		<p>{xen:phrase bdphotos_there_is_no_photos_here}</p>
+
+		<xen:if is="{$canUpload} AND {$uploader.user_id} == {$visitor.user_id}">
+			<p>{xen:phrase bdphotos_care_to_add_some_photo_question, 'link={xen:link photos/albums/new}'}</p>
+		</xen:if>
+	</div>
+</xen:if>]]></template>
   </templates>
   <public_template_modifications/>
   <bb_code_media_sites/>
