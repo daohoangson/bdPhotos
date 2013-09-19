@@ -133,8 +133,8 @@ class bdPhotos_DevHelper_Config extends DevHelper_Config_Base
 				'album_id' => array('name' => 'album_id', 'fields' => array('album_id'), 'type' => 'NORMAL'),
 			),
 			'files' => array(
-				'data_writer' => array('className' => 'bdPhotos_DataWriter_AlbumComment', 'hash' => '916f44fd1374c5bfb6b87324425d0857'),
-				'model' => array('className' => 'bdPhotos_Model_AlbumComment', 'hash' => 'acd9af51f76f2d52942569ad1d7f92fb'),
+				'data_writer' => array('className' => 'bdPhotos_DataWriter_AlbumComment', 'hash' => 'd6950fff75721abae1b8d36c6082423a'),
+				'model' => array('className' => 'bdPhotos_Model_AlbumComment', 'hash' => 'd6d155a252e5423f5d7401de957f0456'),
 				'route_prefix_admin' => false,
 				'controller_admin' => false,
 			),

@@ -864,6 +864,11 @@ step=1024</edit_format_params>
 </xen:if>
 
 <xen:require css="bdphotos.css" />
+<xen:require css="message.css" />
+<xen:require css="message_simple.css" />
+
+<xen:require js="js/xenforo/comments_simple.js" />
+<xen:require js="js/bdPhotos/comments_simple.js" />
 
 <div itemscope="itemscope" itemtype="http://schema.org/ImageGallery">
 	<div class="bdPhotos_AlbumHead">
@@ -919,7 +924,7 @@ step=1024</edit_format_params>
 					</li>
 					
 					<xen:if is="{$photo.canComment}">
-						<li id="commentSubmit-photo-{$photo.photo_id}" class="comment secondaryContent">
+						<li id="commentSubmit-album-{$album.album_id}" class="comment secondaryContent">
 							<xen:avatar user="$visitor" size="s" img="true" />
 							<div class="elements">
 								<textarea name="message" rows="2" class="textCtrl Elastic"></textarea>

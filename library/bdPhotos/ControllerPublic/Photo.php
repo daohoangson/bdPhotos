@@ -53,7 +53,7 @@ class bdPhotos_ControllerPublic_Photo extends bdPhotos_ControllerPublic_Abstract
 		));
 
 		$photo = $this->_getPhotoModel()->preparePhoto($album, $photo);
-		
+
 		$this->_getPhotoModel()->logPhotoView($photo['photo_id']);
 
 		$viewParams = array(
@@ -160,6 +160,7 @@ class bdPhotos_ControllerPublic_Photo extends bdPhotos_ControllerPublic_Abstract
 			'user_id' => $visitor['user_id'],
 			'message' => $message,
 			'comment_date' => XenForo_Application::$time,
+			'ip_id' => 0,
 		));
 		$dw->preSave();
 

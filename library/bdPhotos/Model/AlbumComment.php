@@ -2,8 +2,9 @@
 
 class bdPhotos_Model_AlbumComment extends XenForo_Model
 {
+	const FETCH_COMMENT_USER = 0x01;
 
-/* Start auto-generated lines of code. Change made will be overwriten... */
+	/* Start auto-generated lines of code. Change made will be overwriten... */
 
 	public function getList(array $conditions = array(), array $fetchOptions = array())
 	{
@@ -20,7 +21,7 @@ class bdPhotos_Model_AlbumComment extends XenForo_Model
 
 	public function getAlbumCommentById($id, array $fetchOptions = array())
 	{
-		$albumComments = $this->getAlbumComments(array ('photo_comment_id' => $id), $fetchOptions);
+		$albumComments = $this->getAlbumComments(array ('album_comment_id' => $id), $fetchOptions);
 
 		return reset($albumComments);
 	}
@@ -41,7 +42,7 @@ class bdPhotos_Model_AlbumComment extends XenForo_Model
 			WHERE $whereConditions
 				$orderClause
 			", $limitOptions['limit'], $limitOptions['offset']
-		), 'photo_comment_id');
+		), 'album_comment_id');
 
 		$this->_getAlbumCommentsCustomized($albumComments, $fetchOptions);
 
@@ -190,12 +191,25 @@ class bdPhotos_Model_AlbumComment extends XenForo_Model
 
 	protected function _prepareAlbumCommentFetchOptionsCustomized(&$selectFields, &$joinTables, array $fetchOptions)
 	{
-		// customized code goes here
+		if (!empty($fetchOptions['join']))
+		{
+			if ($fetchOptions['join'] & self::FETCH_COMMENT_USER)
+			{
+				$selectFields .= '
+					,user.*
+				';
+
+				$joinTables .= '
+					LEFT JOIN `xf_user` AS user
+						ON (user.user_id = album_comment.user_id)
+				';
+			}
+		}
 	}
 
 	protected function _prepareAlbumCommentOrderOptionsCustomized(array &$choices, array &$fetchOptions)
 	{
-		// customized code goes here
+		$choices['comment_date'] = 'album_comment.comment_date';
 	}
 
 }

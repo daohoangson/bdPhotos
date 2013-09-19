@@ -11,8 +11,6 @@ class bdPhotos_DataWriter_PhotoComment extends XenForo_DataWriter
 
 	protected function _postSave()
 	{
-		$profilePostId = $this->get('profile_post_id');
-
 		if ($this->isInsert())
 		{
 			$photoDw = XenForo_DataWriter::create('bdPhotos_DataWriter_Photo');
@@ -24,7 +22,7 @@ class bdPhotos_DataWriter_PhotoComment extends XenForo_DataWriter
 
 			$userModel = $this->_getUserModel();
 
-			if ($photo AND $photo['user_id'] != $this->get('user_id'))
+			if ($photo['user_id'] != $this->get('user_id'))
 			{
 				// alert photo uploader
 				$user = $userModel->getUserById($photo['user_id'], array('join' => XenForo_Model_User::FETCH_USER_OPTION | XenForo_Model_User::FETCH_USER_PROFILE));
@@ -66,13 +64,13 @@ class bdPhotos_DataWriter_PhotoComment extends XenForo_DataWriter
 		$this->_db->update('xf_bdphotos_photo_comment', array('ip_id' => $ipId), 'photo_comment_id = ' . $this->_db->quote($this->get('photo_comment_id')));
 	}
 
-/**
- * @return XenForo_Model_User
- */
-protected function _getUserModel()
-{
-	return $this->getModelFromCache('XenForo_Model_User');
-}
+	/**
+	 * @return XenForo_Model_User
+	 */
+	protected function _getUserModel()
+	{
+		return $this->getModelFromCache('XenForo_Model_User');
+	}
 
 	/* Start auto-generated lines of code. Change made will be overwriten... */
 
@@ -93,14 +91,12 @@ protected function _getUserModel()
 				),
 				'comment_date' => array(
 					'type' => 'uint',
-					'required' => true,
-					'default' => XenForo_Application::$time,
+					'required' => true
 				),
 				'message' => array('type' => 'string'),
 				'ip_id' => array(
 					'type' => 'uint',
 					'required' => true,
-					'default' => 0,
 				),
 			));
 	}

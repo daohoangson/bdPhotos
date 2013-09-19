@@ -42,6 +42,13 @@ class bdPhotos_ControllerPublic_Album extends bdPhotos_ControllerPublic_Abstract
 			'likeUserId' => XenForo_Visitor::getUserId(),
 		));
 
+		$comments = $this->_getAlbumCommentModel()->getAlbumComments(array('album_id' => $album['album_id']), array(
+			'join' => bdPhotos_Model_AlbumComment::FETCH_COMMENT_USER,
+			'order' => 'comment_date',
+			'direction' => 'desc',
+			'limit' => bdPhotos_Option::get('commentsPerPage'),
+		));
+
 		$album = $this->_getAlbumModel()->prepareAlbum($album);
 		$photos = $this->_getPhotoModel()->preparePhotos($album, $photos);
 
@@ -51,6 +58,7 @@ class bdPhotos_ControllerPublic_Album extends bdPhotos_ControllerPublic_Abstract
 			'album' => $album,
 			'uploader' => $uploader,
 			'photos' => $photos,
+			'comments' => $comments,
 
 			'breadcrumbs' => $this->_getAlbumModel()->getBreadcrumbs($album, $uploader),
 			'canEditAlbum' => $this->_getAlbumModel()->canEditAlbum($album),
@@ -258,6 +266,56 @@ class bdPhotos_ControllerPublic_Album extends bdPhotos_ControllerPublic_Abstract
 			);
 
 			return $this->responseView('bdPhotos_ViewPublic_Album_Like', 'bdphotos_album_like', $viewParams);
+		}
+	}
+
+	public function actionComment()
+	{
+		$this->_assertPostOnly();
+
+		$albumId = $this->_input->filterSingle('album_id', XenForo_Input::UINT);
+		$album = $this->_getAlbumOrError($albumId);
+
+		$this->_assertCanCommentAlbum($album);
+
+		$uploader = $this->_getUserModel()->getUserById($album['album_user_id']);
+
+		$message = $this->_input->filterSingle('message', XenForo_Input::STRING);
+		$visitor = XenForo_Visitor::getInstance();
+
+		$dw = XenForo_DataWriter::create('bdPhotos_DataWriter_AlbumComment');
+		$dw->bulkSet(array(
+			'album_id' => $album['album_id'],
+			'user_id' => $visitor['user_id'],
+			'message' => $message,
+			'comment_date' => XenForo_Application::$time,
+			'ip_id' => 0,
+		));
+		$dw->preSave();
+
+		if (!$dw->hasErrors())
+		{
+			$this->assertNotFlooding('post');
+		}
+
+		$dw->save();
+
+		if ($this->_noRedirect())
+		{
+			$comment = $this->_getAlbumCommentModel()->getAlbumCommentById($dw->get('album_comment_id'), array('join' => bdPhotos_Model_AlbumComment::FETCH_COMMENT_USER));
+
+			$viewParams = array(
+				'album' => $album,
+				'uploader' => $uploader,
+
+				'comment' => $comment,
+			);
+
+			return $this->responseView('bdPhotos_ViewPublic_Album_Comment', '', $viewParams);
+		}
+		else
+		{
+			return $this->responseRedirect(XenForo_ControllerResponse_Redirect::RESOURCE_UPDATED, XenForo_Link::buildPublicLink('photos/albums', $album));
 		}
 	}
 
