@@ -19,37 +19,46 @@ class bdPhotos_Helper_Template
 
 	public static function formatLocationName($location)
 	{
-		$info = unserialize($location['location_info']);
+		if (empty($location['location_info']))
+		{
+			return $location['location_name'];
+		}
+
+		$info = @unserialize($location['location_info']);
 
 		$parts = array();
 
-		foreach ($info['address_components'] as $component)
+		if (!empty($info['_source']) AND $info['_source'] == 'maps.googleapis.com')
 		{
-			$include = false;
-
-			foreach ($component['types'] as $type)
+			foreach ($info['address_components'] as $component)
 			{
-				if (in_array($type, array(
-					'locality',
-					'administrative_area_level_2',
-					'administrative_area_level_1'
-				)))
+				$include = false;
+
+				foreach ($component['types'] as $type)
 				{
-					$include = true;
+					if (in_array($type, array(
+						'locality',
+						'administrative_area_level_2',
+						'administrative_area_level_1'
+					)))
+					{
+						$include = true;
+					}
+				}
+
+				if ($include)
+				{
+					$parts[] = $component['long_name'];
+				}
+				else
+				{
+					if (in_array('country', $component['types']))
+					{
+						$parts[] = $component['short_name'];
+					}
 				}
 			}
 
-			if ($include)
-			{
-				$parts[] = $component['long_name'];
-			}
-			else
-			{
-				if (in_array('country', $component['types']))
-				{
-					$parts[] = $component['short_name'];
-				}
-			}
 		}
 
 		if (count($parts) > 1 AND count($parts) < 4)

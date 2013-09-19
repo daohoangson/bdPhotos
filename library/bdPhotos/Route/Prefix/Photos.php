@@ -34,7 +34,7 @@ class bdPhotos_Route_Prefix_Photos implements XenForo_Route_Interface
 
 	public function buildLink($originalPrefix, $outputPrefix, $action, $extension, $data, array &$extraParams)
 	{
-		if (!empty($data['location_id']) AND !empty($data['location_info']))
+		if (!empty($data['location_id']))
 		{
 			$data['locationNameFormatted'] = XenForo_Template_Helper_Core::callHelper('bdPhotos_formatLocationName', array($data));
 		}

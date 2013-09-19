@@ -143,7 +143,7 @@ class bdPhotos_Installer
 				$db->query($patch['alterTableAddColumnQuery']);
 			}
 		}
-		
+
 		self::installCustomized($existingAddOn, $addOnData);
 	}
 
@@ -193,6 +193,20 @@ class bdPhotos_Installer
 				KEY `photo_id` (`photo_id`)
 			) ENGINE = MEMORY;
 		');
+
+		if (empty($existingAddOn))
+		{
+			$effectiveVersionId = 0;
+		}
+		else
+		{
+			$effectiveVersionId = $existingAddOn['version_id'];
+		}
+
+		if ($effectiveVersionId < 1)
+		{
+			self::_installDemo(XenForo_Visitor::getInstance()->toArray());
+		}
 	}
 
 	public static function uninstallCustomized()
@@ -204,6 +218,80 @@ class bdPhotos_Installer
 
 		$db->query('DROP TABLE IF EXISTS `xf_bdphotos_album_view`');
 		$db->query('DROP TABLE IF EXISTS `xf_bdphotos_photo_view`');
+	}
+
+	protected static function _installDemo(array $user)
+	{
+		$demoPhotoPaths = glob(sprintf('%s/_demo/*.jpg', dirname(__FILE__)));
+
+		if (empty($demoPhotoPaths))
+		{
+			return;
+		}
+
+		/* @var $attachmentModel XenForo_Model_Attachment */
+		$attachmentModel = XenForo_Model::create('XenForo_Model_Attachment');
+
+		$attachmentHash = md5(uniqid('', true));
+
+		$deviceDw = XenForo_DataWriter::create('bdPhotos_DataWriter_Device');
+		$deviceDw->set('device_name', 'Demo Device');
+		$deviceDw->save();
+		$device = $deviceDw->getMergedData();
+
+		$locationDw = XenForo_DataWriter::create('bdPhotos_DataWriter_Location');
+		$locationDw->set('location_name', 'Demo Location');
+		$locationDw->set('ne_lat', 0);
+		$locationDw->set('ne_lng', 0);
+		$locationDw->set('sw_lat', 0);
+		$locationDw->set('sw_lng', 0);
+		$locationDw->save();
+		$location = $locationDw->getMergedData();
+
+		$albumDw = XenForo_DataWriter::create('bdPhotos_DataWriter_Album');
+		$albumDw->set('album_user_id', $user['user_id']);
+		$albumDw->set('album_username', $user['username']);
+		$albumDw->set('album_name', 'Demo');
+		$albumDw->set('album_description', 'This is a demo album.');
+		$albumDw->set('album_publish_date', XenForo_Application::$time);
+
+		$photoInput = array(
+			'attachment_hash' => $attachmentHash,
+
+			'photo_caption' => array(),
+			'photo_position' => array(),
+			'device_id' => array(),
+			'location_id' => array(),
+		);
+
+		foreach ($demoPhotoPaths as $path)
+		{
+			$caption = file_get_contents(preg_replace('/\.jpg$/', '.txt', $path));
+			if (empty($caption))
+			{
+				continue;
+			}
+
+			$tempFile = tempnam(XenForo_Helper_File::getTempDir(), 'xf');
+
+			if (!@copy($path, $tempFile))
+			{
+				continue;
+			}
+
+			$upload = new XenForo_Upload(basename($path), $tempFile);
+			$dataId = $attachmentModel->insertUploadedAttachmentData($upload, $user['user_id']);
+			$attachmentId = $attachmentModel->insertTemporaryAttachment($dataId, $attachmentHash);
+
+			$photoInput['photo_caption'][$attachmentId] = $caption;
+			$photoInput['photo_position'][$attachmentId] = count($photoInput['photo_position']) + 1;
+			$photoInput['device_id'][$attachmentId] = $device['device_id'];
+			$photoInput['location_id'][$attachmentId] = $location['location_id'];
+		}
+
+		$albumDw->setExtraData(bdPhotos_DataWriter_Album::EXTRA_DATA_PHOTO_INPUT, $photoInput);
+
+		$albumDw->save();
 	}
 
 }

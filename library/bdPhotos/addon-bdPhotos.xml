@@ -1141,12 +1141,12 @@ step=1024</edit_format_params>
 		</xen:if>
 	</div>
 </xen:if>]]></template>
-    <template title="bdphotos_photo_like" version_id="1" version_string="0.9-dev"><![CDATA[<xen:title>{xen:helper bdPhotos_snippetOrDefault, $photo.photo_caption, {xen:phrase bdphotos_photo}} {xen:phrase by_x, 'name={$uploader.username}'} - {xen:if $existingLike, '{xen:phrase unlike}', '{xen:phrase like}'}</xen:title>
+    <template title="bdphotos_photo_like" version_id="1" version_string="0.9-dev"><![CDATA[<xen:title>{xen:helper bdPhotos_snippetOrDefault, $photo.photo_caption, {xen:phrase bdphotos_photo}, 50} {xen:phrase by_x, 'name={$uploader.username}'} - {xen:if $existingLike, '{xen:phrase unlike}', '{xen:phrase like}'}</xen:title>
 <xen:h1>{xen:if $existingLike, '{xen:phrase unlike}', '{xen:phrase like}'}</xen:h1>
 
 <xen:navigation>
 	<xen:breadcrumb source="$breadcrumbs" />
-	<xen:breadcrumb href="{xen:link full:photos, $photo}">{xen:helper bdPhotos_snippetOrDefault, $photo.photo_caption, {xen:phrase bdphotos_photo}}</xen:breadcrumb>
+	<xen:breadcrumb href="{xen:link full:photos, $photo}">{xen:helper bdPhotos_snippetOrDefault, $photo.photo_caption, {xen:phrase bdphotos_photo}, 50}</xen:breadcrumb>
 </xen:navigation>
 
 <form action="{xen:link 'photos/like', $photo}" method="post" class="xenForm">
@@ -1252,7 +1252,7 @@ step=1024</edit_format_params>
 	</div>
 
 </li>]]></template>
-    <template title="bdphotos_photo_view" version_id="1" version_string="0.9-dev"><![CDATA[<xen:title>{xen:helper bdPhotos_snippetOrDefault, $photo.photo_caption, {xen:phrase bdphotos_photo}} {xen:phrase by_x, 'name={$uploader.username}'}</xen:title>
+    <template title="bdphotos_photo_view" version_id="1" version_string="0.9-dev"><![CDATA[<xen:title>{xen:helper bdPhotos_snippetOrDefault, $photo.photo_caption, {xen:phrase bdphotos_photo}, 50} {xen:phrase by_x, 'name={$uploader.username}'}</xen:title>
 <xen:h1></xen:h1>
 
 <xen:navigation>
