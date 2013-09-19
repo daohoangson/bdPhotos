@@ -158,6 +158,7 @@ class bdPhotos_ControllerPublic_Photo extends bdPhotos_ControllerPublic_Abstract
 		$dw->bulkSet(array(
 			'photo_id' => $photo['photo_id'],
 			'user_id' => $visitor['user_id'],
+			'username' => $visitor['username'],
 			'message' => $message,
 			'comment_date' => XenForo_Application::$time,
 			'ip_id' => 0,

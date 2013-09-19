@@ -4,7 +4,7 @@ class bdPhotos_Model_PhotoComment extends XenForo_Model
 {
 	const FETCH_COMMENT_USER = 0x01;
 
-/* Start auto-generated lines of code. Change made will be overwriten... */
+	/* Start auto-generated lines of code. Change made will be overwriten... */
 
 	public function getList(array $conditions = array(), array $fetchOptions = array())
 	{
@@ -21,7 +21,7 @@ class bdPhotos_Model_PhotoComment extends XenForo_Model
 
 	public function getPhotoCommentById($id, array $fetchOptions = array())
 	{
-		$photoComments = $this->getPhotoComments(array ('photo_comment_id' => $id), $fetchOptions);
+		$photoComments = $this->getPhotoComments(array('photo_comment_id' => $id), $fetchOptions);
 
 		return reset($photoComments);
 	}
@@ -41,8 +41,7 @@ class bdPhotos_Model_PhotoComment extends XenForo_Model
 				$joinOptions[joinTables]
 			WHERE $whereConditions
 				$orderClause
-			", $limitOptions['limit'], $limitOptions['offset']
-		), 'photo_comment_id');
+			", $limitOptions['limit'], $limitOptions['offset']), 'photo_comment_id');
 
 		$this->_getPhotoCommentsCustomized($photoComments, $fetchOptions);
 
@@ -118,6 +117,22 @@ class bdPhotos_Model_PhotoComment extends XenForo_Model
 			}
 		}
 
+		if (isset($conditions['username']))
+		{
+			if (is_array($conditions['username']))
+			{
+				if (!empty($conditions['username']))
+				{
+					// only use IN condition if the array is not empty (nasty!)
+					$sqlConditions[] = "photo_comment.username IN (" . $db->quote($conditions['username']) . ")";
+				}
+			}
+			else
+			{
+				$sqlConditions[] = "photo_comment.username = " . $db->quote($conditions['username']);
+			}
+		}
+
 		if (isset($conditions['comment_date']))
 		{
 			if (is_array($conditions['comment_date']))
@@ -160,11 +175,11 @@ class bdPhotos_Model_PhotoComment extends XenForo_Model
 		$selectFields = '';
 		$joinTables = '';
 
-		$this->_preparePhotoCommentFetchOptionsCustomized($selectFields,  $joinTables, $fetchOptions);
+		$this->_preparePhotoCommentFetchOptionsCustomized($selectFields, $joinTables, $fetchOptions);
 
 		return array(
 			'selectFields' => $selectFields,
-			'joinTables'   => $joinTables
+			'joinTables' => $joinTables
 		);
 	}
 
@@ -177,7 +192,7 @@ class bdPhotos_Model_PhotoComment extends XenForo_Model
 		return $this->getOrderByClause($choices, $fetchOptions, $defaultOrderSql);
 	}
 
-/* End auto-generated lines of code. Feel free to make changes below */
+	/* End auto-generated lines of code. Feel free to make changes below */
 
 	protected function _getPhotoCommentsCustomized(array &$data, array $fetchOptions)
 	{

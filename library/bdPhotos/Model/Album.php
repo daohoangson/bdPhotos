@@ -100,34 +100,27 @@ class bdPhotos_Model_Album extends XenForo_Model
 
 	public function getAttachmentParams(array $album, array $viewingUser = null, $tempHash = null)
 	{
-		if ($this->canEditAlbum($album, $null, $viewingUser))
+		$existing = is_string($tempHash) && strlen($tempHash) == 32;
+
+		$contentData = array();
+		if (!empty($album['album_id']))
 		{
-			$existing = is_string($tempHash) && strlen($tempHash) == 32;
-
-			$contentData = array();
-			if (!empty($album['album_id']))
-			{
-				$contentData['album_id'] = $album['album_id'];
-			}
-
-			$output = array(
-				'hash' => $existing ? $tempHash : md5(uniqid('', true)),
-				'content_type' => 'bdphotos_album',
-				'content_data' => $contentData
-			);
-
-			if ($existing)
-			{
-				$attachmentModel = $this->getModelFromCache('XenForo_Model_Attachment');
-				$output['attachments'] = $attachmentModel->prepareAttachments($attachmentModel->getAttachmentsByTempHash($tempHash));
-			}
-
-			return $output;
+			$contentData['album_id'] = $album['album_id'];
 		}
-		else
+
+		$output = array(
+			'hash' => $existing ? $tempHash : md5(uniqid('', true)),
+			'content_type' => 'bdphotos_album',
+			'content_data' => $contentData
+		);
+
+		if ($existing)
 		{
-			return false;
+			$attachmentModel = $this->getModelFromCache('XenForo_Model_Attachment');
+			$output['attachments'] = $attachmentModel->prepareAttachments($attachmentModel->getAttachmentsByTempHash($tempHash));
 		}
+
+		return $output;
 	}
 
 	public function getAttachmentConstraints()
@@ -316,6 +309,22 @@ class bdPhotos_Model_Album extends XenForo_Model
 			else
 			{
 				$sqlConditions[] = "album.album_user_id = " . $db->quote($conditions['album_user_id']);
+			}
+		}
+
+		if (isset($conditions['album_username']))
+		{
+			if (is_array($conditions['album_username']))
+			{
+				if (!empty($conditions['album_username']))
+				{
+					// only use IN condition if the array is not empty (nasty!)
+					$sqlConditions[] = "album.album_username IN (" . $db->quote($conditions['album_username']) . ")";
+				}
+			}
+			else
+			{
+				$sqlConditions[] = "album.album_username = " . $db->quote($conditions['album_username']);
 			}
 		}
 

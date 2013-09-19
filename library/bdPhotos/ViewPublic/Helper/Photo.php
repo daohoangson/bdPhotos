@@ -369,16 +369,19 @@ class bdPhotos_ViewPublic_Helper_Photo
 
 	public static function prepareAlbumForDisplay(array &$album, array $options = array())
 	{
-		$class = XenForo_Application::resolveDynamicClass(__CLASS__);
-		$photoObj = new $class($album['cover_photo_id'], $options);
+		if (!empty($album['cover_photo_id']))
+		{
+			$class = XenForo_Application::resolveDynamicClass(__CLASS__);
+			$photoObj = new $class($album['cover_photo_id'], $options);
 
-		if (!empty($options['objKey']))
-		{
-			$album[$options['objKey']] = $photoObj;
-		}
-		else
-		{
-			$album['coverObj'] = $photoObj;
+			if (!empty($options['objKey']))
+			{
+				$album[$options['objKey']] = $photoObj;
+			}
+			else
+			{
+				$album['coverObj'] = $photoObj;
+			}
 		}
 	}
 

@@ -274,6 +274,22 @@ class bdPhotos_Model_Photo extends XenForo_Model
 			}
 		}
 
+		if (isset($conditions['username']))
+		{
+			if (is_array($conditions['username']))
+			{
+				if (!empty($conditions['username']))
+				{
+					// only use IN condition if the array is not empty (nasty!)
+					$sqlConditions[] = "photo.username IN (" . $db->quote($conditions['username']) . ")";
+				}
+			}
+			else
+			{
+				$sqlConditions[] = "photo.username = " . $db->quote($conditions['username']);
+			}
+		}
+
 		if (isset($conditions['album_id']))
 		{
 			if (is_array($conditions['album_id']))

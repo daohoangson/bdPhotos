@@ -9,6 +9,7 @@ class bdPhotos_Installer
 			'createQuery' => 'CREATE TABLE IF NOT EXISTS `xf_bdphotos_photo` (
 				`photo_id` INT(10) UNSIGNED AUTO_INCREMENT
 				,`user_id` INT(10) UNSIGNED NOT NULL
+				,`username` VARCHAR(50) NOT NULL
 				,`album_id` INT(10) UNSIGNED NOT NULL DEFAULT \'0\'
 				,`photo_caption` TEXT
 				,`photo_position` INT(10) UNSIGNED NOT NULL
@@ -32,6 +33,7 @@ class bdPhotos_Installer
 			'createQuery' => 'CREATE TABLE IF NOT EXISTS `xf_bdphotos_album` (
 				`album_id` INT(10) UNSIGNED AUTO_INCREMENT
 				,`album_user_id` INT(10) UNSIGNED NOT NULL
+				,`album_username` VARCHAR(50) NOT NULL
 				,`album_name` VARCHAR(100) NOT NULL
 				,`album_description` TEXT
 				,`album_position` INT(10) UNSIGNED NOT NULL
@@ -57,6 +59,7 @@ class bdPhotos_Installer
 				`photo_comment_id` INT(10) UNSIGNED AUTO_INCREMENT
 				,`photo_id` INT(10) UNSIGNED NOT NULL
 				,`user_id` INT(10) UNSIGNED NOT NULL
+				,`username` VARCHAR(50) NOT NULL
 				,`comment_date` INT(10) UNSIGNED NOT NULL
 				,`message` TEXT
 				,`ip_id` INT(10) UNSIGNED NOT NULL
@@ -70,6 +73,7 @@ class bdPhotos_Installer
 				`album_comment_id` INT(10) UNSIGNED AUTO_INCREMENT
 				,`album_id` INT(10) UNSIGNED NOT NULL
 				,`user_id` INT(10) UNSIGNED NOT NULL
+				,`username` VARCHAR(50) NOT NULL
 				,`comment_date` INT(10) UNSIGNED NOT NULL
 				,`message` TEXT
 				,`ip_id` INT(10) UNSIGNED NOT NULL
@@ -194,6 +198,9 @@ class bdPhotos_Installer
 	public static function uninstallCustomized()
 	{
 		$db = XenForo_Application::getDb();
+
+		$albumIds = $db->fetchCol('SELECT DISTINCT content_id FROM xf_attachment WHERE content_type = "bdphotos_album"');
+		XenForo_Model::create('XenForo_Model_Attachment')->deleteAttachmentsFromContentIds('bdphotos_album', $albumIds);
 
 		$db->query('DROP TABLE IF EXISTS `xf_bdphotos_album_view`');
 		$db->query('DROP TABLE IF EXISTS `xf_bdphotos_photo_view`');

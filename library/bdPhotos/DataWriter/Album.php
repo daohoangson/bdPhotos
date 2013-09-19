@@ -22,7 +22,6 @@ class bdPhotos_DataWriter_Album extends XenForo_DataWriter
 			}
 		}
 
-
 		$this->set('update_date', XenForo_Application::$time);
 	}
 
@@ -52,6 +51,12 @@ class bdPhotos_DataWriter_Album extends XenForo_DataWriter
 		$this->_deleteAttachments();
 
 		$this->_deletePhotos();
+
+		$this->_deleteLikes();
+
+		$this->_deleteComments();
+
+		$this->_deleteAlerts();
 	}
 
 	protected function _savePhotos($photoInput)
@@ -93,6 +98,7 @@ class bdPhotos_DataWriter_Album extends XenForo_DataWriter
 
 			$photoDw->set('photo_id', $newAttachment['attachment_id']);
 			$photoDw->set('user_id', $this->get('album_user_id'));
+			$photoDw->set('username', $this->get('album_username'));
 			$photoDw->set('album_id', $this->get('album_id'));
 			$photoDw->set('photo_position', ++$maxPhotoPosition);
 
@@ -178,15 +184,44 @@ class bdPhotos_DataWriter_Album extends XenForo_DataWriter
 	protected function _deletePhotos()
 	{
 		$photos = $this->_getPhotoModel()->getPhotos(array('album_id' => $this->get('album_id')));
+		$photoIds = array();
+
 		foreach ($photos as $photo)
 		{
 			$photoDw = XenForo_DataWriter::create('bdPhotos_DataWriter_Photo');
 			$photoDw->setOption(bdPhotos_DataWriter_Photo::OPTION_UPDATE_ALBUM_PHOTO_COUNT, false);
 			$photoDw->setOption(bdPhotos_DataWriter_Photo::OPTION_DELETE_ATTACHMENT, false);
+			$photoDw->setOption(bdPhotos_DataWriter_Photo::OPTION_DELETE_LIKES, false);
+			$photoDw->setOption(bdPhotos_DataWriter_Photo::OPTION_DELETE_COMMENTS, false);
+			$photoDw->setOption(bdPhotos_DataWriter_Photo::OPTION_DELETE_ALERTS, false);
 
 			$photoDw->setExistingData($photo, true);
 			$photoDw->delete();
+
+			$photoIds[] = $photo['photo_id'];
 		}
+
+		if (!empty($photoIds))
+		{
+			$this->getModelFromCache('XenForo_Model_Like')->deleteContentLikes('bdphotos_photo', $photoIds, true);
+			$this->_db->delete('xf_bdphotos_photo_comment', 'photo_id IN (' . $this->_db->quote($photoIds) . ')');
+			$this->getModelFromCache('XenForo_Model_Alert')->deleteAlerts('bdphotos_photo', $photoIds);
+		}
+	}
+
+	protected function _deleteLikes()
+	{
+		$this->getModelFromCache('XenForo_Model_Like')->deleteContentLikes('bdphotos_album', $this->get('album_id'), true);
+	}
+
+	protected function _deleteComments()
+	{
+		$this->_db->delete('xf_bdphotos_album_comment', 'album_id = ' . $this->_db->quote($this->get('album_id')));
+	}
+
+	protected function _deleteAlerts()
+	{
+		$this->getModelFromCache('XenForo_Model_Alert')->deleteAlerts('bdphotos_album', $this->get('album_id'));
 	}
 
 	/**
@@ -201,25 +236,75 @@ class bdPhotos_DataWriter_Album extends XenForo_DataWriter
 
 	protected function _getFields()
 	{
-		return array(
-				'xf_bdphotos_album' => array(
-				'album_id' => array('type' => 'uint', 'autoIncrement' => true),
-				'album_user_id' => array('type' => 'uint', 'required' => true),
-				'album_name' => array('type' => 'string', 'required' => true, 'maxLength' => 100),
+		return array('xf_bdphotos_album' => array(
+				'album_id' => array(
+					'type' => 'uint',
+					'autoIncrement' => true
+				),
+				'album_user_id' => array(
+					'type' => 'uint',
+					'required' => true
+				),
+				'album_username' => array(
+					'type' => 'string',
+					'required' => true,
+					'maxLength' => 50
+				),
+				'album_name' => array(
+					'type' => 'string',
+					'required' => true,
+					'maxLength' => 100
+				),
 				'album_description' => array('type' => 'string'),
-				'album_position' => array('type' => 'uint', 'required' => true),
-				'create_date' => array('type' => 'uint', 'required' => true),
-				'update_date' => array('type' => 'uint', 'required' => true),
-				'album_publish_date' => array('type' => 'uint', 'required' => true, 'default' => 0),
-				'photo_count' => array('type' => 'uint', 'required' => true, 'default' => 0),
-				'album_view_count' => array('type' => 'uint', 'required' => true, 'default' => 0),
-				'album_comment_count' => array('type' => 'uint', 'required' => true, 'default' => 0),
-				'album_like_count' => array('type' => 'uint', 'required' => true, 'default' => 0),
+				'album_position' => array(
+					'type' => 'uint',
+					'required' => true
+				),
+				'create_date' => array(
+					'type' => 'uint',
+					'required' => true
+				),
+				'update_date' => array(
+					'type' => 'uint',
+					'required' => true
+				),
+				'album_publish_date' => array(
+					'type' => 'uint',
+					'required' => true,
+					'default' => 0
+				),
+				'photo_count' => array(
+					'type' => 'uint',
+					'required' => true,
+					'default' => 0
+				),
+				'album_view_count' => array(
+					'type' => 'uint',
+					'required' => true,
+					'default' => 0
+				),
+				'album_comment_count' => array(
+					'type' => 'uint',
+					'required' => true,
+					'default' => 0
+				),
+				'album_like_count' => array(
+					'type' => 'uint',
+					'required' => true,
+					'default' => 0
+				),
 				'album_like_users' => array('type' => 'serialized'),
-				'location_id' => array('type' => 'uint', 'required' => true, 'default' => 0),
-				'cover_photo_id' => array('type' => 'uint', 'required' => true, 'default' => 0),
-			)
-		);
+				'location_id' => array(
+					'type' => 'uint',
+					'required' => true,
+					'default' => 0
+				),
+				'cover_photo_id' => array(
+					'type' => 'uint',
+					'required' => true,
+					'default' => 0
+				),
+			));
 	}
 
 	protected function _getExistingData($data)
@@ -249,6 +334,6 @@ class bdPhotos_DataWriter_Album extends XenForo_DataWriter
 		return $this->getModelFromCache('bdPhotos_Model_Album');
 	}
 
-/* End auto-generated lines of code. Feel free to make changes below */
+	/* End auto-generated lines of code. Feel free to make changes below */
 
 }

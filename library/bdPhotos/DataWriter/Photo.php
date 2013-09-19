@@ -4,6 +4,9 @@ class bdPhotos_DataWriter_Photo extends XenForo_DataWriter
 {
 	const OPTION_UPDATE_ALBUM_PHOTO_COUNT = 'updateAlbum_photoCount';
 	const OPTION_DELETE_ATTACHMENT = 'deleteAttachment';
+	const OPTION_DELETE_LIKES = 'deleteLikes';
+	const OPTION_DELETE_COMMENTS = 'deleteComments';
+	const OPTION_DELETE_ALERTS = 'deleteAlerts';
 
 	const EXTRA_DATA_ATTACHMENT = 'attachment';
 	const EXTRA_DATA_ROI = 'roi';
@@ -40,6 +43,9 @@ class bdPhotos_DataWriter_Photo extends XenForo_DataWriter
 		return array(
 			self::OPTION_UPDATE_ALBUM_PHOTO_COUNT => true,
 			self::OPTION_DELETE_ATTACHMENT => true,
+			self::OPTION_DELETE_LIKES => true,
+			self::OPTION_DELETE_COMMENTS => true,
+			self::OPTION_DELETE_ALERTS => true,
 		);
 	}
 
@@ -104,6 +110,12 @@ class bdPhotos_DataWriter_Photo extends XenForo_DataWriter
 		}
 
 		$this->_deleteAttachment();
+
+		$this->_deleteLikes();
+
+		$this->_deleteComments();
+
+		$this->_deleteAlerts();
 	}
 
 	protected function _readMetadata()
@@ -158,6 +170,30 @@ class bdPhotos_DataWriter_Photo extends XenForo_DataWriter
 		}
 	}
 
+	protected function _deleteLikes()
+	{
+		if ($this->getOption(self::OPTION_DELETE_LIKES))
+		{
+			$this->getModelFromCache('XenForo_Model_Like')->deleteContentLikes('bdphotos_photo', $this->get('photo_id'), true);
+		}
+	}
+
+	protected function _deleteComments()
+	{
+		if ($this->getOption(self::OPTION_DELETE_COMMENTS))
+		{
+			$this->_db->delete('xf_bdphotos_photo_comment', 'photo_id = ' . $this->_db->quote($this->get('photo_id')));
+		}
+	}
+
+	protected function _deleteAlerts()
+	{
+		if ($this->getOption(self::OPTION_DELETE_ALERTS))
+		{
+			$this->getModelFromCache('XenForo_Model_Alert')->deleteAlerts('bdphotos_photo', $this->get('photo_id'));
+		}
+	}
+
 	/**
 	 * @return XenForo_Model_Attachment
 	 */
@@ -178,6 +214,11 @@ class bdPhotos_DataWriter_Photo extends XenForo_DataWriter
 				'user_id' => array(
 					'type' => 'uint',
 					'required' => true
+				),
+				'username' => array(
+					'type' => 'string',
+					'required' => true,
+					'maxLength' => 50
 				),
 				'album_id' => array(
 					'type' => 'uint',

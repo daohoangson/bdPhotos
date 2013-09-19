@@ -280,6 +280,9 @@ step=1024</edit_format_params>
     <phrase title="bdphotos_taken" version_id="1" version_string="0.9-dev"><![CDATA[Taken]]></phrase>
     <phrase title="bdphotos_use_as_album_cover_photo" version_id="1" version_string="0.9-dev"><![CDATA[Album Cover]]></phrase>
     <phrase title="bdphotos_with_lowercase" version_id="1" version_string="0.9-dev"><![CDATA[with]]></phrase>
+    <phrase title="bdphotos_x_commented_on_your_album_y" version_id="1" version_string="0.9-dev"><![CDATA[{name} commented on your album {album_name}.]]></phrase>
+    <phrase title="bdphotos_x_commented_on_your_photo_in_the_album_y" version_id="1" version_string="0.9-dev"><![CDATA[{name} commented on your photo in the album {album_name}.]]></phrase>
+    <phrase title="bdphotos_x_liked_your_album_y" version_id="1" version_string="0.9-dev"><![CDATA[{name} liked your album {album_name}.]]></phrase>
     <phrase title="bdphotos_x_liked_your_photo_in_the_album_y" version_id="1" version_string="0.9-dev"><![CDATA[{name} liked your photo in the album {album_name}.]]></phrase>
     <phrase title="bdphotos_x_photos" version_id="1" version_string="0.9-dev"><![CDATA[{x} photos]]></phrase>
     <phrase title="bdphotos_x_photos_will_be_deleted_unrecoverable" version_id="1" version_string="0.9-dev"><![CDATA[All {count} photos will be deleted and made unrecoverable.]]></phrase>
@@ -662,7 +665,7 @@ step=1024</edit_format_params>
 </xen:if>
 
 <form action="{xen:link 'photos/albums/delete', $album}" method="post"
-	class="xenForm AutoValidator"
+	class="xenForm formOverlay AutoValidator"
 	data-redirect="on">
 
 	<p>
@@ -907,6 +910,13 @@ step=1024</edit_format_params>
 									{xen:phrase bdphotos_not_published}
 								</xen:if>
 							</a>
+	
+							<xen:if is="{$album.canEdit}">
+								<a href="{xen:link photos/albums/edit, $album}" class="item control edit"><span></span>{xen:phrase edit}</a>
+							</xen:if>
+							<xen:if is="{$album.canDelete}">
+								<a href="{xen:link photos/albums/delete, $album}" class="item control delete OverlayTrigger"><span></span>{xen:phrase delete}</a>
+							</xen:if>
 
 							<xen:if is="{$album.canLike}">
 								<a href="{xen:link photos/albums/like, $album}" class="LikeLink item control {xen:if $album.album_like_date, unlike, like}" data-container="#likes-album-{$album.album_id}"><span></span><span class="LikeLabel">{xen:if $album.album_like_date, {xen:phrase unlike}, {xen:phrase like}}</span></a>
@@ -923,7 +933,7 @@ step=1024</edit_format_params>
 						<xen:include template="bdphotos_album_likes_summary" />
 					</li>
 					
-					<xen:if is="{$photo.canComment}">
+					<xen:if is="{$album.canComment}">
 						<li id="commentSubmit-album-{$album.album_id}" class="comment secondaryContent">
 							<xen:avatar user="$visitor" size="s" img="true" />
 							<div class="elements">
@@ -957,6 +967,15 @@ step=1024</edit_format_params>
 		</xen:include>
 	</ol>
 </div>]]></template>
+    <template title="bdphotos_alert_album_comment_your_album" version_id="1" version_string="0.9-dev"><![CDATA[{xen:phrase bdphotos_x_commented_on_your_album_y,
+	'name={xen:helper username, $user, 'subject'}',
+	'album_name=<a href="{xen:link photos/albums, $content}" class="PopupItemLink">{$content.album_name}</a>'}]]></template>
+    <template title="bdphotos_alert_album_like" version_id="1" version_string="0.9-dev"><![CDATA[{xen:phrase bdphotos_x_liked_your_album_y,
+	'name={xen:helper username, $user, 'subject'}',
+	'album_name=<a href="{xen:link photos/albums, $content}" class="PopupItemLink">{$content.album_name}</a>'}]]></template>
+    <template title="bdphotos_alert_photo_comment_your_photo" version_id="1" version_string="0.9-dev"><![CDATA[{xen:phrase bdphotos_x_commented_on_your_photo_in_the_album_y,
+	'name={xen:helper username, $user, 'subject'}',
+	'album_name=<a href="{xen:link photos, $content}" class="PopupItemLink">{$content.album_name}</a>'}]]></template>
     <template title="bdphotos_alert_photo_like" version_id="1" version_string="0.9-dev"><![CDATA[{xen:phrase bdphotos_x_liked_your_photo_in_the_album_y,
 	'name={xen:helper username, $user, 'subject'}',
 	'album_name=<a href="{xen:link photos, $content}" class="PopupItemLink">{$content.album_name}</a>'}]]></template>

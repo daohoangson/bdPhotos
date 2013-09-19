@@ -114,6 +114,8 @@ class bdPhotos_ControllerPublic_Album extends bdPhotos_ControllerPublic_Abstract
 	{
 		$this->_assertPostOnly();
 		$this->_assertCanUpload();
+		
+		$visitor = XenForo_Visitor::getInstance();
 
 		$albumDw = XenForo_DataWriter::create('bdPhotos_DataWriter_Album');
 
@@ -127,7 +129,8 @@ class bdPhotos_ControllerPublic_Album extends bdPhotos_ControllerPublic_Abstract
 		}
 		else
 		{
-			$albumDw->set('album_user_id', XenForo_Visitor::getUserId());
+			$albumDw->set('album_user_id', $visitor['user_id']);
+			$albumDw->set('album_username', $visitor['username']);
 		}
 
 		if (!XenForo_Captcha_Abstract::validateDefault($this->_input))
@@ -287,6 +290,7 @@ class bdPhotos_ControllerPublic_Album extends bdPhotos_ControllerPublic_Abstract
 		$dw->bulkSet(array(
 			'album_id' => $album['album_id'],
 			'user_id' => $visitor['user_id'],
+			'username' => $visitor['username'],
 			'message' => $message,
 			'comment_date' => XenForo_Application::$time,
 			'ip_id' => 0,

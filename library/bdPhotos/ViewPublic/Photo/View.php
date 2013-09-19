@@ -7,6 +7,11 @@ class bdPhotos_ViewPublic_Photo_View extends XenForo_ViewPublic_Base
 		$photo = &$this->_params['photo'];
 		$uploader = &$this->_params['uploader'];
 
+		if (empty($uploader))
+		{
+			$uploader = array();
+		}
+
 		$photoCaption = array_merge($uploader, array(
 			'message' => $photo['photo_caption'],
 			'messageHtml' => $photo['photo_caption'],

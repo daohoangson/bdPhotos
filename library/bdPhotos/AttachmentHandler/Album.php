@@ -28,7 +28,7 @@ class bdPhotos_AttachmentHandler_Album extends XenForo_AttachmentHandler_Abstrac
 		}
 		else
 		{
-			return $this->_getAlbumModel()->canEditAlbum(array(), $null, $viewingUser);
+			return $this->_getAlbumModel()->getModelFromCache('bdPhotos_Model_Uploader')->canUpload($null, $viewingUser);
 		}
 
 		return false;

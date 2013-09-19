@@ -21,7 +21,7 @@ class bdPhotos_Model_AlbumComment extends XenForo_Model
 
 	public function getAlbumCommentById($id, array $fetchOptions = array())
 	{
-		$albumComments = $this->getAlbumComments(array ('album_comment_id' => $id), $fetchOptions);
+		$albumComments = $this->getAlbumComments(array('album_comment_id' => $id), $fetchOptions);
 
 		return reset($albumComments);
 	}
@@ -41,8 +41,7 @@ class bdPhotos_Model_AlbumComment extends XenForo_Model
 				$joinOptions[joinTables]
 			WHERE $whereConditions
 				$orderClause
-			", $limitOptions['limit'], $limitOptions['offset']
-		), 'album_comment_id');
+			", $limitOptions['limit'], $limitOptions['offset']), 'album_comment_id');
 
 		$this->_getAlbumCommentsCustomized($albumComments, $fetchOptions);
 
@@ -118,6 +117,22 @@ class bdPhotos_Model_AlbumComment extends XenForo_Model
 			}
 		}
 
+		if (isset($conditions['username']))
+		{
+			if (is_array($conditions['username']))
+			{
+				if (!empty($conditions['username']))
+				{
+					// only use IN condition if the array is not empty (nasty!)
+					$sqlConditions[] = "album_comment.username IN (" . $db->quote($conditions['username']) . ")";
+				}
+			}
+			else
+			{
+				$sqlConditions[] = "album_comment.username = " . $db->quote($conditions['username']);
+			}
+		}
+
 		if (isset($conditions['comment_date']))
 		{
 			if (is_array($conditions['comment_date']))
@@ -160,11 +175,11 @@ class bdPhotos_Model_AlbumComment extends XenForo_Model
 		$selectFields = '';
 		$joinTables = '';
 
-		$this->_prepareAlbumCommentFetchOptionsCustomized($selectFields,  $joinTables, $fetchOptions);
+		$this->_prepareAlbumCommentFetchOptionsCustomized($selectFields, $joinTables, $fetchOptions);
 
 		return array(
 			'selectFields' => $selectFields,
-			'joinTables'   => $joinTables
+			'joinTables' => $joinTables
 		);
 	}
 
@@ -177,7 +192,7 @@ class bdPhotos_Model_AlbumComment extends XenForo_Model
 		return $this->getOrderByClause($choices, $fetchOptions, $defaultOrderSql);
 	}
 
-/* End auto-generated lines of code. Feel free to make changes below */
+	/* End auto-generated lines of code. Feel free to make changes below */
 
 	protected function _getAlbumCommentsCustomized(array &$data, array $fetchOptions)
 	{

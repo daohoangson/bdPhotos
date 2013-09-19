@@ -68,16 +68,34 @@ class bdPhotos_DataWriter_AlbumComment extends XenForo_DataWriter
 
 	protected function _getFields()
 	{
-		return array(
-				'xf_bdphotos_album_comment' => array(
-				'album_comment_id' => array('type' => 'uint', 'autoIncrement' => true),
-				'album_id' => array('type' => 'uint', 'required' => true),
-				'user_id' => array('type' => 'uint', 'required' => true),
-				'comment_date' => array('type' => 'uint', 'required' => true),
+		return array('xf_bdphotos_album_comment' => array(
+				'album_comment_id' => array(
+					'type' => 'uint',
+					'autoIncrement' => true
+				),
+				'album_id' => array(
+					'type' => 'uint',
+					'required' => true
+				),
+				'user_id' => array(
+					'type' => 'uint',
+					'required' => true
+				),
+				'username' => array(
+					'type' => 'string',
+					'required' => true,
+					'maxLength' => 50
+				),
+				'comment_date' => array(
+					'type' => 'uint',
+					'required' => true
+				),
 				'message' => array('type' => 'string'),
-				'ip_id' => array('type' => 'uint', 'required' => true),
-			)
-		);
+				'ip_id' => array(
+					'type' => 'uint',
+					'required' => true
+				),
+			));
 	}
 
 	protected function _getExistingData($data)
@@ -107,6 +125,6 @@ class bdPhotos_DataWriter_AlbumComment extends XenForo_DataWriter
 		return $this->getModelFromCache('bdPhotos_Model_AlbumComment');
 	}
 
-/* End auto-generated lines of code. Feel free to make changes below */
+	/* End auto-generated lines of code. Feel free to make changes below */
 
 }

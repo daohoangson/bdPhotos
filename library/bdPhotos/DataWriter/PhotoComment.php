@@ -89,6 +89,11 @@ class bdPhotos_DataWriter_PhotoComment extends XenForo_DataWriter
 					'type' => 'uint',
 					'required' => true
 				),
+				'username' => array(
+					'type' => 'string',
+					'required' => true,
+					'maxLength' => 50
+				),
 				'comment_date' => array(
 					'type' => 'uint',
 					'required' => true
@@ -96,7 +101,7 @@ class bdPhotos_DataWriter_PhotoComment extends XenForo_DataWriter
 				'message' => array('type' => 'string'),
 				'ip_id' => array(
 					'type' => 'uint',
-					'required' => true,
+					'required' => true
 				),
 			));
 	}

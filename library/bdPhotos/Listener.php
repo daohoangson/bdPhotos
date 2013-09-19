@@ -6,6 +6,7 @@ class bdPhotos_Listener
 	{
 		static $classes = array(
 			'XenForo_ControllerPublic_Member',
+			'XenForo_DataWriter_User',
 			'XenForo_Image_Gd',
 			'XenForo_Image_Imagemagick_Pecl',
 			'XenForo_ViewPublic_Attachment_DoUpload',
@@ -22,6 +23,7 @@ class bdPhotos_Listener
 		// TODO: put this into install code maybe?
 		$contentTypes = XenForo_Application::get('contentTypes');
 		$contentTypes['bdphotos_album'] = array(
+			'alert_handler_class' => 'bdPhotos_AlertHandler_Album',
 			'attachment_handler_class' => 'bdPhotos_AttachmentHandler_Album',
 			'like_handler_class' => 'bdPhotos_LikeHandler_Album',
 		);
