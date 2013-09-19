@@ -151,7 +151,7 @@ class bdPhotos_Model_Photo extends XenForo_Model
 
 		return $photos;
 	}
-	
+
 	public function updatePhotoViews()
 	{
 		$db = $this->_getDb();
@@ -367,38 +367,6 @@ class bdPhotos_Model_Photo extends XenForo_Model
 			else
 			{
 				$sqlConditions[] = "photo.photo_like_count = " . $db->quote($conditions['photo_like_count']);
-			}
-		}
-
-		if (isset($conditions['photo_score']))
-		{
-			if (is_array($conditions['photo_score']))
-			{
-				if (!empty($conditions['photo_score']))
-				{
-					// only use IN condition if the array is not empty (nasty!)
-					$sqlConditions[] = "photo.photo_score IN (" . $db->quote($conditions['photo_score']) . ")";
-				}
-			}
-			else
-			{
-				$sqlConditions[] = "photo.photo_score = " . $db->quote($conditions['photo_score']);
-			}
-		}
-
-		if (isset($conditions['score_date']))
-		{
-			if (is_array($conditions['score_date']))
-			{
-				if (!empty($conditions['score_date']))
-				{
-					// only use IN condition if the array is not empty (nasty!)
-					$sqlConditions[] = "photo.score_date IN (" . $db->quote($conditions['score_date']) . ")";
-				}
-			}
-			else
-			{
-				$sqlConditions[] = "photo.score_date = " . $db->quote($conditions['score_date']);
 			}
 		}
 

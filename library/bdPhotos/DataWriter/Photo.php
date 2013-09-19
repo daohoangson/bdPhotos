@@ -210,16 +210,6 @@ class bdPhotos_DataWriter_Photo extends XenForo_DataWriter
 					'default' => 0
 				),
 				'photo_like_users' => array('type' => 'serialized'),
-				'photo_score' => array(
-					'type' => 'uint',
-					'required' => true,
-					'default' => 0
-				),
-				'score_date' => array(
-					'type' => 'uint',
-					'required' => true,
-					'default' => 0
-				),
 				'device_id' => array(
 					'type' => 'uint',
 					'required' => true,

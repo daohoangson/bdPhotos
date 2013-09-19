@@ -17,8 +17,6 @@ class bdPhotos_Installer
 				,`photo_comment_count` INT(10) UNSIGNED NOT NULL DEFAULT \'0\'
 				,`photo_like_count` INT(10) UNSIGNED NOT NULL DEFAULT \'0\'
 				,`photo_like_users` MEDIUMBLOB
-				,`photo_score` INT(10) UNSIGNED NOT NULL DEFAULT \'0\'
-				,`score_date` INT(10) UNSIGNED NOT NULL DEFAULT \'0\'
 				,`device_id` INT(10) UNSIGNED NOT NULL DEFAULT \'0\'
 				,`location_id` INT(10) UNSIGNED NOT NULL DEFAULT \'0\'
 				,`metadata` MEDIUMBLOB
@@ -27,7 +25,6 @@ class bdPhotos_Installer
 				, INDEX `publish_date` (`publish_date`)
 				, INDEX `location_id` (`location_id`)
 				, INDEX `device_id` (`device_id`)
-				, INDEX `photo_score` (`photo_score`)
 			) ENGINE = InnoDB CHARACTER SET utf8 COLLATE utf8_general_ci;',
 			'dropQuery' => 'DROP TABLE IF EXISTS `xf_bdphotos_photo`',
 		),
@@ -115,17 +112,6 @@ class bdPhotos_Installer
 				, INDEX `ne_lat_ne_lng_sw_lat_sw_lng` (`ne_lat`,`ne_lng`,`sw_lat`,`sw_lng`)
 			) ENGINE = InnoDB CHARACTER SET utf8 COLLATE utf8_general_ci;',
 			'dropQuery' => 'DROP TABLE IF EXISTS `xf_bdphotos_location`',
-		),
-		'scoring' => array(
-			'createQuery' => 'CREATE TABLE IF NOT EXISTS `xf_bdphotos_scoring` (
-				`photo_id` INT(10) UNSIGNED NOT NULL
-				,`action` VARCHAR(25) NOT NULL
-				,`user_id` INT(10) UNSIGNED NOT NULL
-				,`date` INT(10) UNSIGNED NOT NULL
-				, PRIMARY KEY (`photo_id`)
-				, INDEX `date` (`date`)
-			) ENGINE = InnoDB CHARACTER SET utf8 COLLATE utf8_general_ci;',
-			'dropQuery' => 'DROP TABLE IF EXISTS `xf_bdphotos_scoring`',
 		),
 	);
 	protected static $_patches = array();
