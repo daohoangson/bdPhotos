@@ -207,17 +207,48 @@ class bdPhotos_Installer
 		{
 			self::_installDemo(XenForo_Visitor::getInstance()->toArray());
 		}
+
+		self::_permissionsSetup($effectiveVersionId);
 	}
 
 	public static function uninstallCustomized()
 	{
 		$db = XenForo_Application::getDb();
 
-		$albumIds = $db->fetchCol('SELECT DISTINCT content_id FROM xf_attachment WHERE content_type = "bdphotos_album"');
+		$albumIds = $db->fetchCol('SELECT DISTINCT content_id FROM `xf_attachment` WHERE content_type = "bdphotos_album"');
 		XenForo_Model::create('XenForo_Model_Attachment')->deleteAttachmentsFromContentIds('bdphotos_album', $albumIds);
 
 		$db->query('DROP TABLE IF EXISTS `xf_bdphotos_album_view`');
 		$db->query('DROP TABLE IF EXISTS `xf_bdphotos_photo_view`');
+
+		$contentTypes = array(
+			'bdphotos_album',
+			'bdphotos_photo'
+		);
+		$contentTypesQuoted = $db->quote($contentTypes);
+
+		$contentTypeTables = array(
+			'xf_liked_content',
+			'xf_news_feed',
+			'xf_user_alert',
+		);
+		foreach ($contentTypeTables AS $table)
+		{
+			$db->delete($table, 'content_type IN (' . $contentTypesQuoted . ')');
+		}
+
+		$permissions = self::_permissionsGet();
+		foreach ($permissions as $permission)
+		{
+			$db->query("
+				DELETE FROM `xf_permission_entry`
+				WHERE permission_group_id = ? 
+					AND permission_id = ?
+			", array(
+				$permission['permission_group_id'],
+				$permission['permission_id']
+			));
+		}
 	}
 
 	protected static function _installDemo(array $user)
@@ -292,6 +323,124 @@ class bdPhotos_Installer
 		$albumDw->setExtraData(bdPhotos_DataWriter_Album::EXTRA_DATA_PHOTO_INPUT, $photoInput);
 
 		$albumDw->save();
+	}
+
+	protected static function _permissionsGet()
+	{
+		return array(
+			array(
+				'permission_group_id' => 'general',
+				'permission_id' => 'bdPhotos_view',
+				'copy_from_permission_id' => 'view',
+				'since_version_id' => 1,
+			),
+			array(
+				'permission_group_id' => 'general',
+				'permission_id' => 'bdPhotos_upload',
+				'copy_from_permission_id' => array(
+					'forum',
+					'uploadAttachment'
+				),
+				'since_version_id' => 1,
+			),
+			array(
+				'permission_group_id' => 'general',
+				'permission_id' => 'bdPhotos_albumComment',
+				'copy_from_permission_id' => array(
+					'forum',
+					'postReply'
+				),
+				'since_version_id' => 1,
+			),
+			array(
+				'permission_group_id' => 'general',
+				'permission_id' => 'bdPhotos_albumLike',
+				'copy_from_permission_id' => array(
+					'forum',
+					'like'
+				),
+				'since_version_id' => 1,
+			),
+			array(
+				'permission_group_id' => 'general',
+				'permission_id' => 'bdPhotos_photoComment',
+				'copy_from_permission_id' => array(
+					'forum',
+					'postReply'
+				),
+				'since_version_id' => 1,
+			),
+			array(
+				'permission_group_id' => 'general',
+				'permission_id' => 'bdPhotos_photoLike',
+				'copy_from_permission_id' => array(
+					'forum',
+					'like'
+				),
+				'since_version_id' => 1,
+			),
+			array(
+				'permission_group_id' => 'general',
+				'permission_id' => 'bdPhotos_downloadFull',
+				'copy_from_permission_id' => array(
+					'forum',
+					'uploadAttachment'
+				),
+				'since_version_id' => 1,
+			),
+			// moderator permissions
+			array(
+				'permission_group_id' => 'general',
+				'permission_id' => 'bdPhotos_viewAll',
+				'copy_from_permission_id' => array(
+					'forum',
+					'manageAnyThread'
+				),
+				'since_version_id' => 1,
+			),
+			array(
+				'permission_group_id' => 'general',
+				'permission_id' => 'bdPhotos_editAll',
+				'copy_from_permission_id' => array(
+					'forum',
+					'manageAnyThread'
+				),
+				'since_version_id' => 1,
+			),
+		);
+	}
+
+	protected static function _permissionsSetup($effectiveVersionId)
+	{
+		$db = XenForo_Application::getDb();
+		$permissions = self::_permissionsGet();
+
+		foreach ($permissions as $permission)
+		{
+			if ($effectiveVersionId < $permission['since_version_id'])
+			{
+				if (is_array($permission['copy_from_permission_id']))
+				{
+					list($copyFromPermissionGroupId, $copyFromPermissionId) = $permission['copy_from_permission_id'];
+				}
+				else
+				{
+					$copyFromPermissionGroupId = $permission['permission_group_id'];
+					$copyFromPermissionId = $permission['copy_from_permission_id'];
+				}
+
+				$db->query("
+					INSERT IGNORE INTO xf_permission_entry
+						(user_group_id, user_id, permission_group_id, permission_id, permission_value, permission_value_int)
+					SELECT user_group_id, user_id, '" . $permission['permission_group_id'] . "', '" . $permission['permission_id'] . "', permission_value, permission_value_int
+					FROM xf_permission_entry
+					WHERE permission_group_id = ? AND permission_id = ?
+				", array(
+					$copyFromPermissionGroupId,
+					$copyFromPermissionId
+				));
+			}
+		}
 	}
 
 }
