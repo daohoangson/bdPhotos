@@ -176,7 +176,7 @@ class bdPhotos_Model_Album extends XenForo_Model
 	{
 		if (!empty($album['album_like_users']))
 		{
-			$photo['albumLikeUsers'] = unserialize($photo['album_like_users']);
+			$album['albumLikeUsers'] = unserialize($album['album_like_users']);
 		}
 
 		$album['canEdit'] = $this->canEditAlbum($album, $null, $viewingUser);
@@ -184,7 +184,7 @@ class bdPhotos_Model_Album extends XenForo_Model
 		$album['canLike'] = $this->canLikeAlbum($album, $null, $viewingUser);
 		$album['canComment'] = $this->canCommentAlbum($album, $null, $viewingUser);
 
-		return $photo;
+		return $album;
 	}
 
 	public function prepareAlbums(array $albums, array $viewingUser = null)

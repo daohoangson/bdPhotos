@@ -134,6 +134,14 @@ abstract class bdPhotos_ControllerPublic_Abstract extends XenForo_ControllerPubl
 		}
 	}
 
+	protected function _assertCanLikeAlbum(array $album)
+	{
+		if (!$this->_getAlbumModel()->canLikeAlbum($album, $errorPhraseKey))
+		{
+			throw $this->getErrorOrNoPermissionResponseException($errorPhraseKey);
+		}
+	}
+
 	protected function _assertCanViewPhoto(array $album, array $photo)
 	{
 		if (!$this->_getPhotoModel()->canViewPhoto($album, $photo, $errorPhraseKey))
@@ -165,7 +173,7 @@ abstract class bdPhotos_ControllerPublic_Abstract extends XenForo_ControllerPubl
 			throw $this->getErrorOrNoPermissionResponseException($errorPhraseKey);
 		}
 	}
-	
+
 	protected function _assertCanCommentPhoto(array $album, array $photo)
 	{
 		if (!$this->_getPhotoModel()->canCommentPhoto($album, $photo, $errorPhraseKey))
@@ -207,7 +215,7 @@ abstract class bdPhotos_ControllerPublic_Abstract extends XenForo_ControllerPubl
 	{
 		return $this->getModelFromCache('bdPhotos_Model_Photo');
 	}
-	
+
 	/**
 	 * @return bdPhotos_Model_PhotoComment
 	 */

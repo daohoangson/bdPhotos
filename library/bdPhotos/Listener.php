@@ -21,7 +21,10 @@ class bdPhotos_Listener
 	{
 		// TODO: put this into install code maybe?
 		$contentTypes = XenForo_Application::get('contentTypes');
-		$contentTypes['bdphotos_album'] = array('attachment_handler_class' => 'bdPhotos_AttachmentHandler_Album');
+		$contentTypes['bdphotos_album'] = array(
+			'attachment_handler_class' => 'bdPhotos_AttachmentHandler_Album',
+			'like_handler_class' => 'bdPhotos_LikeHandler_Album',
+		);
 		$contentTypes['bdphotos_photo'] = array(
 			'alert_handler_class' => 'bdPhotos_AlertHandler_Photo',
 			'like_handler_class' => 'bdPhotos_LikeHandler_Photo',

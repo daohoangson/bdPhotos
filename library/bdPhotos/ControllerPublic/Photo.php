@@ -99,7 +99,7 @@ class bdPhotos_ControllerPublic_Photo extends bdPhotos_ControllerPublic_Abstract
 			}
 			else
 			{
-				$latestUsers = $likeModel->likeContent('bdphotos_photo', $photo['photo_id'], $photo['user_id']);
+				$latestUsers = $likeModel->likeContent('bdphotos_photo', $photo['photo_id'], $uploader['user_id']);
 			}
 
 			$liked = ($existingLike ? false : true);

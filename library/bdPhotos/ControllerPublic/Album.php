@@ -42,6 +42,7 @@ class bdPhotos_ControllerPublic_Album extends bdPhotos_ControllerPublic_Abstract
 			'likeUserId' => XenForo_Visitor::getUserId(),
 		));
 
+		$album = $this->_getAlbumModel()->prepareAlbum($album);
 		$photos = $this->_getPhotoModel()->preparePhotos($album, $photos);
 
 		$this->_getAlbumModel()->logAlbumView($album['album_id']);
@@ -197,6 +198,66 @@ class bdPhotos_ControllerPublic_Album extends bdPhotos_ControllerPublic_Abstract
 			);
 
 			return $this->responseView('bdPhotos_ViewPublic_Album_Delete', 'bdphotos_album_delete', $viewParams);
+		}
+	}
+
+	public function actionLike()
+	{
+		$albumId = $this->_input->filterSingle('album_id', XenForo_Input::UINT);
+		$album = $this->_getAlbumOrError($albumId);
+
+		$this->_assertCanLikeAlbum($album);
+
+		$uploader = $this->_getUserModel()->getUserById($album['album_user_id']);
+
+		$likeModel = $this->_getLikeModel();
+
+		$existingLike = $likeModel->getContentLikeByLikeUser('bdphotos_album', $album['album_id'], XenForo_Visitor::getUserId());
+
+		if ($this->_request->isPost())
+		{
+			if ($existingLike)
+			{
+				$latestUsers = $likeModel->unlikeContent($existingLike);
+			}
+			else
+			{
+				$latestUsers = $likeModel->likeContent('bdphotos_album', $album['album_id'], $uploader['user_id']);
+			}
+
+			$liked = ($existingLike ? false : true);
+
+			if ($this->_noRedirect() && $latestUsers !== false)
+			{
+				$album['albumLikeUsers'] = $latestUsers;
+				$album['album_like_count'] += ($liked ? 1 : -1);
+				$album['album_like_date'] = ($liked ? XenForo_Application::$time : 0);
+
+				$viewParams = array(
+					'album' => $album,
+
+					'liked' => $liked,
+					'_list' => $this->_input->filterSingle('_list', XenForo_Input::UINT),
+				);
+
+				return $this->responseView('bdPhotos_ViewPublic_Album_LikeConfirmed', '', $viewParams);
+			}
+			else
+			{
+				return $this->responseRedirect(XenForo_ControllerResponse_Redirect::RESOURCE_UPDATED, XenForo_Link::buildPublicLink('photos/albums', $album));
+			}
+		}
+		else
+		{
+			$viewParams = array(
+				'album' => $album,
+				'uploader' => $uploader,
+
+				'existingLike' => $existingLike,
+				'breadcrumbs' => $this->_getAlbumModel()->getBreadcrumbs($album, $uploader, true),
+			);
+
+			return $this->responseView('bdPhotos_ViewPublic_Album_Like', 'bdphotos_album_like', $viewParams);
 		}
 	}
 

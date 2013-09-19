@@ -768,6 +768,15 @@ step=1024</edit_format_params>
 <xen:include template="bdphotos_album_list">
 	<xen:set var="$showUploader">1</xen:set>
 </xen:include>]]></template>
+    <template title="bdphotos_album_likes_summary" version_id="1" version_string="0.9-dev"><![CDATA[<xen:if is="{$album.album_like_count}">
+	<xen:require css="likes_summary.css" />
+	<div class="likesSummary secondaryContent">
+		<span class="LikeText">
+			<xen:set var="$url">{xen:link photos/albums/likes, $photo}</xen:set>
+			<xen:likes number="$album.album_like_count" users="$album.albumLikeUsers" url="$url" liked="$album.album_like_date" />
+		</span>
+	</div>
+</xen:if>]]></template>
     <template title="bdphotos_album_list" version_id="1" version_string="0.9-dev"><![CDATA[<xen:require css="bdphotos.css" />
 
 <ol class="bdPhotos_AlbumList">
@@ -875,6 +884,73 @@ step=1024</edit_format_params>
 		<xen:set var="$coverPhotoId">{$album.cover_photo_id}</xen:set>
 	</xen:include>
 	<xen:edithint template="bdphotos_photo_list_photo" />
+	
+	<ol class="messageSimpleList">
+		<xen:include template="message_simple">
+			<xen:map from="$uploader" to="$message" />
+
+			<xen:set var="$messageId">album-{$album.album_id}</xen:set>
+
+			<xen:set var="$messageAfterTemplate">
+
+				<div class="messageMeta">
+						<div class="privateControls">
+							<a href="{xen:link photos/albums, $album}" title="{xen:phrase permalink}" class="item muted">
+								<xen:if is="{$album.album_publish_date}">
+									<xen:datetime time="$album.album_publish_date" />
+								<xen:else />
+									{xen:phrase bdphotos_not_published}
+								</xen:if>
+							</a>
+
+							<xen:if is="{$album.canLike}">
+								<a href="{xen:link photos/albums/like, $album}" class="LikeLink item control {xen:if $album.album_like_date, unlike, like}" data-container="#likes-album-{$album.album_id}"><span></span><span class="LikeLabel">{xen:if $album.album_like_date, {xen:phrase unlike}, {xen:phrase like}}</span></a>
+							</xen:if>
+							<xen:if is="{$album.canComment}">
+								<a href="{xen:link photos/albums/comment, $album}" class="CommentPoster item control postComment" data-commentArea="#commentSubmit-album-{$album.album_id}" style="display: none"><span></span>{xen:phrase comment_verb}</a>
+							</xen:if>
+						</div>
+				</div>
+
+				<ol class="messageResponse">
+
+					<li id="likes-album-{$album.album_id}">
+						<xen:include template="bdphotos_album_likes_summary" />
+					</li>
+					
+					<xen:if is="{$photo.canComment}">
+						<li id="commentSubmit-photo-{$photo.photo_id}" class="comment secondaryContent">
+							<xen:avatar user="$visitor" size="s" img="true" />
+							<div class="elements">
+								<textarea name="message" rows="2" class="textCtrl Elastic"></textarea>
+								<div class="submit"><input type="submit" class="button primary" value="{xen:phrase post_comment}" /></div>
+							</div>
+						</li>
+					</xen:if>
+
+					<xen:if is="{$comments}">
+
+						<xen:foreach loop="$comments" value="$comment">
+							<xen:include template="bdphotos_album_or_photo_comment">
+								<xen:set var="$deleteLink">{xen:link photos/albums/comment-delete, $album, 'comment={$comment.album_comment_id}'}</xen:set>
+							</xen:include>
+						</xen:foreach>
+
+						<xen:if is="{$album.album_comment_count} > {xen:helper bdPhotos_getOption, commentsPerPage}">
+							<li class="commentMore secondaryContent">
+								<a href="{xen:link photos/albums/comments, $album}"
+									class="CommentLoader"
+									data-loadParams="{xen:escape {xen:helper json, {xen:array 'before={$firstComment.comment_date}'}}}">{xen:phrase view_previous_comments}...</a>
+							</li>
+						</xen:if>
+
+					</xen:if>
+
+				</ol>
+
+			</xen:set>
+		</xen:include>
+	</ol>
 </div>]]></template>
     <template title="bdphotos_alert_photo_like" version_id="1" version_string="0.9-dev"><![CDATA[{xen:phrase bdphotos_x_liked_your_photo_in_the_album_y,
 	'name={xen:helper username, $user, 'subject'}',
@@ -1168,7 +1244,7 @@ step=1024</edit_format_params>
 		<div class="photo nophoto">&nbsp;</div>
 	</xen:if>
 	
-	<ol class="messageSimpleList" id="ProfilePostList">
+	<ol class="messageSimpleList">
 		<xen:include template="message_simple">
 			<xen:map from="$photoCaption" to="$message" />
 
