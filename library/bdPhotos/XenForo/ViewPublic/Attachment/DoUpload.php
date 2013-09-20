@@ -10,24 +10,24 @@ class bdPhotos_XenForo_ViewPublic_Attachment_DoUpload extends XFCP_bdPhotos_XenF
 
 			$attachmentModel = XenForo_Model::create('XenForo_Model_Attachment');
 
-			$filePath = $attachmentModel->getAttachmentDataFilePath($this->_params['attachment']);
+			$filePath = bdPhotos_Helper_Attachment::getAttachmentDataFilePath($attachmentModel, $this->_params['attachment']);
 			if (is_readable($filePath))
 			{
 				$attachment['metadataArray'] = bdPhotos_Helper_Metadata::readFromFile($filePath);
 
-				// perform smart ROI detection
-				// TODO: option for this?
-				// should update bdPhotos_DataWriter_Photo if this code is changed
-				$options = $attachment['metadataArray'];
-				if (!empty($attachment['metadataArray']['exif']))
+				// prepare usable file path for later usage
+				$usableFilePath = bdPhotos_Helper_Attachment::prepareUsableFilePath($filePath, $attachment, $attachment['metadataArray']);
+
+				if (!empty($usableFilePath))
 				{
-					bdPhotos_Helper_Image::prepareOptionsFromExifData($options, $attachment['metadataArray']['exif']);
-				}
-				$extension = XenForo_Helper_File::getFileExtension($attachment['filename']);
-				$roi = bdPhotos_Helper_Image::detectROI($filePath, $extension, $options);
-				if (!empty($roi))
-				{
-					$attachment['metadataArray'][bdPhotos_Helper_Image::OPTION_ROI] = $roi;
+					// perform smart ROI detection
+					// TODO: option for this?
+					$extension = XenForo_Helper_File::getFileExtension($attachment['filename']);
+					$roi = bdPhotos_Helper_Image::detectROI($usableFilePath, $extension);
+					if (!empty($roi))
+					{
+						$attachment['metadataArray'][bdPhotos_Helper_Image::OPTION_ROI] = $roi;
+					}
 				}
 
 				if (!empty($attachment['metadataArray']['lat']) AND !empty($attachment['metadataArray']['lng']))

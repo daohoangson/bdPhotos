@@ -135,7 +135,7 @@ class bdPhotos_DataWriter_Photo extends XenForo_DataWriter
 	protected function _readMetadata()
 	{
 		$attachment = $this->_getAttachment();
-		$filePath = $this->_getAttachmentModel()->getAttachmentDataFilePath($attachment);
+		$filePath = bdPhotos_Helper_Attachment::getAttachmentDataFilePath($this->_getAttachmentModel(), $attachment);
 		if (is_readable($filePath))
 		{
 			$metadata = bdPhotos_Helper_Metadata::readFromFile($filePath);
@@ -150,13 +150,23 @@ class bdPhotos_DataWriter_Photo extends XenForo_DataWriter
 
 				if (!empty($stripped))
 				{
-					@unlink($filePath);
-					XenForo_Helper_File::safeRename($stripped, $filePath);
+					$upload = new XenForo_Upload($attachment['filename'], $stripped);
+					$dataId = $this->_getAttachmentModel()->insertUploadedAttachmentData($upload, $this->get('user_id'));
+
+					// update the attachment to use the new data
+					$this->_db->update('xf_attachment', array('data_id' => $dataId), array('attachment_id = ?' => $attachment['attachment_id']));
+					$this->_db->query('UPDATE xf_attachment_data SET attach_count = attach_count + 1 WHERE data_id = ?', array($dataId));
+					$this->setExtraData(self::EXTRA_DATA_ATTACHMENT, false);
+
+					// decrease the attach count for the old data
+					$this->_db->query('UPDATE xf_attachment_data SET attach_count = IF(attach_count > 0, attach_count - 1, 0) WHERE data_id = ?', array($attachment['data_id']));
 
 					// update EXIF data
 					$metadata['exif'] = bdPhotos_Helper_Metadata::cleanUpExifDataAfterStripping($metadata['exif']);
 				}
 			}
+
+			bdPhotos_Helper_Attachment::prepareUsableFilePath($filePath, $attachment, $metadata);
 
 			$this->set('metadata', $metadata);
 		}
@@ -164,14 +174,13 @@ class bdPhotos_DataWriter_Photo extends XenForo_DataWriter
 
 	protected function _getAttachment()
 	{
-		if (!!$this->getExtraData(self::EXTRA_DATA_ATTACHMENT))
+		if (!$this->getExtraData(self::EXTRA_DATA_ATTACHMENT))
 		{
-			return $this->getExtraData(self::EXTRA_DATA_ATTACHMENT);
+			$attachment = $this->_getAttachmentModel()->getAttachmentById($this->get('photo_id'));
+			$this->setExtraData(self::EXTRA_DATA_ATTACHMENT, $attachment);
 		}
-		else
-		{
-			return $this->_getAttachmentModel()->getAttachmentById($this->get('photo_id'));
-		}
+
+		return $this->getExtraData(self::EXTRA_DATA_ATTACHMENT);
 	}
 
 	protected function _deleteAttachment()

@@ -219,23 +219,24 @@ class bdPhotos_ViewPublic_Helper_Photo
 		}
 		else
 		{
-			$filePath = $this->_getAttachmentModel()->getAttachmentDataFilePath($this->_data);
+			if (!empty($this->_data['metadataArray']))
+			{
+				$metadata = $this->_data['metadataArray'];
+			}
+			else
+			{
+				$metadata = array();
+			}
+
+			$filePath = bdPhotos_Helper_Attachment::getUsableFilePath($this->_getAttachmentModel(), $this->_data, $metadata);
 			if (file_exists($filePath) AND !empty($this->_data['filename']))
 			{
 				$extension = XenForo_Helper_File::getFileExtension($this->_data['filename']);
 
 				$options = array();
-				if (!empty($this->_data['metadataArray']))
+				if (!empty($metadata[bdPhotos_Helper_Image::OPTION_ROI]))
 				{
-					if (!empty($this->_data['metadataArray'][bdPhotos_Helper_Image::OPTION_ROI]))
-					{
-						$options[bdPhotos_Helper_Image::OPTION_ROI] = $this->_data['metadataArray'][bdPhotos_Helper_Image::OPTION_ROI];
-					}
-
-					if (!empty($this->_data['metadataArray']['exif']))
-					{
-						bdPhotos_Helper_Image::prepareOptionsFromExifData($options, $this->_data['metadataArray']['exif']);
-					}
+					$options[bdPhotos_Helper_Image::OPTION_ROI] = $metadata[bdPhotos_Helper_Image::OPTION_ROI];
 				}
 
 				$cachePath = self::_getCachePath($filePath, $extension, $this->_width, $this->_height, $options);
