@@ -380,7 +380,7 @@ step=1024</edit_format_params>
     <phrase title="option_bdPhotos_flickrApiKey" version_id="1" version_string="0.9-dev"><![CDATA[Flickr API Key]]></phrase>
     <phrase title="option_bdPhotos_flickrApiKey_explain" version_id="1" version_string="0.9-dev"><![CDATA[You need to apply for Flickr API access at <a href="http://www.flickr.com/services/apps/create/apply/" target="_blank" tabindex="-1">www.flickr.com</a> to update Devices automatically.]]></phrase>
     <phrase title="option_bdPhotos_googleMapsApiKey" version_id="1" version_string="0.9-dev"><![CDATA[Google Maps API Key]]></phrase>
-    <phrase title="option_bdPhotos_googleMapsApiKey_explain" version_id="1" version_string="0.9-dev"><![CDATA[You need to apply for Maps API access at <a href="https://code.google.com/apis/console" target="_blank" tabindex="-1">Google API Console</a> to use maps and other geo-related features.]]></phrase>
+    <phrase title="option_bdPhotos_googleMapsApiKey_explain" version_id="2" version_string="0.9"><![CDATA[You need to apply for Maps API access at <a href="https://code.google.com/apis/console" target="_blank" tabindex="-1">Google API Console</a> to use maps. This is the browser key.]]></phrase>
     <phrase title="option_bdPhotos_maxDimensions" version_id="1" version_string="0.9-dev"><![CDATA[Maximum Photo Dimensions]]></phrase>
     <phrase title="option_bdPhotos_maxDimensions_explain" version_id="1" version_string="0.9-dev"><![CDATA[The maximum allowed dimensions for photo (width x height). Use 0 or blank to not restrict dimensions.]]></phrase>
     <phrase title="option_bdPhotos_maxFileSize" version_id="1" version_string="0.9-dev"><![CDATA[Maximum Photo File Size (KB)]]></phrase>
@@ -1109,9 +1109,7 @@ step=1024</edit_format_params>
 	</div>
 
 </xen:if>]]></template>
-    <template title="bdphotos_attachment_editor_attachment" version_id="1" version_string="0.9-dev"><![CDATA[<xen:require css="bdphotos.css" />
-
-<xen:include template="bdphotos_require_js_geo" />
+    <template title="bdphotos_attachment_editor_attachment" version_id="2" version_string="0.9"><![CDATA[<xen:require css="bdphotos.css" />
 
 <li id="{xen:if $isTemplate, 'AttachedFileTemplate', 'attachment{$attachment.attachment_id}'}"
 	class="AttachedFile AttachedImage bdPhotos_PhotoList_Photo">
@@ -1206,7 +1204,7 @@ step=1024</edit_format_params>
 		<p>{xen:phrase bdphotos_there_is_no_photos_here}</p>
 	</div>
 </xen:if>]]></template>
-    <template title="bdphotos_location_photos" version_id="1" version_string="0.9-dev"><![CDATA[<xen:title>{xen:phrase bdphotos_photos_taken_near_x, 'location_name={xen:helper bdPhotos_formatLocationName, $location}'}</xen:title>
+    <template title="bdphotos_location_photos" version_id="2" version_string="0.9"><![CDATA[<xen:title>{xen:phrase bdphotos_photos_taken_near_x, 'location_name={xen:helper bdPhotos_formatLocationName, $location}'}</xen:title>
 <xen:h1>{xen:helper bdPhotos_formatLocationName, $location}</xen:h1>
 <xen:description>{$location.location_name}</xen:description>
 
@@ -1487,7 +1485,6 @@ step=1024</edit_format_params>
 <xen:sidebar>
 	<xen:include template="bdphotos_sidebar_photo_info" />
 </xen:sidebar>]]></template>
-    <template title="bdphotos_require_js_geo" version_id="1" version_string="0.9-dev"><![CDATA[<xen:comment>// TODO</xen:comment>]]></template>
     <template title="bdphotos_responsive.css" version_id="1" version_string="0.9-dev"><![CDATA[@media (max-width:{xen:helper bdPhotos_formatCssProperty, pixel, {xen:calc '{xen:property bdPhotos_thumbnailWidth} * 2.4'}})
 {
 	.bdPhotos_AlbumList_Album
