@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<addon addon_id="bdPhotos" title="[bd] Photos" version_string="0.9-dev" version_id="1" url="" install_callback_class="bdPhotos_Installer" install_callback_method="install" uninstall_callback_class="bdPhotos_Installer" uninstall_callback_method="uninstall">
+<addon addon_id="bdPhotos" title="[bd] Photos" version_string="0.9" version_id="2" url="" install_callback_class="bdPhotos_Installer" install_callback_method="install" uninstall_callback_class="bdPhotos_Installer" uninstall_callback_method="uninstall">
   <admin_navigation>
     <navigation navigation_id="bdPhotos" parent_navigation_id="applications" display_order="9999" link="" admin_permission_id="" debug_only="0" hide_no_children="1"/>
     <navigation navigation_id="bdPhotos_device" parent_navigation_id="bdPhotos" display_order="1000" link="photo-devices" admin_permission_id="bdPhotos_device" debug_only="0" hide_no_children="0"/>
