@@ -144,7 +144,7 @@ class bdPhotos_Model_Location extends XenForo_Model
 			}
 		}
 
-		return $nearest;
+		return $nearestLocation;
 	}
 
 	public function isLocationsNear($location1, $location2)
