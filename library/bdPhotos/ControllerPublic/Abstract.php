@@ -14,6 +14,18 @@ abstract class bdPhotos_ControllerPublic_Abstract extends XenForo_ControllerPubl
 		return $album;
 	}
 
+	protected function _getDeviceOrError($deviceId, array $fetchOptions = array())
+	{
+		$device = $this->_getDeviceModel()->getDeviceById($deviceId, $fetchOptions);
+
+		if (empty($device))
+		{
+			throw $this->responseException($this->responseError(new XenForo_Phrase('bdphotos_device_not_found')));
+		}
+
+		return $device;
+	}
+
 	protected function _getPhotoOrError($photoId, array $fetchOptions = array())
 	{
 		$photo = $this->_getPhotoModel()->getPhotoById($photoId, $fetchOptions);
@@ -214,6 +226,14 @@ abstract class bdPhotos_ControllerPublic_Abstract extends XenForo_ControllerPubl
 	protected function _getAlbumCommentModel()
 	{
 		return $this->getModelFromCache('bdPhotos_Model_AlbumComment');
+	}
+
+	/**
+	 * @return bdPhotos_Model_Device
+	 */
+	protected function _getDeviceModel()
+	{
+		return $this->getModelFromCache('bdPhotos_Model_Device');
 	}
 
 	/**

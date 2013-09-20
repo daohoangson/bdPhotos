@@ -345,6 +345,7 @@ step=1024</edit_format_params>
     <phrase title="bdphotos_one_photo" version_id="1" version_string="0.9-dev"><![CDATA[1 photo]]></phrase>
     <phrase title="bdphotos_photo" version_id="1" version_string="0.9-dev"><![CDATA[Photo]]></phrase>
     <phrase title="bdphotos_photos" version_id="1" version_string="0.9-dev"><![CDATA[Photos]]></phrase>
+    <phrase title="bdphotos_photos_taken_with_x" version_id="1" version_string="0.9-dev"><![CDATA[Photos taken with {device_name}]]></phrase>
     <phrase title="bdphotos_photo_caption" version_id="1" version_string="0.9-dev"><![CDATA[Photo Caption]]></phrase>
     <phrase title="bdphotos_photo_info" version_id="1" version_string="0.9-dev"><![CDATA[Photo Information]]></phrase>
     <phrase title="bdphotos_photo_location" version_id="1" version_string="0.9-dev"><![CDATA[Photo Location]]></phrase>
@@ -1187,6 +1188,21 @@ step=1024</edit_format_params>
 	</div>
 
 </li>]]></template>
+    <template title="bdphotos_device_photos" version_id="1" version_string="0.9-dev"><![CDATA[<xen:title>{xen:phrase bdphotos_photos_taken_with_x, 'device_name={$device.device_name}'}</xen:title>
+<xen:h1>{$device.device_name}</xen:h1>
+
+<xen:if hascontent="true">
+	<xen:contentcheck>
+		<xen:include template="bdphotos_photo_list">
+			<xen:set var="$showAlbum">1</xen:set>
+			<xen:set var="$showUploader">1</xen:set>
+		</xen:include>
+	</xen:contentcheck>
+<xen:else />
+	<div class="sectionMain">
+		<p>{xen:phrase bdphotos_there_is_no_photos_here}</p>
+	</div>
+</xen:if>]]></template>
     <template title="bdphotos_navigation_tab_links" version_id="1" version_string="0.9-dev"><![CDATA[<ul class="secondaryContent blockLinksList">
 	<xen:hook name="bdphotos_navigation_tab_links">
 		<li><a href="{xen:link 'photos/albums'}">{xen:phrase bdphotos_albums}</a></li>
