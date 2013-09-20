@@ -2,6 +2,18 @@
 
 class bdPhotos_Model_Location extends XenForo_Model
 {
+	public function getLocationIdsInRange($start, $limit)
+	{
+		$db = $this->_getDb();
+
+		return $db->fetchCol($db->limit('
+			SELECT location_id
+			FROM xf_bdphotos_location
+			WHERE location_id > ?
+			ORDER BY location_id
+		', $limit), $start);
+	}
+
 	public function getLocationNear($lat, $lng)
 	{
 		$locations = $this->getLocations(array('near' => array(
@@ -15,6 +27,7 @@ class bdPhotos_Model_Location extends XenForo_Model
 		}
 		else
 		{
+			$location = false;
 			$apiKey = bdPhotos_Option::get('googleMapsApiKey');
 
 			if (!empty($apiKey))
@@ -58,12 +71,14 @@ class bdPhotos_Model_Location extends XenForo_Model
 				else
 				{
 					$mergeId = reset($mergeIds);
+					$albumUpdated = 0;
+					$photoUpdated = 0;
 
 					if (count($mergeIds) > 1)
 					{
 						// update location for associated albums and photos
-						$this->_getDb()->update('xf_bdphotos_albums', array('location_id' => $mergeId), array('location_id IN (' . $this->_getDb()->quote($mergeId) . ')'));
-						$this->_getDb()->update('xf_bdphotos_photos', array('location_id' => $mergeId), array('location_id IN (' . $this->_getDb()->quote($mergeId) . ')'));
+						$photoUpdated += $this->_getDb()->update('xf_bdphotos_album', array('location_id' => $mergeId), array('location_id IN (' . $this->_getDb()->quote($mergeId) . ')'));
+						$albumUpdated += $this->_getDb()->update('xf_bdphotos_photo', array('location_id' => $mergeId), array('location_id IN (' . $this->_getDb()->quote($mergeId) . ')'));
 					}
 
 					// delete merged locations
@@ -73,7 +88,7 @@ class bdPhotos_Model_Location extends XenForo_Model
 						{
 							$existingDw = XenForo_DataWriter::create('bdPhotos_DataWriter_Location');
 							$existingDw->setExistingData($existingLocation, true);
-							$locationDw->delete();
+							$existingDw->delete();
 						}
 					}
 
@@ -81,6 +96,8 @@ class bdPhotos_Model_Location extends XenForo_Model
 					$locationDw = XenForo_DataWriter::create('bdPhotos_DataWriter_Location');
 					$locationDw->setExistingData($locations[$mergeId], true);
 					$locationDw->bulkSet($location);
+					$locationDw->set('location_album_count', $locationDw->get('location_album_count') + $albumUpdated);
+					$locationDw->set('location_photo_count', $locationDw->get('location_photo_count') + $photoUpdated);
 					if ($locationDw->hasChanges())
 					{
 						$locationDw->save();
@@ -109,13 +126,43 @@ class bdPhotos_Model_Location extends XenForo_Model
 
 	public function getNearestLocationFromArray(array $locations, $lat, $lng)
 	{
-		// TODO
-		return reset($locations);
+		$nearestLocation = false;
+		$nearestDistance = -1;
+
+		foreach ($locations as $location)
+		{
+			$latLocation = ($location['ne_lat'] + $location['sw_lat']) / 2;
+			$lngLocation = ($location['ne_lng'] + $location['sw_lng']) / 2;
+
+			// simplified calculation
+			$distanceLocation = sqrt(pow($lat - $latLocation, 2) + pow($lng - $lngLocation, 2));
+
+			if ($nearestDistance == -1 OR $nearestDistance > $distanceLocation)
+			{
+				$nearestLocation = $location;
+				$nearestDistance = $distanceLocation;
+			}
+		}
+
+		return $nearest;
 	}
 
 	public function isLocationsNear($location1, $location2)
 	{
-		// TODO
+		$lat1 = ($location1['ne_lat'] + $location1['sw_lat']) / 2;
+		$lng1 = ($location1['ne_lng'] + $location1['sw_lng']) / 2;
+
+		$lat2 = ($location2['ne_lat'] + $location2['sw_lat']) / 2;
+		$lng2 = ($location2['ne_lng'] + $location2['sw_lng']) / 2;
+
+		$latDelta = max($location1['ne_lat'] - $location1['sw_lat'], $location2['ne_lat'] - $location2['sw_lat']);
+		$lngDelta = max($location1['ne_lng'] - $location1['sw_lng'], $location2['ne_lng'] - $location2['sw_lng']);
+
+		if (abs($lat1 - $lat2) < $latDelta AND abs($lng1 - $lng2) < $lngDelta)
+		{
+			return true;
+		}
+
 		return false;
 	}
 
@@ -280,6 +327,38 @@ class bdPhotos_Model_Location extends XenForo_Model
 			}
 		}
 
+		if (isset($conditions['location_album_count']))
+		{
+			if (is_array($conditions['location_album_count']))
+			{
+				if (!empty($conditions['location_album_count']))
+				{
+					// only use IN condition if the array is not empty (nasty!)
+					$sqlConditions[] = "location.location_album_count IN (" . $db->quote($conditions['location_album_count']) . ")";
+				}
+			}
+			else
+			{
+				$sqlConditions[] = "location.location_album_count = " . $db->quote($conditions['location_album_count']);
+			}
+		}
+
+		if (isset($conditions['location_photo_count']))
+		{
+			if (is_array($conditions['location_photo_count']))
+			{
+				if (!empty($conditions['location_photo_count']))
+				{
+					// only use IN condition if the array is not empty (nasty!)
+					$sqlConditions[] = "location.location_photo_count IN (" . $db->quote($conditions['location_photo_count']) . ")";
+				}
+			}
+			else
+			{
+				$sqlConditions[] = "location.location_photo_count = " . $db->quote($conditions['location_photo_count']);
+			}
+		}
+
 		$this->_prepareLocationConditionsCustomized($sqlConditions, $conditions, $fetchOptions);
 
 		return $this->getConditionsForClause($sqlConditions);
@@ -316,19 +395,31 @@ class bdPhotos_Model_Location extends XenForo_Model
 
 	protected function _prepareLocationConditionsCustomized(array &$sqlConditions, array $conditions, array $fetchOptions)
 	{
+		$db = $this->_getDb();
+
 		if (isset($conditions['near']))
 		{
 			if (is_array($conditions['near']) AND count($conditions['near']) == 2)
 			{
-				$latLower = intval($conditions['near'][0]);
-				$latHigher = intval($conditions['near'][0]);
-				$lngLower = intval($conditions['near'][1]);
-				$lngHigher = intval($conditions['near'][1]);
+				$lat = intval($conditions['near'][0]);
+				$lng = intval($conditions['near'][1]);
 
-				$sqlConditions[] = "location.ne_lat > $latHigher";
-				$sqlConditions[] = "location.ne_lng > $lngHigher";
-				$sqlConditions[] = "location.sw_lat < $latLower";
-				$sqlConditions[] = "location.sw_lng < $lngLower";
+				$sqlConditions[] = "location.ne_lat > $lat";
+				$sqlConditions[] = "location.ne_lng > $lng";
+				$sqlConditions[] = "location.sw_lat < $lat";
+				$sqlConditions[] = "location.sw_lng > $lng";
+			}
+		}
+
+		if (!empty($conditions['location_name_like']))
+		{
+			if (is_array($conditions['location_name_like']))
+			{
+				$sqlConditions[] = 'location.location_name LIKE ' . XenForo_Db::quoteLike($conditions['location_name_like'][0], $conditions['location_name_like'][1], $db);
+			}
+			else
+			{
+				$sqlConditions[] = 'location.location_name LIKE ' . XenForo_Db::quoteLike($conditions['location_name_like'], 'lr', $db);
 			}
 		}
 	}

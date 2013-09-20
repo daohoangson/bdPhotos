@@ -7,7 +7,7 @@ class bdPhotos_Helper_GoogleMapsApi
 		$_10e6 = pow(10, 6);
 
 		// TODO: confirm whether we need API key for our usage? And logo placement
-		$client = XenForo_Helper_Http::getClient(sprintf('http://maps.googleapis.com/maps/api/geocode/json?key=%s&latlng=%f,%f&sensor=false', $apiKey, $lat / $_10e6, $lng / $_10e6));
+		$client = XenForo_Helper_Http::getClient(sprintf('http://maps.googleapis.com/maps/api/geocode/json?latlng=%f,%f&sensor=false', $lat / $_10e6, $lng / $_10e6));
 		$response = $client->request('GET')->getBody();
 		$responseArray = json_decode($response, true);
 

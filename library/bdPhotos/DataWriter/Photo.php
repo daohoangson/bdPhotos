@@ -100,6 +100,16 @@ class bdPhotos_DataWriter_Photo extends XenForo_DataWriter
 				$this->_db->query('UPDATE xf_bdphotos_album SET photo_count = photo_count + 1 WHERE album_id = ?', array($this->get('album_id')));
 			}
 		}
+
+		if ($this->get('device_id') != $this->getExisting('device_id'))
+		{
+			$this->_updateDevice();
+		}
+
+		if ($this->get('location_id') != $this->getExisting('location_id'))
+		{
+			$this->_updateLocation();
+		}
 	}
 
 	protected function _postDelete()
@@ -116,6 +126,10 @@ class bdPhotos_DataWriter_Photo extends XenForo_DataWriter
 		$this->_deleteComments();
 
 		$this->_deleteAlerts();
+
+		$this->_updateDevice(true);
+
+		$this->_updateLocation(true);
 	}
 
 	protected function _readMetadata()
@@ -191,6 +205,58 @@ class bdPhotos_DataWriter_Photo extends XenForo_DataWriter
 		if ($this->getOption(self::OPTION_DELETE_ALERTS))
 		{
 			$this->getModelFromCache('XenForo_Model_Alert')->deleteAlerts('bdphotos_photo', $this->get('photo_id'));
+		}
+	}
+
+	protected function _updateDevice($isDelete = false)
+	{
+		$existingDeviceId = $this->getExisting('device_id');
+		$deviceId = $this->get('device_id');
+
+		if (!$isDelete)
+		{
+			if ($existingDeviceId > 0)
+			{
+				$this->_db->query('UPDATE `xf_bdphotos_device` SET device_photo_count = IF(device_photo_count > 0, device_photo_count - 1, 0) WHERE device_id = ?', array($existingDeviceId));
+			}
+
+			if ($deviceId > 0)
+			{
+				$this->_db->query('UPDATE `xf_bdphotos_device` SET device_photo_count = device_photo_count + 1 WHERE device_id = ?', array($deviceId));
+			}
+		}
+		else
+		{
+			if ($deviceId > 0)
+			{
+				$this->_db->query('UPDATE `xf_bdphotos_device` SET device_photo_count = IF(device_photo_count > 0, device_photo_count - 1, 0) WHERE device_id = ?', array($deviceId));
+			}
+		}
+	}
+
+	protected function _updateLocation($isDelete = false)
+	{
+		$existingLocationId = $this->getExisting('location_id');
+		$locationId = $this->get('location_id');
+
+		if (!$isDelete)
+		{
+			if ($existingLocationId > 0)
+			{
+				$this->_db->query('UPDATE `xf_bdphotos_location` SET location_photo_count = IF(location_photo_count > 0, location_photo_count - 1, 0) WHERE location_id = ?', array($existingLocationId));
+			}
+
+			if ($locationId > 0)
+			{
+				$this->_db->query('UPDATE `xf_bdphotos_location` SET location_photo_count = location_photo_count + 1 WHERE location_id = ?', array($locationId));
+			}
+		}
+		else
+		{
+			if ($locationId > 0)
+			{
+				$this->_db->query('UPDATE `xf_bdphotos_location` SET location_photo_count = IF(location_photo_count > 0, location_photo_count - 1, 0) WHERE location_id = ?', array($locationId));
+			}
 		}
 	}
 

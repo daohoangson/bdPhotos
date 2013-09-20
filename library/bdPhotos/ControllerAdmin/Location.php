@@ -2,8 +2,66 @@
 
 class bdPhotos_ControllerAdmin_Location extends XenForo_ControllerAdmin_Abstract
 {
+	public function actionIndex()
+	{
+		$page = $this->_input->filterSingle('page', XenForo_Input::UINT);
+		$perPage = 100;
 
-/* Start auto-generated lines of code. Change made will be overwriten... */
+		$conditions = array();
+		$fetchOptions = array(
+			'page' => $page,
+			'perPage' => $perPage,
+		);
+
+		$filter = $this->_input->filterSingle('_filter', XenForo_Input::ARRAY_SIMPLE);
+		if ($filter && isset($filter['value']))
+		{
+			$conditions['location_name_like'] = array(
+				$filter['value'],
+				empty($filter['prefix']) ? 'lr' : 'r'
+			);
+			$filterView = true;
+		}
+		else
+		{
+			$filterView = false;
+		}
+
+		$locationModel = $this->_getLocationModel();
+
+		$locations = $locationModel->getLocations($conditions, $fetchOptions);
+		$totalLocations = $locationModel->countLocations($conditions, $fetchOptions);
+
+		$viewParams = array(
+			'locations' => $locations,
+
+			'page' => $page,
+			'perPage' => $perPage,
+			'totalLocations' => $totalLocations,
+
+			'filterView' => $filterView,
+			'filterMore' => ($filterView && $totalLocations > $perPage)
+		);
+
+		return $this->responseView('bdPhotos_ViewAdmin_Location_List', 'bdphotos_location_list', $viewParams);
+	}
+
+	public function actionAdd()
+	{
+		$viewParams = array('location' => array());
+
+		return $this->responseView('bdPhotos_ViewAdmin_Location_Edit', 'bdphotos_location_edit', $viewParams);
+	}
+
+	public function actionEdit()
+	{
+		$id = $this->_input->filterSingle('location_id', XenForo_Input::UINT);
+		$location = $this->_getLocationOrError($id);
+
+		$viewParams = array('location' => $location);
+
+		return $this->responseView('bdPhotos_ViewAdmin_Location_Edit', 'bdphotos_location_edit', $viewParams);
+	}
 
 	public function actionSave()
 	{
@@ -17,53 +75,18 @@ class bdPhotos_ControllerAdmin_Location extends XenForo_ControllerAdmin_Abstract
 		}
 
 		// get regular fields from input data
-		$dwInput = $this->_input->filter(array('location_name' => 'string', 'location_lat' => 'int', 'location_lng' => 'int'));
+		$dwInput = $this->_input->filter(array(
+			'location_name' => 'string',
+			'ne_lat' => 'int',
+			'ne_lng' => 'int',
+			'sw_lat' => 'int',
+			'sw_lng' => 'int'
+		));
 		$dw->bulkSet($dwInput);
-
-		$this->_prepareDwBeforeSaving($dw);
 
 		$dw->save();
 
-		return $this->responseRedirect(
-				XenForo_ControllerResponse_Redirect::SUCCESS,
-				XenForo_Link::buildAdminLink('photo-locations')
-		);
-	}
-
-	public function actionIndex()
-	{
-		$conditions = array();
-		$fetchOptions = array();
-
-		$locationModel = $this->_getLocationModel();
-		$locations = $locationModel->getLocations($conditions, $fetchOptions);
-
-		$viewParams = array(
-				'locations' => $locations,
-		);
-
-		return $this->responseView('bdPhotos_ViewAdmin_Location_List', 'bdphotos_location_list', $viewParams);
-	}
-
-	public function actionAdd()
-	{
-		$viewParams = array(
-				'location' => array(),
-		);
-
-		return $this->responseView('bdPhotos_ViewAdmin_Location_Edit', 'bdphotos_location_edit', $viewParams);
-	}
-
-	public function actionEdit()
-	{
-		$id = $this->_input->filterSingle('location_id', XenForo_Input::UINT);
-		$location = $this->_getLocationOrError($id);
-
-		$viewParams = array(
-				'location' => $location,
-		);
-
-		return $this->responseView('bdPhotos_ViewAdmin_Location_Edit', 'bdphotos_location_edit', $viewParams);
+		return $this->responseRedirect(XenForo_ControllerResponse_Redirect::SUCCESS, XenForo_Link::buildAdminLink('photo-locations'));
 	}
 
 	public function actionDelete()
@@ -77,14 +100,11 @@ class bdPhotos_ControllerAdmin_Location extends XenForo_ControllerAdmin_Abstract
 			$dw->setExistingData($id);
 			$dw->delete();
 
-			return $this->responseRedirect(
-					XenForo_ControllerResponse_Redirect::SUCCESS,
-					XenForo_Link::buildAdminLink('photo-locations')
-			);
-		} else {
-			$viewParams = array(
-					'location' => $location,
-			);
+			return $this->responseRedirect(XenForo_ControllerResponse_Redirect::SUCCESS, XenForo_Link::buildAdminLink('photo-locations'));
+		}
+		else
+		{
+			$viewParams = array('location' => $location);
 
 			return $this->responseView('bdPhotos_ViewAdmin_Location_Delete', 'bdphotos_location_delete', $viewParams);
 		}
@@ -107,16 +127,14 @@ class bdPhotos_ControllerAdmin_Location extends XenForo_ControllerAdmin_Abstract
 		return $this->getModelFromCache('bdPhotos_Model_Location');
 	}
 
-	protected function  _getLocationDataWriter()
+	protected function _getLocationDataWriter()
 	{
 		return XenForo_DataWriter::create('bdPhotos_DataWriter_Location');
 	}
 
-/* End auto-generated lines of code. Feel free to make changes below */
-
-	protected function _prepareDwBeforeSaving(bdPhotos_DataWriter_Location $dw)
+	protected function _preDispatch($action)
 	{
-		// customized code goes here
+		$this->assertAdminPermission('bdPhotos_location');
 	}
 
 }

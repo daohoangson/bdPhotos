@@ -1,81 +1,93 @@
 <?xml version="1.0" encoding="utf-8"?>
 <addon addon_id="bdPhotos" title="[bd] Photos" version_string="0.9-dev" version_id="1" url="" install_callback_class="bdPhotos_Installer" install_callback_method="install" uninstall_callback_class="bdPhotos_Installer" uninstall_callback_method="uninstall">
-  <admin_navigation/>
-  <admin_permissions/>
+  <admin_navigation>
+    <navigation navigation_id="bdPhotos" parent_navigation_id="applications" display_order="9999" link="" admin_permission_id="" debug_only="0" hide_no_children="1"/>
+    <navigation navigation_id="bdPhotos_device" parent_navigation_id="bdPhotos" display_order="1000" link="photo-devices" admin_permission_id="bdPhotos_device" debug_only="0" hide_no_children="0"/>
+    <navigation navigation_id="bdPhotos_location" parent_navigation_id="bdPhotos" display_order="2000" link="photo-locations" admin_permission_id="" debug_only="0" hide_no_children="0"/>
+  </admin_navigation>
+  <admin_permissions>
+    <admin_permission admin_permission_id="bdPhotos_device" display_order="9999"/>
+    <admin_permission admin_permission_id="bdPhotos_location" display_order="9999"/>
+  </admin_permissions>
   <admin_style_properties/>
   <admin_templates>
-    <template title="bdphotos_device_code_delete"><![CDATA[<xen:title>{xen:phrase bdphotos_device_code_confirm_deletion}: {$deviceCode.device_id}</xen:title>
-<xen:h1>{xen:phrase bdphotos_device_code_confirm_deletion}</xen:h1>
+    <template title="bdphotos_device_delete"><![CDATA[<xen:title>{xen:phrase bdphotos_device_confirm_deletion}: {$device.device_name}</xen:title>
+<xen:h1>{xen:phrase bdphotos_device_confirm_deletion}</xen:h1>
 
 <xen:navigation>
-	<xen:breadcrumb href="{xen:adminlink 'photo-device-codes/edit', $deviceCode}">{$deviceCode.device_id}</xen:breadcrumb>
+	<xen:breadcrumb href="{xen:adminlink 'photo-devices/edit', $device}">{$device.device_name}</xen:breadcrumb>
 </xen:navigation>
 
 <xen:require css="delete_confirmation.css" />
 
-<xen:form action="{xen:adminlink 'photo-device-codes/delete', $deviceCode}" class="deleteConfirmForm formOverlay">
+<xen:form action="{xen:adminlink 'photo-devices/delete', $device}" class="deleteConfirmForm formOverlay">
 
-	<p>{xen:phrase bdphotos_device_code_please_confirm}:</p>
-	<strong><a href="{xen:adminlink 'photo-device-codes/edit', $deviceCode}">{$deviceCode.device_id}</a></strong>
+	<p>{xen:phrase bdphotos_device_please_confirm}:</p>
+	<strong><a href="{xen:adminlink 'photo-devices/edit', $device}">{$device.device_name}</a></strong>
 
-	<xen:submitunit save="{xen:phrase bdphotos_device_code_delete}" />
+	<xen:submitunit save="{xen:phrase bdphotos_device_delete}" />
 
 	<input type="hidden" name="_xfConfirm" value="1" />
 </xen:form>]]></template>
-    <template title="bdphotos_device_code_edit"><![CDATA[<xen:title>{xen:if '{$deviceCode.device_code_id}', '{xen:phrase bdphotos_device_code_edit}', '{xen:phrase bdphotos_device_code_add}'}</xen:title>
+    <template title="bdphotos_device_edit"><![CDATA[<xen:title>{xen:if '{$device.device_id}', '{xen:phrase bdphotos_device_edit}', '{xen:phrase bdphotos_device_add}'}</xen:title>
 
-<xen:form action="{xen:adminlink 'photo-device-codes/save'}" class="AutoValidator" data-redirect="yes">
+<xen:form action="{xen:adminlink 'photo-devices/save'}" class="AutoValidator" data-redirect="yes">
 
 	
-	<xen:textboxunit label="{xen:phrase bdphotos_manufacture}:" name="manufacture" value="{$deviceCode.manufacture}" />
-	<xen:textboxunit label="{xen:phrase bdphotos_code}:" name="code" value="{$deviceCode.code}" />
-	<xen:textboxunit label="{xen:phrase bdphotos_device_id}:" name="device_id" value="{$deviceCode.device_id}" data-liveTitleTemplate="{xen:if {$deviceCode.device_code_id},
-		'{xen:phrase bdphotos_device_code_edit}: <em>%s</em>',
-		'{xen:phrase bdphotos_device_code_add}: <em>%s</em>'}" />
+	<xen:textboxunit label="{xen:phrase bdphotos_device_name}:" name="device_name" value="{$device.device_name}" data-liveTitleTemplate="{xen:if {$device.device_id},
+		'{xen:phrase bdphotos_device_edit}: <em>%s</em>',
+		'{xen:phrase bdphotos_device_add}: <em>%s</em>'}" />
 
-	<xen:submitunit save="{xen:phrase bdphotos_device_code_save}">
-		<input type="button" name="delete" value="{xen:phrase bdphotos_device_code_delete}"
+	<xen:submitunit save="{xen:phrase bdphotos_device_save}">
+		<input type="button" name="delete" value="{xen:phrase bdphotos_device_delete}"
 			accesskey="d" class="button OverlayTrigger"
-			data-href="{xen:adminlink 'photo-device-codes/delete', $deviceCode}"
-			{xen:if '!{$deviceCode.device_code_id}', 'style="display: none"'}
+			data-href="{xen:adminlink 'photo-devices/delete', $device}"
+			{xen:if '!{$device.device_id}', 'style="display: none"'}
 		/>
 	</xen:submitunit>
 
-	<input type="hidden" name="device_code_id" value="{$deviceCode.device_code_id}" />
+	<input type="hidden" name="device_id" value="{$device.device_id}" />
 </xen:form>]]></template>
-    <template title="bdphotos_device_code_list"><![CDATA[<xen:title>{xen:phrase bdphotos_device_codes}</xen:title>
+    <template title="bdphotos_device_list"><![CDATA[<xen:title>{xen:phrase bdphotos_devices}</xen:title>
 
 <xen:topctrl>
-	<a href="{xen:adminlink 'photo-device-codes/add'}" class="button" accesskey="a">+ {xen:phrase bdphotos_device_code_add}</a>
+	<a href="{xen:adminlink 'photo-devices/add'}" class="button" accesskey="a">+ {xen:phrase bdphotos_device_add}</a>
 </xen:topctrl>
 
 <xen:require css="filter_list.css" />
 <xen:require js="js/xenforo/filter_list.js" />
 
-<xen:form action="{xen:adminlink 'photo-device-codes'}" class="section">
-	<xen:if is="{$deviceCodes}">
+<xen:form action="{xen:adminlink 'photo-devices'}" class="section">
+	<xen:if is="{$devices}">
 		<h2 class="subHeading">
 			<xen:include template="filter_list_controls" />
-			{xen:phrase bdphotos_device_codes}
+			{xen:phrase bdphotos_devices}
 		</h2>
 
-		<ol class="FilterList Scrollable">
-			<xen:include template="bdphotos_device_code_list_items" />
+		<ol class="FilterList Scrollable" data-ajaxfilter="true">
+			<xen:include template="bdphotos_device_list_items" />
 		</ol>
 
-		<p class="sectionFooter">{xen:phrase showing_x_of_y_items, 'count=<span class="FilterListCount">{xen:count $deviceCodes}</span>', 'total={xen:count $deviceCodes}'}</p>
+		<p class="sectionFooter">{xen:phrase showing_x_of_y_items, 'count=<span class="FilterListCount">{xen:number {xen:count $devices}}</span>', 'total={xen:number $totalDevices}'}</p>
 	<xen:else />
-		<div class="noResults">{xen:phrase bdphotos_device_code_no_results}</div>
+		<div class="noResults">{xen:phrase bdphotos_device_no_results}</div>
 	</xen:if>
-</xen:form>]]></template>
-    <template title="bdphotos_device_code_list_items"><![CDATA[<xen:foreach loop="$deviceCodes" value="$deviceCode">
+</xen:form>
+
+{xen:adminpagenav $perPage, $totalDevices, $page, photo-devices}]]></template>
+    <template title="bdphotos_device_list_items"><![CDATA[<xen:foreach loop="$devices" value="$device">
 	<xen:listitem
-		id="{$deviceCode.device_code_id}"
-		href="{xen:adminlink 'photo-device-codes/edit', $deviceCode}"
-		delete="{xen:adminlink 'photo-device-codes/delete', $deviceCode}">
-		<xen:label>{$deviceCode.device_id}</xen:label>
+		id="{$device.device_id}"
+		href="{xen:adminlink 'photo-devices/edit', $device}"
+		delete="{xen:adminlink 'photo-devices/delete', $device}">
+		<xen:label>{$device.device_name}</xen:label>
+		<xen:snippet>{xen:number $device.device_photo_count}</xen:snippet>
 	</xen:listitem>
-</xen:foreach>]]></template>
+</xen:foreach>
+
+<xen:if is="{$filterMore}">
+	<li class="listNote">{xen:phrase more_records_matching_filter_more_specific}</li>
+</xen:if>]]></template>
     <template title="bdphotos_location_delete"><![CDATA[<xen:title>{xen:phrase bdphotos_location_confirm_deletion}: {$location.location_name}</xen:title>
 <xen:h1>{xen:phrase bdphotos_location_confirm_deletion}</xen:h1>
 
@@ -102,8 +114,10 @@
 	<xen:textboxunit label="{xen:phrase bdphotos_location_name}:" name="location_name" value="{$location.location_name}" data-liveTitleTemplate="{xen:if {$location.location_id},
 		'{xen:phrase bdphotos_location_edit}: <em>%s</em>',
 		'{xen:phrase bdphotos_location_add}: <em>%s</em>'}" />
-	<xen:textboxunit label="{xen:phrase bdphotos_location_lat}:" name="location_lat" value="{$location.location_lat}" />
-	<xen:textboxunit label="{xen:phrase bdphotos_location_lng}:" name="location_lng" value="{$location.location_lng}" />
+	<xen:textboxunit label="{xen:phrase bdphotos_ne_lat}:" name="ne_lat" value="{$location.ne_lat}" />
+	<xen:textboxunit label="{xen:phrase bdphotos_ne_lng}:" name="ne_lng" value="{$location.ne_lng}" />
+	<xen:textboxunit label="{xen:phrase bdphotos_sw_lat}:" name="sw_lat" value="{$location.sw_lat}" />
+	<xen:textboxunit label="{xen:phrase bdphotos_sw_lng}:" name="sw_lng" value="{$location.sw_lng}" />
 
 	<xen:submitunit save="{xen:phrase bdphotos_location_save}">
 		<input type="button" name="delete" value="{xen:phrase bdphotos_location_delete}"
@@ -131,25 +145,51 @@
 			{xen:phrase bdphotos_locations}
 		</h2>
 
-		<ol class="FilterList Scrollable">
+		<ol class="FilterList Scrollable" data-ajaxfilter="true">
 			<xen:include template="bdphotos_location_list_items" />
 		</ol>
 
-		<p class="sectionFooter">{xen:phrase showing_x_of_y_items, 'count=<span class="FilterListCount">{xen:count $locations}</span>', 'total={xen:count $locations}'}</p>
+		<p class="sectionFooter">{xen:phrase showing_x_of_y_items, 'count=<span class="FilterListCount">{xen:number {xen:count $locations}}</span>', 'total={xen:number $totalLocations}'}</p>
 	<xen:else />
 		<div class="noResults">{xen:phrase bdphotos_location_no_results}</div>
 	</xen:if>
-</xen:form>]]></template>
+</xen:form>
+
+{xen:adminpagenav $perPage, $totalLocations, $page, photo-locations}]]></template>
     <template title="bdphotos_location_list_items"><![CDATA[<xen:foreach loop="$locations" value="$location">
 	<xen:listitem
 		id="{$location.location_id}"
 		href="{xen:adminlink 'photo-locations/edit', $location}"
 		delete="{xen:adminlink 'photo-locations/delete', $location}">
 		<xen:label>{$location.location_name}</xen:label>
+		<xen:snippet>{xen:number $location.location_photo_count}</xen:snippet>
 	</xen:listitem>
-</xen:foreach>]]></template>
+</xen:foreach>
+
+<xen:if is="{$filterMore}">
+	<li class="listNote">{xen:phrase more_records_matching_filter_more_specific}</li>
+</xen:if>]]></template>
+    <template title="bdphotos_tools_rebuild"><![CDATA[<xen:form action="{xen:adminlink 'tools/trigger-deferred'}">
+	<h2 class="subHeading">{xen:phrase bdphotos_rebuild_photo_counters}</h2>
+	
+	<xen:selectunit name="options[content_type]" value="" label="{xen:phrase build_content_type}:">
+		<xen:option value="devices">{xen:phrase bdphotos_devices}</xen:option>
+		<xen:option value="locations">{xen:phrase bdphotos_locations}</xen:option>
+	</xen:selectunit>
+	<xen:spinboxunit name="options[batch]" value="500" step="50" min="1" label="{xen:phrase items_to_process_per_page}:" />
+
+	<xen:submitunit save="{xen:phrase rebuild_now}" />
+	<input type="hidden" name="cache" value="bdPhotos_Deferred_PhotoCounters" />
+</xen:form>]]></template>
   </admin_templates>
-  <admin_template_modifications/>
+  <admin_template_modifications>
+    <modification template="tools_rebuild" modification_key="bdphotos_tools_rebuild" description="Inject rebuild tools." execution_order="10" enabled="1" action="preg_replace">
+      <find><![CDATA[#<xen:form action="{xen:adminlink 'tools/clean-up-permissions'}">(.|\r|\n)*?</xen:form>#]]></find>
+      <replace><![CDATA[$0
+
+<xen:include template="bdphotos_tools_rebuild" />]]></replace>
+    </modification>
+  </admin_template_modifications>
   <code_events/>
   <code_event_listeners>
     <listener event_id="file_health_check" execute_order="10" callback_class="bdPhotos_Listener" callback_method="file_health_check" active="1" hint="" description=""/>
@@ -224,12 +264,17 @@ step=1024</edit_format_params>
     </interface_groups>
   </permissions>
   <phrases>
+    <phrase title="admin_navigation_bdPhotos" version_id="1" version_string="0.9-dev"><![CDATA[[bd] Photos]]></phrase>
+    <phrase title="admin_navigation_bdPhotos_device" version_id="1" version_string="0.9-dev"><![CDATA[Devices]]></phrase>
+    <phrase title="admin_navigation_bdPhotos_location" version_id="1" version_string="0.9-dev"><![CDATA[Locations]]></phrase>
+    <phrase title="admin_permission_bdPhotos_device" version_id="1" version_string="0.9-dev"><![CDATA[[bd] Photos: Manage devices]]></phrase>
+    <phrase title="admin_permission_bdPhotos_location" version_id="1" version_string="0.9-dev"><![CDATA[[bd] Photos: Manage locations]]></phrase>
     <phrase title="bdphotos_add_photo" version_id="1" version_string="0.9-dev"><![CDATA[Add Photo]]></phrase>
     <phrase title="bdphotos_album" version_id="1" version_string="0.9-dev"><![CDATA[Album]]></phrase>
     <phrase title="bdphotos_albums" version_id="1" version_string="0.9-dev"><![CDATA[Albums]]></phrase>
     <phrase title="bdphotos_album_description" version_id="1" version_string="0.9-dev"><![CDATA[Description]]></phrase>
     <phrase title="bdphotos_album_name" version_id="1" version_string="0.9-dev"><![CDATA[Album Name]]></phrase>
-    <phrase title="bdphotos_album_not_found" version_id="1" version_string="0.9-dev"><![CDATA[The requested album could not be found.]]></phrase>
+    <phrase title="bdphotos_album_not_found" version_id="1" version_string="0.9-dev"><![CDATA[The requested album could not be found]]></phrase>
     <phrase title="bdphotos_are_you_sure_delete_album_x" version_id="1" version_string="0.9-dev"><![CDATA[Are you sure that you want to delete the album {album}?]]></phrase>
     <phrase title="bdphotos_care_to_add_some_photo_question" version_id="1" version_string="0.9-dev"><![CDATA[Care to <a href="{link}">add some photos</a>?]]></phrase>
     <phrase title="bdphotos_code" version_id="1" version_string="0.9-dev"><![CDATA[Code]]></phrase>
@@ -237,17 +282,17 @@ step=1024</edit_format_params>
     <phrase title="bdphotos_create_new_album" version_id="1" version_string="0.9-dev"><![CDATA[Create New Album]]></phrase>
     <phrase title="bdphotos_delete_album" version_id="1" version_string="0.9-dev"><![CDATA[Delete Album]]></phrase>
     <phrase title="bdphotos_device" version_id="1" version_string="0.9-dev"><![CDATA[Device]]></phrase>
-    <phrase title="bdphotos_device_code" version_id="1" version_string="0.9-dev"><![CDATA[Device Code]]></phrase>
-    <phrase title="bdphotos_device_codes" version_id="1" version_string="0.9-dev"><![CDATA[Device Codes]]></phrase>
-    <phrase title="bdphotos_device_code_add" version_id="1" version_string="0.9-dev"><![CDATA[Add New Device Code]]></phrase>
-    <phrase title="bdphotos_device_code_confirm_deletion" version_id="1" version_string="0.9-dev"><![CDATA[Confirm Deletion of Device Code]]></phrase>
-    <phrase title="bdphotos_device_code_delete" version_id="1" version_string="0.9-dev"><![CDATA[Delete Device Code]]></phrase>
-    <phrase title="bdphotos_device_code_edit" version_id="1" version_string="0.9-dev"><![CDATA[Edit Device Code]]></phrase>
-    <phrase title="bdphotos_device_code_not_found" version_id="1" version_string="0.9-dev"><![CDATA[The requested device code could not be found]]></phrase>
-    <phrase title="bdphotos_device_code_no_results" version_id="1" version_string="0.9-dev"><![CDATA[No device code could be found...]]></phrase>
-    <phrase title="bdphotos_device_code_please_confirm" version_id="1" version_string="0.9-dev"><![CDATA[Please confirm that you want to delete the following device code]]></phrase>
-    <phrase title="bdphotos_device_code_save" version_id="1" version_string="0.9-dev"><![CDATA[Save Device Code]]></phrase>
+    <phrase title="bdphotos_devices" version_id="1" version_string="0.9-dev"><![CDATA[Devices]]></phrase>
+    <phrase title="bdphotos_device_add" version_id="1" version_string="0.9-dev"><![CDATA[Add New Device]]></phrase>
+    <phrase title="bdphotos_device_confirm_deletion" version_id="1" version_string="0.9-dev"><![CDATA[Confirm Deletion of Device]]></phrase>
+    <phrase title="bdphotos_device_delete" version_id="1" version_string="0.9-dev"><![CDATA[Delete Device]]></phrase>
+    <phrase title="bdphotos_device_edit" version_id="1" version_string="0.9-dev"><![CDATA[Edit Device]]></phrase>
     <phrase title="bdphotos_device_id" version_id="1" version_string="0.9-dev"><![CDATA[Device Id]]></phrase>
+    <phrase title="bdphotos_device_name" version_id="1" version_string="0.9-dev"><![CDATA[Device Name]]></phrase>
+    <phrase title="bdphotos_device_not_found" version_id="1" version_string="0.9-dev"><![CDATA[The requested device could not be found]]></phrase>
+    <phrase title="bdphotos_device_no_results" version_id="1" version_string="0.9-dev"><![CDATA[No device could be found...]]></phrase>
+    <phrase title="bdphotos_device_please_confirm" version_id="1" version_string="0.9-dev"><![CDATA[Please confirm that you want to delete the following device]]></phrase>
+    <phrase title="bdphotos_device_save" version_id="1" version_string="0.9-dev"><![CDATA[Save Device]]></phrase>
     <phrase title="bdphotos_dimensions" version_id="1" version_string="0.9-dev"><![CDATA[Dimensions]]></phrase>
     <phrase title="bdphotos_download_full" version_id="1" version_string="0.9-dev"><![CDATA[Download Fullsize]]></phrase>
     <phrase title="bdphotos_edit_album" version_id="1" version_string="0.9-dev"><![CDATA[Edit Album]]></phrase>
@@ -258,8 +303,6 @@ step=1024</edit_format_params>
     <phrase title="bdphotos_location_confirm_deletion" version_id="1" version_string="0.9-dev"><![CDATA[Confirm Deletion of Location]]></phrase>
     <phrase title="bdphotos_location_delete" version_id="1" version_string="0.9-dev"><![CDATA[Delete Location]]></phrase>
     <phrase title="bdphotos_location_edit" version_id="1" version_string="0.9-dev"><![CDATA[Edit Location]]></phrase>
-    <phrase title="bdphotos_location_lat" version_id="1" version_string="0.9-dev"><![CDATA[Location Lat]]></phrase>
-    <phrase title="bdphotos_location_lng" version_id="1" version_string="0.9-dev"><![CDATA[Location Lng]]></phrase>
     <phrase title="bdphotos_location_name" version_id="1" version_string="0.9-dev"><![CDATA[Location Name]]></phrase>
     <phrase title="bdphotos_location_not_found" version_id="1" version_string="0.9-dev"><![CDATA[The requested location could not be found]]></phrase>
     <phrase title="bdphotos_location_no_results" version_id="1" version_string="0.9-dev"><![CDATA[No location could be found...]]></phrase>
@@ -268,6 +311,8 @@ step=1024</edit_format_params>
     <phrase title="bdphotos_manufacture" version_id="1" version_string="0.9-dev"><![CDATA[Manufacture]]></phrase>
     <phrase title="bdphotos_navigation_tab_title" global_cache="1" version_id="1" version_string="0.9-dev"><![CDATA[Photos]]></phrase>
     <phrase title="bdphotos_near_lowercase" version_id="1" version_string="0.9-dev"><![CDATA[near]]></phrase>
+    <phrase title="bdphotos_ne_lat" version_id="1" version_string="0.9-dev"><![CDATA[North East Latitude]]></phrase>
+    <phrase title="bdphotos_ne_lng" version_id="1" version_string="0.9-dev"><![CDATA[North East Longitude]]></phrase>
     <phrase title="bdphotos_not_published" version_id="1" version_string="0.9-dev"><![CDATA[Not Published]]></phrase>
     <phrase title="bdphotos_one_photo" version_id="1" version_string="0.9-dev"><![CDATA[1 photo]]></phrase>
     <phrase title="bdphotos_photo" version_id="1" version_string="0.9-dev"><![CDATA[Photo]]></phrase>
@@ -275,9 +320,12 @@ step=1024</edit_format_params>
     <phrase title="bdphotos_photo_caption" version_id="1" version_string="0.9-dev"><![CDATA[Photo Caption]]></phrase>
     <phrase title="bdphotos_photo_info" version_id="1" version_string="0.9-dev"><![CDATA[Photo Information]]></phrase>
     <phrase title="bdphotos_photo_location" version_id="1" version_string="0.9-dev"><![CDATA[Photo Location]]></phrase>
-    <phrase title="bdphotos_photo_not_found" version_id="1" version_string="0.9-dev"><![CDATA[The requested photo could not be found.]]></phrase>
+    <phrase title="bdphotos_photo_not_found" version_id="1" version_string="0.9-dev"><![CDATA[The requested photo could not be found]]></phrase>
     <phrase title="bdphotos_previous" version_id="1" version_string="0.9-dev"><![CDATA[Previous]]></phrase>
     <phrase title="bdphotos_publish_album" version_id="1" version_string="0.9-dev"><![CDATA[Publish Album]]></phrase>
+    <phrase title="bdphotos_rebuild_photo_counters" version_id="1" version_string="0.9-dev"><![CDATA[[bd] Photos: Rebuild Photo Counters]]></phrase>
+    <phrase title="bdphotos_sw_lat" version_id="1" version_string="0.9-dev"><![CDATA[South West Latitude]]></phrase>
+    <phrase title="bdphotos_sw_lng" version_id="1" version_string="0.9-dev"><![CDATA[South West Longitude]]></phrase>
     <phrase title="bdphotos_taken" version_id="1" version_string="0.9-dev"><![CDATA[Taken]]></phrase>
     <phrase title="bdphotos_there_is_no_albums_here" version_id="1" version_string="0.9-dev"><![CDATA[There is no albums here.]]></phrase>
     <phrase title="bdphotos_there_is_no_photos_here" version_id="1" version_string="0.9-dev"><![CDATA[There is no photos here.]]></phrase>
@@ -331,7 +379,7 @@ step=1024</edit_format_params>
   </phrases>
   <route_prefixes>
     <route_type type="admin">
-      <prefix original_prefix="photo-device-codes" class="bdPhotos_Route_PrefixAdmin_DeviceCode" build_link="data_only"/>
+      <prefix original_prefix="photo-devices" class="bdPhotos_Route_PrefixAdmin_Device" build_link="data_only"/>
       <prefix original_prefix="photo-locations" class="bdPhotos_Route_PrefixAdmin_Location" build_link="data_only"/>
     </route_type>
     <route_type type="public">

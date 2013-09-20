@@ -10,8 +10,16 @@ class bdPhotos_Model_Device extends XenForo_Model
 			'manufacture' => $manufacture,
 			'code' => $code,
 		));
+		$deviceCode = false;
+		$device = false;
 
-		if (empty($deviceCodes))
+		if (!empty($deviceCodes))
+		{
+			$deviceCode = reset($deviceCodes);
+			$device = $this->getDeviceById($deviceCode['device_id'], $fetchOptions);
+		}
+
+		if (empty($device))
 		{
 			// create a new device, and a device code associate with it
 			$deviceDw = XenForo_DataWriter::create('bdPhotos_DataWriter_Device');
@@ -20,6 +28,10 @@ class bdPhotos_Model_Device extends XenForo_Model
 			$device = $deviceDw->getMergedData();
 
 			$dcDw = XenForo_DataWriter::create('bdPhotos_DataWriter_DeviceCode');
+			if (!empty($deviceCode))
+			{
+				$dcDw->setExistingData($deviceCode, true);
+			}
 			$dcDw->set('manufacture', $manufacture);
 			$dcDw->set('code', $code);
 			$dcDw->set('device_id', $device['device_id']);
@@ -33,13 +45,20 @@ class bdPhotos_Model_Device extends XenForo_Model
 				$code,
 			)));
 		}
-		else
-		{
-			$deviceCode = reset($deviceCodes);
-			$device = $this->getDeviceById($deviceCode['device_id'], $fetchOptions);
-		}
 
 		return array_merge($device, $deviceCode);
+	}
+
+	public function getDeviceIdsInRange($start, $limit)
+	{
+		$db = $this->_getDb();
+
+		return $db->fetchCol($db->limit('
+			SELECT device_id
+			FROM xf_bdphotos_device
+			WHERE device_id > ?
+			ORDER BY device_id
+		', $limit), $start);
 	}
 
 	/* Start auto-generated lines of code. Change made will be overwriten... */
@@ -139,6 +158,22 @@ class bdPhotos_Model_Device extends XenForo_Model
 			}
 		}
 
+		if (isset($conditions['device_photo_count']))
+		{
+			if (is_array($conditions['device_photo_count']))
+			{
+				if (!empty($conditions['device_photo_count']))
+				{
+					// only use IN condition if the array is not empty (nasty!)
+					$sqlConditions[] = "device.device_photo_count IN (" . $db->quote($conditions['device_photo_count']) . ")";
+				}
+			}
+			else
+			{
+				$sqlConditions[] = "device.device_photo_count = " . $db->quote($conditions['device_photo_count']);
+			}
+		}
+
 		$this->_prepareDeviceConditionsCustomized($sqlConditions, $conditions, $fetchOptions);
 
 		return $this->getConditionsForClause($sqlConditions);
@@ -204,6 +239,18 @@ class bdPhotos_Model_Device extends XenForo_Model
 			else
 			{
 				$sqlConditions[] = "device_code.code = " . $db->quote($conditions['code']);
+			}
+		}
+
+		if (!empty($conditions['device_name_like']))
+		{
+			if (is_array($conditions['device_name_like']))
+			{
+				$sqlConditions[] = 'device.device_name LIKE ' . XenForo_Db::quoteLike($conditions['device_name_like'][0], $conditions['device_name_like'][1], $db);
+			}
+			else
+			{
+				$sqlConditions[] = 'device.device_name LIKE ' . XenForo_Db::quoteLike($conditions['device_name_like'], 'lr', $db);
 			}
 		}
 	}

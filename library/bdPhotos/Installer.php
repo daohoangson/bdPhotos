@@ -87,6 +87,7 @@ class bdPhotos_Installer
 				`device_id` INT(10) UNSIGNED AUTO_INCREMENT
 				,`device_name` VARCHAR(255) NOT NULL
 				,`device_info` MEDIUMBLOB
+				,`device_photo_count` INT(10) UNSIGNED NOT NULL DEFAULT \'0\'
 				, PRIMARY KEY (`device_id`)
 				
 			) ENGINE = InnoDB CHARACTER SET utf8 COLLATE utf8_general_ci;',
@@ -112,6 +113,8 @@ class bdPhotos_Installer
 				,`sw_lat` INT(11) NOT NULL
 				,`sw_lng` INT(11) NOT NULL
 				,`location_info` MEDIUMBLOB
+				,`location_album_count` INT(10) UNSIGNED NOT NULL DEFAULT \'0\'
+				,`location_photo_count` INT(10) UNSIGNED NOT NULL DEFAULT \'0\'
 				, PRIMARY KEY (`location_id`)
 				, INDEX `ne_lat_ne_lng_sw_lat_sw_lng` (`ne_lat`,`ne_lng`,`sw_lat`,`sw_lng`)
 			) ENGINE = InnoDB CHARACTER SET utf8 COLLATE utf8_general_ci;',
@@ -221,12 +224,12 @@ class bdPhotos_Installer
 		$db->query('DROP TABLE IF EXISTS `xf_bdphotos_album_view`');
 		$db->query('DROP TABLE IF EXISTS `xf_bdphotos_photo_view`');
 
+		// delete content type related records
 		$contentTypes = array(
 			'bdphotos_album',
 			'bdphotos_photo'
 		);
 		$contentTypesQuoted = $db->quote($contentTypes);
-
 		$contentTypeTables = array(
 			'xf_liked_content',
 			'xf_news_feed',
@@ -237,6 +240,7 @@ class bdPhotos_Installer
 			$db->delete($table, 'content_type IN (' . $contentTypesQuoted . ')');
 		}
 
+		// delete permission entry
 		$permissions = self::_permissionsGet();
 		foreach ($permissions as $permission)
 		{
@@ -249,6 +253,10 @@ class bdPhotos_Installer
 				$permission['permission_id']
 			));
 		}
+
+		// delete admin permission entry
+		$db->delete('xf_admin_permission_entry', "admin_permission_id = 'bdPhotos_device'");
+		$db->delete('xf_admin_permission_entry', "admin_permission_id = 'bdPhotos_location'");
 	}
 
 	protected static function _installDemo(array $user)
@@ -272,10 +280,10 @@ class bdPhotos_Installer
 
 		$locationDw = XenForo_DataWriter::create('bdPhotos_DataWriter_Location');
 		$locationDw->set('location_name', 'Demo Location');
-		$locationDw->set('ne_lat', 0);
-		$locationDw->set('ne_lng', 0);
-		$locationDw->set('sw_lat', 0);
-		$locationDw->set('sw_lng', 0);
+		$locationDw->set('ne_lat', 37421972);
+		$locationDw->set('ne_lng', -122084103);
+		$locationDw->set('sw_lat', 37421972);
+		$locationDw->set('sw_lng', -122084103);
 		$locationDw->save();
 		$location = $locationDw->getMergedData();
 
