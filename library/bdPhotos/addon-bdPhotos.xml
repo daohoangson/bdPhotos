@@ -427,8 +427,9 @@ step=1024</edit_format_params>
     </group>
   </style_properties>
   <templates>
-    <template title="bdphotos.css" version_id="1" version_string="0.9-dev"><![CDATA[.bdPhotos_AlbumList
+    <template title="bdphotos.css" version_id="2" version_string="0.9"><![CDATA[.bdPhotos_AlbumList
 {
+	margin: 0 -10px;
 }
 {xen:helper clearfix, '.bdPhotos_AlbumList'}
 
@@ -440,7 +441,7 @@ step=1024</edit_format_params>
 		.bdPhotos_AlbumList_Album .container
 		{
 			border: 1px solid {xen:property faintTextColor};
-			margin: 10px;
+			margin: 9px;
 			width: {xen:helper bdPhotos_formatCssProperty, pixel, {xen:property bdPhotos_thumbnailWidth}};
 		}
 
@@ -496,6 +497,7 @@ step=1024</edit_format_params>
 
 .bdPhotos_PhotoList
 {
+	margin: 0 -10px;
 }
 {xen:helper clearfix, '.bdPhotos_PhotoList'}
 
@@ -1485,15 +1487,20 @@ step=1024</edit_format_params>
 <xen:sidebar>
 	<xen:include template="bdphotos_sidebar_photo_info" />
 </xen:sidebar>]]></template>
-    <template title="bdphotos_responsive.css" version_id="1" version_string="0.9-dev"><![CDATA[@media (max-width:{xen:helper bdPhotos_formatCssProperty, pixel, {xen:calc '{xen:property bdPhotos_thumbnailWidth} * 2.4'}})
+    <template title="bdphotos_responsive.css" version_id="2" version_string="0.9"><![CDATA[@media (max-width:{xen:helper bdPhotos_formatCssProperty, pixel, {xen:calc '{xen:property bdPhotos_thumbnailWidth} * 2.4'}})
 {
+	.bdPhotos_AlbumList
+	{
+		margin: 0 -5px;
+	}
+
 	.bdPhotos_AlbumList_Album
 	{
 		width: 50%;
 	}
 		.bdPhotos_AlbumList_Album .container
 		{
-			margin: 5px;
+			margin: 4px;
 			width: auto;
 		}
 		.bdPhotos_AlbumList_Album .cover,
@@ -1504,6 +1511,11 @@ step=1024</edit_format_params>
 			width: 100%;
 			height: auto;
 		}
+
+	.bdPhotos_PhotoList
+	{
+		margin: 0 -5px;
+	}
 
 	.bdPhotos_PhotoList_Photo
 	{
@@ -1522,17 +1534,22 @@ step=1024</edit_format_params>
 			width: 100%;
 			height: auto;
 		}
+			.bdPhotos_PhotoList_Photo .photo img
+			{
+				position: relative !important;
+			}
 		.bdPhotos_PhotoList_Photo .controls
 		{
 			opacity: 1;
 		}
 		.bdPhotos_PhotoList_Photo .controls.bottom.gradient,
+		.bdPhotos_PhotoList_Photo .controls.below,
 		.bdPhotos_PhotoList_Photo .controls .buttons,
 		.bdPhotos_PhotoList_Photo .controls .stats,
 		.bdPhotos_PhotoList_Photo .controls .avatar,
 		.bdPhotos_PhotoList_Photo .controls .caption .from-album
 		{
-			display: none;
+			display: none !important;
 		}
 		.bdPhotos_PhotoList_Photo .controls .caption
 		{
@@ -1546,6 +1563,11 @@ step=1024</edit_format_params>
 
 @media (max-width:{xen:helper bdPhotos_formatCssProperty, pixel, {xen:calc '{xen:property bdPhotos_thumbnailWidth} * 1.2'}})
 {
+	.bdPhotos_AlbumList
+	{
+		margin: 0;
+	}
+
 	.bdPhotos_AlbumList_Album
 	{
 		width: 100%;
@@ -1562,7 +1584,12 @@ step=1024</edit_format_params>
 		{
 			display: none;
 		}
-	
+
+	.bdPhotos_PhotoList
+	{
+		margin: 0;
+	}
+
 	.bdPhotos_PhotoList_Photo
 	{
 		width: 100%;

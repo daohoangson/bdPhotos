@@ -121,8 +121,15 @@ class bdPhotos_Helper_Metadata
 						case 'DateTime':
 						case 'DateTimeOriginal':
 						case 'DateTimeDigitized':
-							$valueDate = new DateTime($value);
-							$value = $valueDate->format('U');
+							try
+							{
+								$valueDate = new DateTime($value);
+								$value = $valueDate->format('U');
+							}
+							catch (Exception $e)
+							{
+								$value = 0;
+							}
 							break;
 					}
 				}
