@@ -12,6 +12,9 @@ class bdPhotos_Option
 				return 'bdPhotos';
 			case 'navTabPosition':
 				return 'middle';
+			case 'devicesPerPage':
+			case 'locationsPerPage':
+				return 100;
 
 			// TODO
 			case 'commentsPerPage':

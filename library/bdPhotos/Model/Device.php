@@ -23,7 +23,7 @@ class bdPhotos_Model_Device extends XenForo_Model
 		{
 			// create a new device, and a device code associate with it
 			$deviceDw = XenForo_DataWriter::create('bdPhotos_DataWriter_Device');
-			$deviceDw->set('device_name', utf8_ucwords(str_replace('_', ' ', $manufacture)));
+			$deviceDw->set('device_name', utf8_strtoupper(str_replace('_', ' ', $code)));
 			$deviceDw->save();
 			$device = $deviceDw->getMergedData();
 
@@ -253,6 +253,11 @@ class bdPhotos_Model_Device extends XenForo_Model
 				$sqlConditions[] = 'device.device_name LIKE ' . XenForo_Db::quoteLike($conditions['device_name_like'], 'lr', $db);
 			}
 		}
+
+		if (!empty($conditions['device_name_before']))
+		{
+			$sqlConditions[] = 'device.device_name < ' . $db->quote($conditions['device_name_before']);
+		}
 	}
 
 	protected function _prepareDeviceFetchOptionsCustomized(&$selectFields, &$joinTables, array $fetchOptions)
@@ -275,7 +280,7 @@ class bdPhotos_Model_Device extends XenForo_Model
 
 	protected function _prepareDeviceOrderOptionsCustomized(array &$choices, array &$fetchOptions)
 	{
-		// customized code goes here
+		$choices['device_name'] = 'device.device_name';
 	}
 
 }

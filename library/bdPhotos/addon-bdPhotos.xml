@@ -31,12 +31,37 @@
 </xen:form>]]></template>
     <template title="bdphotos_device_edit"><![CDATA[<xen:title>{xen:if '{$device.device_id}', '{xen:phrase bdphotos_device_edit}', '{xen:phrase bdphotos_device_add}'}</xen:title>
 
-<xen:form action="{xen:adminlink 'photo-devices/save'}" class="AutoValidator" data-redirect="yes">
+<xen:require js="js/bdPhotos/device_edit.js" />
 
+<xen:form action="{xen:adminlink 'photo-devices/save'}" class="AutoValidator" data-redirect="yes">
 	
 	<xen:textboxunit label="{xen:phrase bdphotos_device_name}:" name="device_name" value="{$device.device_name}" data-liveTitleTemplate="{xen:if {$device.device_id},
 		'{xen:phrase bdphotos_device_edit}: <em>%s</em>',
 		'{xen:phrase bdphotos_device_add}: <em>%s</em>'}" />
+
+	<xen:controlunit label="{xen:phrase bdphotos_device_codes}:">
+		<xen:html>
+			<ul>
+				<xen:if is="{$deviceCodes}">
+					<xen:foreach loop="$deviceCodes" i="$i" value="$deviceCode">
+						<li>
+							<xen:set var="$counter">{xen:calc '{$i} - 1'}</xen:set>
+
+							<xen:textbox name="codes[{$counter}][manufacture]" value="{$deviceCode.manufacture}" placeholder="{xen:phrase bdphotos_manufacture}" size="20" />
+							<xen:textbox name="codes[{$counter}][code]" value="{$deviceCode.code}" placeholder="{xen:phrase bdphotos_device_code_code}" size="20" />
+							<input type="hidden" name="codes[{$counter}][device_code_id]" value="{$deviceCode.device_code_id}" />
+						</li>
+					</xen:foreach>
+				</xen:if>
+
+				<li class="bdPhotos_DeviceCodeNew">
+					<xen:set var="$counter">{xen:if '{$deviceCodes}', {xen:count $deviceCodes}, 0}</xen:set>
+					<xen:textbox name="codes[{$counter}][manufacture]" value="" placeholder="{xen:phrase bdphotos_manufacture}" size="20" />
+					<xen:textbox name="codes[{$counter}][code]" value="" placeholder="{xen:phrase bdphotos_device_code_code}" size="20" />
+				</li>
+			</ul>
+		</xen:html>
+	</xen:controlunit>
 
 	<xen:submitunit save="{xen:phrase bdphotos_device_save}">
 		<input type="button" name="delete" value="{xen:phrase bdphotos_device_delete}"
@@ -284,6 +309,9 @@ step=1024</edit_format_params>
     <phrase title="bdphotos_device" version_id="1" version_string="0.9-dev"><![CDATA[Device]]></phrase>
     <phrase title="bdphotos_devices" version_id="1" version_string="0.9-dev"><![CDATA[Devices]]></phrase>
     <phrase title="bdphotos_device_add" version_id="1" version_string="0.9-dev"><![CDATA[Add New Device]]></phrase>
+    <phrase title="bdphotos_device_codes" version_id="1" version_string="0.9-dev"><![CDATA[Device Codes]]></phrase>
+    <phrase title="bdphotos_device_code_code" version_id="1" version_string="0.9-dev"><![CDATA[Model]]></phrase>
+    <phrase title="bdphotos_device_code_duplicated_with_x" version_id="1" version_string="0.9-dev"><![CDATA[The specified device code has been associated with device {device_name}. One device code cannot be used with more than one device. A device may have many device codes though.]]></phrase>
     <phrase title="bdphotos_device_confirm_deletion" version_id="1" version_string="0.9-dev"><![CDATA[Confirm Deletion of Device]]></phrase>
     <phrase title="bdphotos_device_delete" version_id="1" version_string="0.9-dev"><![CDATA[Delete Device]]></phrase>
     <phrase title="bdphotos_device_edit" version_id="1" version_string="0.9-dev"><![CDATA[Edit Device]]></phrase>

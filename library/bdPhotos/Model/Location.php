@@ -422,6 +422,11 @@ class bdPhotos_Model_Location extends XenForo_Model
 				$sqlConditions[] = 'location.location_name LIKE ' . XenForo_Db::quoteLike($conditions['location_name_like'], 'lr', $db);
 			}
 		}
+
+		if (!empty($conditions['location_name_before']))
+		{
+			$sqlConditions[] = 'location.location_name < ' . $db->quote($conditions['location_name_before']);
+		}
 	}
 
 	protected function _prepareLocationFetchOptionsCustomized(&$selectFields, &$joinTables, array $fetchOptions)
@@ -431,7 +436,7 @@ class bdPhotos_Model_Location extends XenForo_Model
 
 	protected function _prepareLocationOrderOptionsCustomized(array &$choices, array &$fetchOptions)
 	{
-		// customized code goes here
+		$choices['location_name'] = 'location.location_name';
 	}
 
 }

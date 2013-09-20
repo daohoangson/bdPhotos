@@ -5,12 +5,14 @@ class bdPhotos_ControllerAdmin_Location extends XenForo_ControllerAdmin_Abstract
 	public function actionIndex()
 	{
 		$page = $this->_input->filterSingle('page', XenForo_Input::UINT);
-		$perPage = 100;
+		$perPage = bdPhotos_Option::get('locationsPerPage');
 
 		$conditions = array();
 		$fetchOptions = array(
 			'page' => $page,
 			'perPage' => $perPage,
+
+			'order' => 'location_name',
 		);
 
 		$filter = $this->_input->filterSingle('_filter', XenForo_Input::ARRAY_SIMPLE);
@@ -85,8 +87,9 @@ class bdPhotos_ControllerAdmin_Location extends XenForo_ControllerAdmin_Abstract
 		$dw->bulkSet($dwInput);
 
 		$dw->save();
+		$location = $dw->getMergedData();
 
-		return $this->responseRedirect(XenForo_ControllerResponse_Redirect::SUCCESS, XenForo_Link::buildAdminLink('photo-locations'));
+		return $this->_getResponseRedirectForLocation($location);
 	}
 
 	public function actionDelete()
@@ -122,19 +125,33 @@ class bdPhotos_ControllerAdmin_Location extends XenForo_ControllerAdmin_Abstract
 		return $location;
 	}
 
-	protected function _getLocationModel()
+	protected function _getResponseRedirectForLocation(array $location)
 	{
-		return $this->getModelFromCache('bdPhotos_Model_Location');
-	}
+		$beforeCount = $this->_getLocationModel()->countLocations(array('location_name_before' => $location['location_name']), array('order' => 'location_name'));
+		$page = ceil(($beforeCount + 1) / bdPhotos_Option::get('locationsPerPage'));
 
-	protected function _getLocationDataWriter()
-	{
-		return XenForo_DataWriter::create('bdPhotos_DataWriter_Location');
+		return $this->responseRedirect(XenForo_ControllerResponse_Redirect::RESOURCE_UPDATED, XenForo_Link::buildAdminLink('photo-locations', '', array('page' => $page)) . $this->getLastHash($location['location_id']));
 	}
 
 	protected function _preDispatch($action)
 	{
 		$this->assertAdminPermission('bdPhotos_location');
+	}
+
+	/**
+	 * @return bdPhotos_Model_Location
+	 */
+	protected function _getLocationModel()
+	{
+		return $this->getModelFromCache('bdPhotos_Model_Location');
+	}
+
+	/**
+	 * @return bdPhotos_DataWriter_Location
+	 */
+	protected function _getLocationDataWriter()
+	{
+		return XenForo_DataWriter::create('bdPhotos_DataWriter_Location');
 	}
 
 }
