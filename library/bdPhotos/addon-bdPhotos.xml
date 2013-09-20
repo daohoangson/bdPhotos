@@ -345,6 +345,7 @@ step=1024</edit_format_params>
     <phrase title="bdphotos_one_photo" version_id="1" version_string="0.9-dev"><![CDATA[1 photo]]></phrase>
     <phrase title="bdphotos_photo" version_id="1" version_string="0.9-dev"><![CDATA[Photo]]></phrase>
     <phrase title="bdphotos_photos" version_id="1" version_string="0.9-dev"><![CDATA[Photos]]></phrase>
+    <phrase title="bdphotos_photos_taken_near_x" version_id="1" version_string="0.9-dev"><![CDATA[Photos taken near {location_name}]]></phrase>
     <phrase title="bdphotos_photos_taken_with_x" version_id="1" version_string="0.9-dev"><![CDATA[Photos taken with {device_name}]]></phrase>
     <phrase title="bdphotos_photo_caption" version_id="1" version_string="0.9-dev"><![CDATA[Photo Caption]]></phrase>
     <phrase title="bdphotos_photo_info" version_id="1" version_string="0.9-dev"><![CDATA[Photo Information]]></phrase>
@@ -1157,6 +1158,7 @@ step=1024</edit_format_params>
 										{xen:phrase bdphotos_taken} {xen:phrase bdphotos_with_lowercase}
 										<xen:include template="bdphotos_snippet_device_name">
 											<xen:map from="$attachment" to="$device" />
+											<xen:set var="$openInBlank">1</xen:set>
 										</xen:include>
 									</label></li>
 								</xen:if>
@@ -1168,6 +1170,7 @@ step=1024</edit_format_params>
 										{xen:phrase bdphotos_taken} {xen:phrase bdphotos_near_lowercase}
 										<xen:include template="bdphotos_snippet_location_name">
 											<xen:map from="$attachment" to="$location" />
+											<xen:set var="$openInBlank">1</xen:set>
 										</xen:include>
 									</label></li>
 								</xen:if>
@@ -1190,6 +1193,22 @@ step=1024</edit_format_params>
 </li>]]></template>
     <template title="bdphotos_device_photos" version_id="1" version_string="0.9-dev"><![CDATA[<xen:title>{xen:phrase bdphotos_photos_taken_with_x, 'device_name={$device.device_name}'}</xen:title>
 <xen:h1>{$device.device_name}</xen:h1>
+
+<xen:if hascontent="true">
+	<xen:contentcheck>
+		<xen:include template="bdphotos_photo_list">
+			<xen:set var="$showAlbum">1</xen:set>
+			<xen:set var="$showUploader">1</xen:set>
+		</xen:include>
+	</xen:contentcheck>
+<xen:else />
+	<div class="sectionMain">
+		<p>{xen:phrase bdphotos_there_is_no_photos_here}</p>
+	</div>
+</xen:if>]]></template>
+    <template title="bdphotos_location_photos" version_id="1" version_string="0.9-dev"><![CDATA[<xen:title>{xen:phrase bdphotos_photos_taken_near_x, 'location_name={xen:helper bdPhotos_formatLocationName, $location}'}</xen:title>
+<xen:h1>{xen:helper bdPhotos_formatLocationName, $location}</xen:h1>
+<xen:description>{$location.location_name}</xen:description>
 
 <xen:if hascontent="true">
 	<xen:contentcheck>
@@ -1637,12 +1656,12 @@ step=1024</edit_format_params>
 </xen:if>
 
 <span class="Tooltip" title="{$title}">
-	<a href="{xen:link photos/devices, $device}" target="_blank" tabindex="-1">
+	<a href="{xen:link photos/devices, $device}" {xen:if '{$openInBlank}', 'target="_blank"'} tabindex="-1">
 		{$device.device_name}
 	</a>
 </span>]]></template>
     <template title="bdphotos_snippet_location_name" version_id="1" version_string="0.9-dev"><![CDATA[<span>
-	<a href="{xen:link photos/locations, $location}" target="_blank" tabindex="-1">
+	<a href="{xen:link photos/locations, $location}" {xen:if '{$openInBlank}', 'target="_blank"'} tabindex="-1">
 		{xen:helper bdPhotos_formatLocationName, $location}
 	</a>
 </span>]]></template>
