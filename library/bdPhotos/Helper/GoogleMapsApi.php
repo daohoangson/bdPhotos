@@ -2,7 +2,7 @@
 
 class bdPhotos_Helper_GoogleMapsApi
 {
-	public static function reverseDecoding($apiKey, $lat, $lng)
+	public static function reverseDecoding($lat, $lng)
 	{
 		$_10e6 = pow(10, 6);
 

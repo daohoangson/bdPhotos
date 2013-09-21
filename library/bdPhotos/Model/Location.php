@@ -30,17 +30,14 @@ class bdPhotos_Model_Location extends XenForo_Model
 			$location = false;
 			$apiKey = bdPhotos_Option::get('googleMapsApiKey');
 
-			if (!empty($apiKey))
+			try
 			{
-				try
-				{
-					$location = bdPhotos_Helper_GoogleMapsApi::reverseDecoding($apiKey, $lat, $lng);
-				}
-				catch (Exception $e)
-				{
-					XenForo_Error::logException($e, false);
-					$location = false;
-				}
+				$location = bdPhotos_Helper_GoogleMapsApi::reverseDecoding($lat, $lng);
+			}
+			catch (Exception $e)
+			{
+				XenForo_Error::logException($e, false);
+				$location = false;
 			}
 
 			if (!empty($location))
