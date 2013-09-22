@@ -126,6 +126,14 @@ abstract class bdPhotos_ControllerPublic_Abstract extends XenForo_ControllerPubl
 		return $viewParams;
 	}
 
+	protected function _assertCanView()
+	{
+		if (!$this->_getUploaderModel()->canView($errorPhraseKey))
+		{
+			throw $this->getErrorOrNoPermissionResponseException($errorPhraseKey);
+		}
+	}
+
 	protected function _assertCanUpload()
 	{
 		if (!$this->_getUploaderModel()->canUpload($errorPhraseKey))

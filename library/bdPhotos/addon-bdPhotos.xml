@@ -427,7 +427,7 @@ step=1024</edit_format_params>
     </group>
   </style_properties>
   <templates>
-    <template title="bdphotos.css" version_id="2" version_string="0.9"><![CDATA[.bdPhotos_AlbumList
+    <template title="bdphotos.css" version_id="3" version_string="0.9.1"><![CDATA[.bdPhotos_AlbumList
 {
 	margin: 0 -10px;
 }
@@ -659,11 +659,11 @@ step=1024</edit_format_params>
 {
 }
 
-	.bdPhotos_Photo .set-navigation
+	.bdPhotos_Photo .bdPhotos_Navigation
 	{
 		text-align: right;
 	}
-		.bdPhotos_Photo .set-navigation a
+		.bdPhotos_Photo .bdPhotos_Navigation a
 		{
 			font-size: 11px;
 		}
@@ -1363,7 +1363,7 @@ step=1024</edit_format_params>
 	</div>
 
 </li>]]></template>
-    <template title="bdphotos_photo_view" version_id="1" version_string="0.9-dev"><![CDATA[<xen:title>{xen:helper bdPhotos_snippetOrDefault, $photo.photo_caption, {xen:phrase bdphotos_photo}, 50} {xen:phrase by_x, 'name={$uploader.username}'}</xen:title>
+    <template title="bdphotos_photo_view" version_id="3" version_string="0.9.1"><![CDATA[<xen:title>{xen:helper bdPhotos_snippetOrDefault, $photo.photo_caption, {xen:phrase bdphotos_photo}, 50} {xen:phrase by_x, 'name={$uploader.username}'}</xen:title>
 <xen:h1></xen:h1>
 
 <xen:navigation>
@@ -1388,33 +1388,31 @@ step=1024</edit_format_params>
 <xen:require js="js/xenforo/comments_simple.js" />
 <xen:require js="js/bdPhotos/comments_simple.js" />
 
+<xen:require js="js/bdPhotos/viewer.js" />
+
 <div class="bdPhotos_Photo {xen:if '!{$photo.publish_date}', 'not-published'}" id="photo{$photo.photo_id}">
-	
-	<xen:if hascontent="true">
-		<div class="set-navigation">
-			<xen:contentcheck>
-				<xen:if is="{$setPrev}">
-					<a href="{xen:link photos, $setPrev}">{xen:phrase bdphotos_previous}</a>
-				</xen:if>
-				<xen:if is="{$setPrev} AND {$setNext}">·</xen:if>
-				<xen:if is="{$setNext}">
-					<a href="{xen:link photos, $setNext}">{xen:phrase next}</a>
-				</xen:if>
-			</xen:contentcheck>
-		</div>
-	</xen:if>
+
+	<div class="bdPhotos_Navigation">
+		<xen:if is="{$setPrev}">
+			<a href="{xen:link photos, $setPrev}" class="bdPhotos_NavigationLink prev">{xen:phrase bdphotos_previous}</a>
+		</xen:if>
+		<xen:if is="{$setPrev} AND {$setNext}">·</xen:if>
+		<xen:if is="{$setNext}">
+			<a href="{xen:link photos, $setNext}" class="bdPhotos_NavigationLink next">{xen:phrase next}</a>
+		</xen:if>
+	</div>
 	
 	<xen:if is="{$photo.photoObj}">
 		<table class="photo" cellspacing="0" cellpadding="0" style="width: 100%">
 			<tr style="width: 100%">
-				<td style="width: 100%">{xen:raw $photo.photoObj}</td>
+				<td style="width: 100%" class="bdPhotos_PhotoWrapper">{xen:raw $photo.photoObj}</td>
 			</tr>
 		</table>
 	<xen:else />
 		<div class="photo nophoto">&nbsp;</div>
 	</xen:if>
 	
-	<ol class="messageSimpleList">
+	<ol class="messageSimpleList bdPhotos_PhotoComments">
 		<xen:include template="message_simple">
 			<xen:map from="$photoCaption" to="$message" />
 

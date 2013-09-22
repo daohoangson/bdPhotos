@@ -27,4 +27,13 @@ class bdPhotos_ViewPublic_Photo_View extends XenForo_ViewPublic_Base
 		bdPhotos_ViewPublic_Helper_Photo::preparePhotoForDisplay($this->_params['photo'], array('size_preset' => 'view'));
 	}
 
+	public function renderJson()
+	{
+		$output = $this->_renderer->getDefaultOutputArray(__CLASS__, $this->_params, $this->_templateName);
+
+		$output['canonicalUrl'] = $this->_params['canonicalUrl'];
+
+		return XenForo_ViewRenderer_Json::jsonEncodeForOutput($output);
+	}
+
 }

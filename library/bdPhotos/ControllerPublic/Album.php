@@ -10,6 +10,10 @@ class bdPhotos_ControllerPublic_Album extends bdPhotos_ControllerPublic_Abstract
 			return $this->responseReroute(__CLASS__, 'view');
 		}
 
+		$this->_assertCanView();
+
+		$this->canonicalizeRequestUrl(XenForo_Link::buildPublicLink('photos/albums'));
+
 		$albums = $this->_getAlbumModel()->getAlbums(array('album_is_published' => 1), array(
 			'join' => bdPhotos_Model_Album::FETCH_UPLOADER,
 			'order' => 'update_date',
@@ -114,7 +118,7 @@ class bdPhotos_ControllerPublic_Album extends bdPhotos_ControllerPublic_Abstract
 	{
 		$this->_assertPostOnly();
 		$this->_assertCanUpload();
-		
+
 		$visitor = XenForo_Visitor::getInstance();
 
 		$albumDw = XenForo_DataWriter::create('bdPhotos_DataWriter_Album');
@@ -260,6 +264,8 @@ class bdPhotos_ControllerPublic_Album extends bdPhotos_ControllerPublic_Abstract
 		}
 		else
 		{
+			$this->canonicalizeRequestUrl(XenForo_Link::buildPublicLink('photos/albums/like', $album));
+
 			$viewParams = array(
 				'album' => $album,
 				'uploader' => $uploader,

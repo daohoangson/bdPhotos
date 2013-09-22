@@ -10,6 +10,8 @@ class bdPhotos_ControllerPublic_Photo extends bdPhotos_ControllerPublic_Abstract
 			return $this->responseReroute(__CLASS__, 'view');
 		}
 
+		$this->canonicalizeRequestUrl(XenForo_Link::buildPublicLink('photos'));
+
 		$photos = $this->_getPhotoModel()->getPhotos(array('photo_is_published' => 1), array(
 			'join' => bdPhotos_Model_Photo::FETCH_UPLOADER + bdPhotos_Model_Photo::FETCH_ALBUM,
 			'order' => 'publish_date',
@@ -45,6 +47,9 @@ class bdPhotos_ControllerPublic_Photo extends bdPhotos_ControllerPublic_Abstract
 
 		$this->_assertCanViewPhoto($album, $photo);
 
+		$canonicalUrl = XenForo_Link::buildPublicLink('photos', $photo);
+		$this->canonicalizeRequestUrl($canonicalUrl);
+
 		$comments = $this->_getPhotoCommentModel()->getPhotoComments(array('photo_id' => $photo['photo_id']), array(
 			'join' => bdPhotos_Model_PhotoComment::FETCH_COMMENT_USER,
 			'order' => 'comment_date',
@@ -63,6 +68,7 @@ class bdPhotos_ControllerPublic_Photo extends bdPhotos_ControllerPublic_Abstract
 			'comments' => $comments,
 
 			'breadcrumbs' => $this->_getAlbumModel()->getBreadcrumbs($album, $uploader, true),
+			'canonicalUrl' => $canonicalUrl,
 		);
 
 		$viewParams = array_merge($viewParams, $this->_getViewParamsForSet($album, $photo));
@@ -127,6 +133,8 @@ class bdPhotos_ControllerPublic_Photo extends bdPhotos_ControllerPublic_Abstract
 		}
 		else
 		{
+			$this->canonicalizeRequestUrl(XenForo_Link::buildPublicLink('photos/like', $photo));
+
 			$viewParams = array(
 				'album' => $album,
 				'uploader' => $uploader,
