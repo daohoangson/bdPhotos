@@ -668,18 +668,75 @@ step=1024</edit_format_params>
 			font-size: 11px;
 		}
 
-	.bdPhotos_Photo .photo
+	.bdPhotos_Photo .bdPhotos_PhotoWrapperWrapper table,
+	.bdPhotos_Photo .bdPhotos_PhotoWrapperWrapper tr,
+	.bdPhotos_Photo .bdPhotos_PhotoWrapper
 	{
-		background: {xen:property primaryLightest};
-		min-height: {xen:helper bdPhotos_formatCssProperty, pixel, {xen:calc '{xen:property bdPhotos_viewWidthOrHeight} / 2'}};
-		text-align: center;
 		width: 100%;
 	}
-		.bdPhotos_Photo .photo img
+
+	.bdPhotos_Photo .bdPhotos_PhotoWrapperWrapper table
+	{
+		text-align: center;
+		min-height: {xen:helper bdPhotos_formatCssProperty, pixel, {xen:calc '{xen:property bdPhotos_viewWidthOrHeight} / 2'}};
+		width: 100%;
+	}
+		.bdPhotos_Photo .bdPhotos_PhotoWrapper
+		{			
+			background: {xen:property primaryLightest};
+		}
+		.bdPhotos_Photo .bdPhotos_PhotoWrapper img
 		{
 			display: block;
+			height: auto;
 			margin: auto auto;
+			max-width: 100%;
 			vertical-align: middle;
+		}
+
+.bdPhotos_Overlay
+{
+	border-radius: 15px;
+	border: 0;
+	overflow: hidden;
+	max-width: 100%;
+	padding: 0;
+}
+	.bdPhotos_Overlay .bdPhotos_Photo .bdPhotos_Navigation
+	{
+		margin-right: 5px;
+	}
+		.bdPhotos_Overlay .bdPhotos_Photo .bdPhotos_Navigation a,
+		.bdPhotos_Overlay .bdPhotos_Photo .bdPhotos_Navigation span
+		{
+			color: white;
+		}
+	.bdPhotos_Overlay .bdPhotos_Photo .bdPhotos_PhotoWrapperWrapper
+	{
+		background: black;
+		float: left;
+	}
+		.bdPhotos_Overlay .bdPhotos_Photo .bdPhotos_PhotoWrapperWrapper
+		{
+			min-height: 0;
+		}
+	.bdPhotos_Overlay .bdPhotos_Photo .bdPhotos_PhotoWrapper
+	{
+		background: none;
+	}
+	.bdPhotos_Overlay .bdPhotos_Photo .bdPhotos_PhotoWrapper img
+	{
+		height: auto;
+		width: auto;
+	}
+	.bdPhotos_Overlay .bdPhotos_Photo .bdPhotos_PhotoComments
+	{
+		padding-top: 10px;
+	}
+	{xen:helper clearfix, '.bdPhotos_Overlay .bdPhotos_PhotoComments'}
+		.bdPhotos_Overlay .bdPhotos_Photo .bdPhotos_PhotoComments .messageSimple
+		{
+			margin: 0;
 		}
 
 .bdPhotos_sidebarPhotoInfo .bdPhotos_snippetLocationStaticMap
@@ -1300,14 +1357,15 @@ step=1024</edit_format_params>
 		</xen:contentcheck>
 	</ol>
 </xen:if>]]></template>
-    <template title="bdphotos_photo_list_photo" version_id="1" version_string="0.9-dev"><![CDATA[<xen:require css="bdphotos.css" />
+    <template title="bdphotos_photo_list_photo" version_id="3" version_string="0.9.1"><![CDATA[<xen:require css="bdphotos.css" />
+<xen:require js="js/bdPhotos/viewer.js" />
 
 <li class="bdPhotos_PhotoList_Photo {xen:if '!{$photo.publish_date}', 'not-published'}" id="photo{$photo.photo_id}" {xen:if '{$parentItemType} == "ImageGallery" AND {$coverPhotoId} == {$photo.photo_id}', 'itemprop="primaryImageOfPage"'} itemscope="itemscope" itemtype="http://schema.org/ImageObject">
 
 	<div class="container">
 	
 		<xen:if is="{$photo.photoObj}">
-			<div class="photo"><a href="{xen:link photos, $photo}" itemprop="contentURL">{xen:raw $photo.photoObj}</a></div>
+			<div class="photo"><a href="{xen:link photos, $photo}" itemprop="contentURL" class="bdPhotos_OverlayTrigger">{xen:raw $photo.photoObj}</a></div>
 		<xen:else />
 			<div class="photo nophoto">&nbsp;</div>
 		</xen:if>
@@ -1326,7 +1384,7 @@ step=1024</edit_format_params>
 					<span class="from-album faint">{xen:phrase bdphotos_from_album}:</span>
 					<a href="{xen:link photos/albums, $photo}">{$photo.album_name}</a>
 				<xen:else />
-					<a href="{xen:link photos, $photo}" itemprop="caption">{$photo.photo_caption}</a>
+					<a href="{xen:link photos, $photo}" itemprop="caption" class="bdPhotos_OverlayTrigger">{$photo.photo_caption}</a>
 				</xen:if>
 			</div>
 
@@ -1390,26 +1448,28 @@ step=1024</edit_format_params>
 
 <xen:require js="js/bdPhotos/viewer.js" />
 
-<div class="bdPhotos_Photo {xen:if '!{$photo.publish_date}', 'not-published'}" id="photo{$photo.photo_id}">
+<div class="bdPhotos_Photo NoAutoHeader {xen:if '!{$photo.publish_date}', 'not-published'}" id="photo{$photo.photo_id}">
 
-	<div class="bdPhotos_Navigation">
-		<xen:if is="{$setPrev}">
-			<a href="{xen:link photos, $setPrev}" class="bdPhotos_NavigationLink prev">{xen:phrase bdphotos_previous}</a>
-		</xen:if>
-		<xen:if is="{$setPrev} AND {$setNext}">·</xen:if>
-		<xen:if is="{$setNext}">
-			<a href="{xen:link photos, $setNext}" class="bdPhotos_NavigationLink next">{xen:phrase next}</a>
-		</xen:if>
-	</div>
-	
 	<xen:if is="{$photo.photoObj}">
-		<table class="photo" cellspacing="0" cellpadding="0" style="width: 100%">
-			<tr style="width: 100%">
-				<td style="width: 100%" class="bdPhotos_PhotoWrapper">{xen:raw $photo.photoObj}</td>
-			</tr>
-		</table>
+		<div class="bdPhotos_PhotoWrapperWrapper">
+			<div class="bdPhotos_Navigation">
+				<xen:if is="{$setPrev}">
+					<a href="{xen:link photos, $setPrev}" class="bdPhotos_NavigationLink prev">{xen:phrase bdphotos_previous}</a>
+				</xen:if>
+				<xen:if is="{$setPrev} AND {$setNext}"><span>·</span></xen:if>
+				<xen:if is="{$setNext}">
+					<a href="{xen:link photos, $setNext}" class="bdPhotos_NavigationLink next">{xen:phrase next}</a>
+				</xen:if>
+			</div>
+
+			<table cellspacing="0" cellpadding="0">
+				<tr>
+					<td class="bdPhotos_PhotoWrapper">{xen:raw $photo.photoObj}</td>
+				</tr>
+			</table>
+		</div>
 	<xen:else />
-		<div class="photo nophoto">&nbsp;</div>
+		<div class="bdPhotos_PhotoWrapperWrapper nophoto">&nbsp;</div>
 	</xen:if>
 	
 	<ol class="messageSimpleList bdPhotos_PhotoComments">
@@ -1485,7 +1545,7 @@ step=1024</edit_format_params>
 <xen:sidebar>
 	<xen:include template="bdphotos_sidebar_photo_info" />
 </xen:sidebar>]]></template>
-    <template title="bdphotos_responsive.css" version_id="2" version_string="0.9"><![CDATA[@media (max-width:{xen:helper bdPhotos_formatCssProperty, pixel, {xen:calc '{xen:property bdPhotos_thumbnailWidth} * 2.4'}})
+    <template title="bdphotos_responsive.css" version_id="3" version_string="0.9.1"><![CDATA[@media (max-width:{xen:helper bdPhotos_formatCssProperty, pixel, {xen:calc '{xen:property bdPhotos_thumbnailWidth} * 2.4'}})
 {
 	.bdPhotos_AlbumList
 	{
