@@ -6,12 +6,12 @@ class bdPhotos_AlertHandler_Photo extends XenForo_AlertHandler_Abstract
 
 	public function getContentByIds(array $contentIds, $model, $userId, array $viewingUser)
 	{
-		return $this->_getPostModel()->getPhotos(array('photo_id' => $contentIds), array('join' => bdPhotos_Model_Photo::FETCH_ALBUM));
+		return $this->_getPhotoModel()->getPhotos(array('photo_id' => $contentIds), array('join' => bdPhotos_Model_Photo::FETCH_ALBUM));
 	}
 
 	public function canViewAlert(array $alert, $content, array $viewingUser)
 	{
-		return $this->_getPostModel()->canViewPhoto($content, $content, $null, $viewingUser);
+		return $this->_getPhotoModel()->canViewPhoto($content, $content, $null, $viewingUser);
 	}
 	
 	protected function _getDefaultTemplateTitle($contentType, $action)
@@ -22,7 +22,7 @@ class bdPhotos_AlertHandler_Photo extends XenForo_AlertHandler_Abstract
 	/**
 	 * @return bdPhotos_Model_Photo
 	 */
-	protected function _getPostModel()
+	protected function _getPhotoModel()
 	{
 		if (!$this->_photoModel)
 		{
