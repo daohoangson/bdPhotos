@@ -12,7 +12,9 @@ class bdPhotos_ControllerPublic_Location extends bdPhotos_ControllerPublic_Abstr
 		$locationId = $this->_input->filterSingle('location_id', XenForo_Input::UINT);
 		$location = $this->_getLocationOrError($locationId);
 
-		$this->canonicalizeRequestUrl(XenForo_Link::buildPublicLink('photos/locations', $location));
+		$page = $this->_input->filterSingle('page', XenForo_Input::UINT);
+
+		$this->canonicalizeRequestUrl(XenForo_Link::buildPublicLink('photos/locations', $location, array('page' => $page)));
 
 		$conditions = array(
 			'location_id' => $location['location_id'],
@@ -24,7 +26,13 @@ class bdPhotos_ControllerPublic_Location extends bdPhotos_ControllerPublic_Abstr
 			'direction' => 'desc',
 
 			'likeUserId' => XenForo_Visitor::getUserId(),
+
+			'page' => $page,
+			'perPage' => bdPhotos_Option::get('photosPerPage'),
 		);
+
+		$totalPhotos = $this->_getPhotoModel()->countPhotos($conditions, $fetchOptions);
+		$this->canonicalizePageNumber($page, bdPhotos_Option::get('photosPerPage'), $totalPhotos, 'photos/locations', $location);
 
 		$photos = $this->_getPhotoModel()->getPhotos($conditions, $fetchOptions);
 
@@ -36,6 +44,11 @@ class bdPhotos_ControllerPublic_Location extends bdPhotos_ControllerPublic_Abstr
 		$viewParams = array(
 			'location' => $location,
 			'photos' => $photos,
+
+			'pageNavLink' => 'photos/locations',
+			'pageNavData' => $location,
+			'page' => $page,
+			'totalPhotos' => $totalPhotos,
 		);
 
 		return $this->responseView('bdPhotos_ViewPublic_Location_Photos', 'bdphotos_location_photos', $viewParams);

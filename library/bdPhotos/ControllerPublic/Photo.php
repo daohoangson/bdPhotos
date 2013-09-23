@@ -10,15 +10,26 @@ class bdPhotos_ControllerPublic_Photo extends bdPhotos_ControllerPublic_Abstract
 			return $this->responseReroute(__CLASS__, 'view');
 		}
 
-		$this->canonicalizeRequestUrl(XenForo_Link::buildPublicLink('photos'));
+		$page = $this->_input->filterSingle('page', XenForo_Input::UINT);
 
-		$photos = $this->_getPhotoModel()->getPhotos(array('photo_is_published' => 1), array(
+		$this->canonicalizeRequestUrl(XenForo_Link::buildPublicLink('photos', '', array('page' => $page)));
+
+		$conditions = array('photo_is_published' => 1);
+		$fetchOptions = array(
 			'join' => bdPhotos_Model_Photo::FETCH_UPLOADER + bdPhotos_Model_Photo::FETCH_ALBUM,
 			'order' => 'publish_date',
 			'direction' => 'desc',
 
 			'likeUserId' => XenForo_Visitor::getUserId(),
-		));
+
+			'page' => $page,
+			'perPage' => bdPhotos_Option::get('photosPerPage'),
+		);
+
+		$totalPhotos = $this->_getPhotoModel()->countPhotos($conditions, $fetchOptions);
+		$this->canonicalizePageNumber($page, bdPhotos_Option::get('photosPerPage'), $totalPhotos, 'photos');
+
+		$photos = $this->_getPhotoModel()->getPhotos($conditions, $fetchOptions);
 
 		foreach ($photos as &$photo)
 		{
@@ -29,6 +40,10 @@ class bdPhotos_ControllerPublic_Photo extends bdPhotos_ControllerPublic_Abstract
 			'photos' => $photos,
 
 			'canUpload' => $this->_getUploaderModel()->canUpload(),
+
+			'pageNavLink' => 'photos',
+			'page' => $page,
+			'totalPhotos' => $totalPhotos,
 		);
 
 		return $this->responseView('bdPhotos_ViewPublic_Photo_Index', 'bdphotos_photo_index', $viewParams);

@@ -12,7 +12,9 @@ class bdPhotos_ControllerPublic_Device extends bdPhotos_ControllerPublic_Abstrac
 		$deviceId = $this->_input->filterSingle('device_id', XenForo_Input::UINT);
 		$device = $this->_getDeviceOrError($deviceId);
 
-		$this->canonicalizeRequestUrl(XenForo_Link::buildPublicLink('photos/devices', $device));
+		$page = $this->_input->filterSingle('page', XenForo_Input::UINT);
+
+		$this->canonicalizeRequestUrl(XenForo_Link::buildPublicLink('photos/devices', $device, array('page' => $page)));
 
 		$conditions = array(
 			'device_id' => $device['device_id'],
@@ -24,7 +26,13 @@ class bdPhotos_ControllerPublic_Device extends bdPhotos_ControllerPublic_Abstrac
 			'direction' => 'desc',
 
 			'likeUserId' => XenForo_Visitor::getUserId(),
+
+			'page' => $page,
+			'perPage' => bdPhotos_Option::get('photosPerPage'),
 		);
+
+		$totalPhotos = $this->_getPhotoModel()->countPhotos($conditions, $fetchOptions);
+		$this->canonicalizePageNumber($page, bdPhotos_Option::get('photosPerPage'), $totalPhotos, 'photos/devices', $device);
 
 		$photos = $this->_getPhotoModel()->getPhotos($conditions, $fetchOptions);
 
@@ -36,6 +44,11 @@ class bdPhotos_ControllerPublic_Device extends bdPhotos_ControllerPublic_Abstrac
 		$viewParams = array(
 			'device' => $device,
 			'photos' => $photos,
+
+			'pageNavLink' => 'photos/devices',
+			'pageNavData' => $device,
+			'page' => $page,
+			'totalPhotos' => $totalPhotos,
 		);
 
 		return $this->responseView('bdPhotos_ViewPublic_Device_Photos', 'bdphotos_device_photos', $viewParams);

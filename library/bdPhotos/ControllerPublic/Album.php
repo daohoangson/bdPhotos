@@ -12,18 +12,33 @@ class bdPhotos_ControllerPublic_Album extends bdPhotos_ControllerPublic_Abstract
 
 		$this->_assertCanView();
 
-		$this->canonicalizeRequestUrl(XenForo_Link::buildPublicLink('photos/albums'));
+		$page = $this->_input->filterSingle('page', XenForo_Input::UINT);
 
-		$albums = $this->_getAlbumModel()->getAlbums(array('album_is_published' => 1), array(
+		$this->canonicalizeRequestUrl(XenForo_Link::buildPublicLink('photos/albums', '', array('page' => $page)));
+
+		$conditions = array('album_is_published' => 1);
+		$fetchOptions = array(
 			'join' => bdPhotos_Model_Album::FETCH_UPLOADER,
 			'order' => 'update_date',
 			'direction' => 'desc',
-		));
+
+			'page' => $page,
+			'perPage' => bdPhotos_Option::get('albumsPerPage'),
+		);
+
+		$totalAlbums = $this->_getAlbumModel()->countAlbums($conditions, $fetchOptions);
+		$this->canonicalizePageNumber($page, bdPhotos_Option::get('albumsPerPage'), $totalAlbums, 'photos/albums');
+
+		$albums = $this->_getAlbumModel()->getAlbums($conditions, $fetchOptions);
 
 		$viewParams = array(
 			'albums' => $albums,
 
 			'canUpload' => $this->_getUploaderModel()->canUpload(),
+
+			'pageNavLink' => 'photos/albums',
+			'page' => $page,
+			'totalAlbums' => $totalAlbums,
 		);
 
 		return $this->responseView('bdPhotos_ViewPublic_Album_Index', 'bdphotos_album_index', $viewParams);
@@ -36,15 +51,27 @@ class bdPhotos_ControllerPublic_Album extends bdPhotos_ControllerPublic_Abstract
 
 		$this->_assertCanViewAlbum($album);
 
-		$this->canonicalizeRequestUrl(XenForo_Link::buildPublicLink('photos/albums', $album));
+		$page = $this->_input->filterSingle('page', XenForo_Input::UINT);
+
+		$this->canonicalizeRequestUrl(XenForo_Link::buildPublicLink('photos/albums', $album, array('page' => $page)));
 
 		$uploader = $this->_getUserModel()->getUserById($album['album_user_id']);
-		$photos = $this->_getPhotoModel()->getPhotos(array('album_id' => $album['album_id']), array(
+
+		$conditions = array('album_id' => $album['album_id']);
+		$fetchOptions = array(
 			'join' => bdPhotos_Model_Photo::FETCH_ATTACHMENT,
 			'order' => 'position',
 
 			'likeUserId' => XenForo_Visitor::getUserId(),
-		));
+
+			'page' => $page,
+			'perPage' => bdPhotos_Option::get('photosPerPage'),
+		);
+
+		$totalPhotos = $this->_getPhotoModel()->countPhotos($conditions, $fetchOptions);
+		$this->canonicalizePageNumber($page, bdPhotos_Option::get('photosPerPage'), $totalPhotos, 'photos/albums', $album);
+
+		$photos = $this->_getPhotoModel()->getPhotos($conditions, $fetchOptions);
 
 		$comments = $this->_getAlbumCommentModel()->getAlbumComments(array('album_id' => $album['album_id']), array(
 			'join' => bdPhotos_Model_AlbumComment::FETCH_COMMENT_USER,
@@ -66,6 +93,11 @@ class bdPhotos_ControllerPublic_Album extends bdPhotos_ControllerPublic_Abstract
 
 			'breadcrumbs' => $this->_getAlbumModel()->getBreadcrumbs($album, $uploader),
 			'canEditAlbum' => $this->_getAlbumModel()->canEditAlbum($album),
+
+			'pageNavLink' => 'photos/albums',
+			'pageNavData' => $album,
+			'page' => $page,
+			'totalPhotos' => $totalPhotos,
 		);
 
 		return $this->responseView('bdPhotos_ViewPublic_Album_View', 'bdphotos_album_view', $viewParams);

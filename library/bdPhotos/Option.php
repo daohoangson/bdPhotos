@@ -15,6 +15,9 @@ class bdPhotos_Option
 			case 'devicesPerPage':
 			case 'locationsPerPage':
 				return 100;
+			case 'albumsPerPage':
+			case 'photosPerPage':
+				return 20;
 
 			// TODO
 			case 'commentsPerPage':
