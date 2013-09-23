@@ -135,6 +135,27 @@ class bdPhotos_XenForo_Image_Imagemagick_Pecl extends XFCP_bdPhotos_XenForo_Imag
 		}
 	}
 
+	public function bdPhotos_thumbnail($width, $height)
+	{
+		$this->_bdPhotos_fixOrientation();
+
+		try
+		{
+			foreach ($this->_image AS $frame)
+			{
+				$frame->thumbnailImage($width, $height, true);
+				$frame->setImagePage($frame->getImageWidth(), $frame->getImageHeight(), 0, 0);
+			}
+			$this->_updateDimensionCache();
+		}
+		catch (Exception $e)
+		{
+			return false;
+		}
+
+		return true;
+	}
+
 	protected function _bdPhotos_fixOrientation()
 	{
 		if (!empty($this->_bdPhotos_manualOrientation))

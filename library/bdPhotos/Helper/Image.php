@@ -235,7 +235,7 @@ class bdPhotos_Helper_Image
 					$cropY = min(max(0, floor($roiY - $cropHeight / 2)), $image->getHeight() - $cropHeight);
 
 					$image->crop($cropX, $cropY, $cropWidth, $cropHeight);
-					$image->thumbnail($width, $height);
+					$image->bdPhotos_thumbnail($width, $height);
 				}
 				else
 				{
@@ -250,25 +250,10 @@ class bdPhotos_Helper_Image
 						$thumHeight = $width / $origRatio;
 					}
 
-					if ($thumWidth <= $image->getWidth() AND $thumHeight <= $image->getHeight())
+					$image->bdPhotos_thumbnail($thumWidth, $thumHeight);
+					if ($width != $image->getWidth() OR $height != $image->getHeight())
 					{
-						$image->thumbnail($thumWidth, $thumHeight);
-						if ($width != $image->getWidth() OR $height != $image->getHeight())
-						{
-							$image->crop(0, 0, $width, $height);
-						}
-					}
-					else
-					{
-						// thumbnail requested is larger then the image size
-						if ($origRatio > $cropRatio)
-						{
-							$image->crop(0, 0, $image->getHeight() * $cropRatio, $image->getHeight());
-						}
-						else
-						{
-							$image->crop(0, 0, $image->getWidth(), $image->getWidth() / $cropRatio);
-						}
+						$image->crop(0, 0, $width, $height);
 					}
 				}
 			}
@@ -295,7 +280,7 @@ class bdPhotos_Helper_Image
 						$thumWidth = $thumHeight * $origRatio;
 					}
 
-					$image->thumbnail($thumWidth, $thumHeight);
+					$image->bdPhotos_thumbnail($thumWidth, $thumHeight);
 				}
 			}
 		}
@@ -303,13 +288,13 @@ class bdPhotos_Helper_Image
 		{
 			$targetHeight = $height;
 			$targetWidth = $targetHeight / $image->getHeight() * $image->getWidth();
-			$image->thumbnail($targetWidth, $targetHeight);
+			$image->bdPhotos_thumbnail($targetWidth, $targetHeight);
 		}
 		elseif ($width > 0)
 		{
 			$targetWidth = $width;
 			$targetHeight = $targetWidth / $image->getWidth() * $image->getHeight();
-			$image->thumbnail($targetWidth, $targetHeight);
+			$image->bdPhotos_thumbnail($targetWidth, $targetHeight);
 		}
 		else
 		{

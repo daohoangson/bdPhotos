@@ -75,6 +75,19 @@ class bdPhotos_XenForo_Image_Gd extends XFCP_bdPhotos_XenForo_Image_Gd
 		// gd always strips!
 	}
 
+	public function bdPhotos_thumbnail($width, $height)
+	{
+		$this->_bdPhotos_fixOrientation();
+
+		$newImage = imagecreatetruecolor($width, $height);
+		$this->_preallocateBackground($newImage);
+
+		imagecopyresampled($newImage, $this->_image, 0, 0, 0, 0, $width, $height, $this->_width, $this->_height);
+		$this->_setImage($newImage);
+
+		return true;
+	}
+
 	protected function _bdPhotos_fixOrientation()
 	{
 		if (!empty($this->_bdPhotos_manualOrientation))
