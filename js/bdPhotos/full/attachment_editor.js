@@ -7,16 +7,16 @@
 			AttachmentUploaded: function(e)
 			{
 				if (e.file)// SWFupload method
-				{
+				{console.log('swfupload');
 					window.setTimeout(function()
-					{
+					{console.log('timedout');
 						var $attachment = $('#attachment' + e.ajaxData.attachment_id);
 						var $templateHtml = $(e.ajaxData.templateHtml);
 
 						var $controlsTop = $attachment.find('.controls.top');
-						$templateHtml.find('.controls.top').xfInsert('insertBefore', $controlsTop);
+						$templateHtml.find('.controls.top').xfInsert('insertBefore', $controlsTop, 'show');
 						$controlsTop.xfRemove();
-					}, 100);
+					}, 500);
 				}
 			}
 		});
