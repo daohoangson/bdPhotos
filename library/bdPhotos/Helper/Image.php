@@ -7,7 +7,6 @@ class bdPhotos_Helper_Image
 	const ORIENTATION_LEFT = 'left';
 	const ORIENTATION_RIGHT = 'right';
 
-	const OPTION_DROP_FRAMES_LEAVING_THREE = 'dropFramesLeavingThree';
 	const OPTION_ROI = 'roi';
 
 	public static function detectROI($path, $extension, array $options = array())
@@ -155,6 +154,7 @@ class bdPhotos_Helper_Image
 		$inputType = self::getInputTypeFromExtension($extension);
 		$crop = true;
 		$thumbnailFixedShorterSide = false;
+		$dropFramesLeavingThree = false;
 
 		if (is_array($width) AND empty($height))
 		{
@@ -177,6 +177,11 @@ class bdPhotos_Helper_Image
 			{
 				$thumbnailFixedShorterSide = $array['thumbnailFixedShorterSide'];
 			}
+
+			if (isset($array['dropFramesLeavingThree']))
+			{
+				$dropFramesLeavingThree = $array['dropFramesLeavingThree'];
+			}
 		}
 
 		if (empty($inputType))
@@ -194,6 +199,12 @@ class bdPhotos_Helper_Image
 
 		// try to request longer time limit
 		@set_time_limit(60);
+
+		if ($dropFramesLeavingThree)
+		{
+			// TODO: check for method availability?
+			$image->bdPhotos_dropFramesLeavingThree();
+		}
 
 		if ($width > 0 AND $height > 0)
 		{
@@ -340,12 +351,6 @@ class bdPhotos_Helper_Image
 		{
 			// TODO: check for method availability?
 			$image->bdPhotos_setManualOrientation($options[self::OPTION_MANUAL_ORIENTATION]);
-		}
-
-		if (!empty($options[self::OPTION_DROP_FRAMES_LEAVING_THREE]))
-		{
-			// TODO: check for method availability?
-			$image->bdPhotos_dropFramesLeavingThree();
 		}
 	}
 

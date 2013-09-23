@@ -18,6 +18,7 @@ class bdPhotos_ViewPublic_Helper_Photo
 	protected $_width = 0;
 	protected $_height = 0;
 	protected $_sizePreset = self::SIZE_PRESET_THUMBNAIL;
+	protected $_options = array();
 
 	protected $_str = false;
 
@@ -30,26 +31,33 @@ class bdPhotos_ViewPublic_Helper_Photo
 		if (isset($options['data']))
 		{
 			$this->setData($options['data']);
+			unset($options['data']);
 		}
 
 		if (isset($options['template']))
 		{
 			$this->setTemplate($options['template']);
+			unset($options['template']);
 		}
 
 		if (isset($options['outputAttributes']))
 		{
 			$this->setOutputAttributes($options['outputAttributes']);
+			unset($options['outputAttributes']);
 		}
 
 		if (isset($options['size']))
 		{
 			$this->setSize($options['size'][0], $options['size'][1]);
+			unset($options['size']);
 		}
 		elseif (isset($options['size_preset']))
 		{
 			$this->setSizePreset($options['size_preset']);
+			unset($options['size_preset']);
 		}
+
+		$this->_options = $options;
 	}
 
 	public function render()
@@ -171,8 +179,13 @@ class bdPhotos_ViewPublic_Helper_Photo
 
 					if (!empty($spThumbnailWidth) AND !empty($spThumbnailHeight))
 					{
-						$this->_width = $spThumbnailWidth;
-						$this->_height = $spThumbnailHeight;
+						$this->_width = array(
+							'width' => $spThumbnailWidth,
+							'height' => $spThumbnailHeight,
+							'dropFramesLeavingThree' => true,
+						);
+						$this->_height = 0;
+
 					}
 					break;
 				case self::SIZE_PRESET_VIEW:
@@ -183,7 +196,7 @@ class bdPhotos_ViewPublic_Helper_Photo
 						$this->_width = array(
 							'width' => $spViewWidthOrHeight,
 							'height' => $spViewWidthOrHeight,
-							'crop' => false
+							'crop' => false,
 						);
 						$this->_height = 0;
 					}
@@ -197,6 +210,7 @@ class bdPhotos_ViewPublic_Helper_Photo
 						'height' => max($spThumbnailWidth, $spThumbnailHeight),
 						'crop' => false,
 						'thumbnailFixedShorterSide' => true,
+						'dropFramesLeavingThree' => true,
 					);
 					$this->_height = 0;
 					break;
