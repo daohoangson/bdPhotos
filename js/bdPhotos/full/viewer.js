@@ -2,6 +2,7 @@
 function($, window, document, _undefined)
 {
 	var $bdPhotos_NavigationLink_firstState = null;
+	var bdPhotos_Overlay_pushStateCount = 0;
 
 	$(window).bind('popstate', function(e)
 	{
@@ -14,14 +15,30 @@ function($, window, document, _undefined)
 
 		if (state && state._owner && state._owner == 'bdPhotos_NavigationLink_updateHtml')
 		{
-			var $photo = $('.bdPhotos_Photo');
+			var photoSelector = '.bdPhotos_Photo';
 
-			XenForo.bdPhotos_NavigationLink_updateHtml($photo, state.href, state.title, state.photoHtml, state.sidebarHtml, false);
+			if (bdPhotos_Overlay_pushStateCount > 0 && $('.bdPhotos_Overlay').length == 1)
+			{
+				console.info('Find photo in overlay');
+				photoSelector = '.bdPhotos_Overlay .bdPhotos_Photo';
+
+				bdPhotos_Overlay_pushStateCount = state.pushStateCount;
+			}
+
+			bdPhotos_NavigationLink_updateHtml(photoSelector, state.href, state.title, state.photoHtml, state.sidebarHtml, false);
 		}
 	});
 
-	XenForo.bdPhotos_NavigationLink_updateHtml = function($photo, href, title, photoHtml, sidebarHtml, pushState)
+	var bdPhotos_NavigationLink_updateHtml = function(photoSelector, href, title, photoHtml, sidebarHtml, pushState)
 	{
+		var $photo = $(photoSelector);
+
+		if ($photo.length != 1)
+		{
+			console.warn('Unable to find photo', photoSelector);
+			return;
+		}
+
 		var $html = $('<div />').html(photoHtml);
 		var $sidebar = $('<div />').html(sidebarHtml);
 
@@ -29,43 +46,38 @@ function($, window, document, _undefined)
 		var $wrapper = $photo.find('.bdPhotos_PhotoWrapper');
 		var $comments = $photo.find('.bdPhotos_PhotoComments');
 		var $sidebarInfo = $('.sidebar .bdPhotos_sidebarPhotoInfo');
-
-		var oldPhotoHtml = $photo.parent().html();
-		var oldSidebarHtml = $('.sidebar').html();
+		if ($navigation.length == 0 || $wrapper.length == 0 || $comments.length == 0)
+		{
+			console.warn('Unable to find navigation/wraper/comments from photo');
+			return;
+		}
 
 		var $newPhoto = $html.find('.bdPhotos_Photo');
 		var $newNavigation = $newPhoto.find('.bdPhotos_Navigation');
 		var $newWrapper = $newPhoto.find('.bdPhotos_PhotoWrapper');
 		var $newComents = $newPhoto.find('.bdPhotos_PhotoComments');
 		var $newSidebarInfo = $sidebar.find('.bdPhotos_sidebarPhotoInfo');
-		console.log($navigation, $newNavigation);
-		$photo.attr('id', $newPhoto.attr('id'));
 
-		$newNavigation.xfInsert('insertBefore', $navigation, 'show');
-		$navigation.hide().xfRemove();
+		$photo.attr('id', $newPhoto.attr('id'));
+		var $navigationParent = $navigation.parent();
+		$navigation.empty().remove();
+		$newNavigation.xfInsert('prependTo', $navigationParent, 'show');
 
 		$wrapper.html('');
 		$newWrapper.children().xfInsert('appendTo', $wrapper, 'show');
 
 		$newComents.xfInsert('insertBefore', $comments, 'show');
-		$comments.hide().xfRemove();
+		$comments.empty().remove();
 
 		// intentionally let it fade down
 		$newSidebarInfo.xfInsert('insertBefore', $sidebarInfo);
-		$sidebarInfo.hide().xfRemove();
+		$sidebarInfo.empty().remove();
 
 		if (pushState && window.history.pushState)
 		{
-			if ($bdPhotos_NavigationLink_firstState === null)
+			if ($photo.parents('.bdPhotos_Overlay').length > 0)
 			{
-				$bdPhotos_NavigationLink_firstState =
-				{
-					'_owner': 'bdPhotos_NavigationLink_updateHtml',
-					'title': document.title,
-					'href': window.location.href,
-					'photoHtml': oldPhotoHtml,
-					'sidebarHtml': oldSidebarHtml
-				};
+				bdPhotos_Overlay_pushStateCount++;
 			}
 
 			window.history.pushState(
@@ -74,12 +86,12 @@ function($, window, document, _undefined)
 				'title': title,
 				'href': href,
 				'photoHtml': photoHtml,
-				'sidebarHtml': sidebarHtml
+				'sidebarHtml': sidebarHtml,
+				'pushStateCount': bdPhotos_Overlay_pushStateCount
 			}, title, href);
 
 			var $title = $('<p />').html(title);
 			document.title = $title.text();
-
 		}
 	};
 
@@ -92,9 +104,26 @@ function($, window, document, _undefined)
 		__construct: function($link)
 		{
 			this.$link = $link;
+			this.$photo = this.$link.parents('.bdPhotos_Photo');
 			this.href = $link.attr('href');
 
 			$link.click($.context(this, 'click'));
+
+			if ($bdPhotos_NavigationLink_firstState === null)
+			{
+				var oldPhotoHtml = this.$photo.parent().html();
+				var oldSidebarHtml = $('.sidebar').html();
+
+				$bdPhotos_NavigationLink_firstState =
+				{
+					'_owner': 'bdPhotos_NavigationLink_updateHtml',
+					'title': document.title,
+					'href': window.location.href,
+					'photoHtml': oldPhotoHtml,
+					'sidebarHtml': oldSidebarHtml,
+					'pushStateCount': bdPhotos_Overlay_pushStateCount
+				};
+			}
 		},
 
 		click: function(e)
@@ -131,17 +160,34 @@ function($, window, document, _undefined)
 				return false;
 			}
 
-			var $photo = this.$link.parents('.bdPhotos_Photo');
+			var photoSelector = '#' + this.$photo.attr('id');
 			var href = this.href;
 
 			new XenForo.ExtLoader(ajaxData, function()
 			{
-				XenForo.bdPhotos_NavigationLink_updateHtml($photo, href, ajaxData.title, ajaxData.templateHtml, ajaxData.sidebarHtml, true);
+				bdPhotos_NavigationLink_updateHtml(photoSelector, href, ajaxData.title, ajaxData.templateHtml, ajaxData.sidebarHtml, true);
 			});
 		}
 	};
 
 	// *********************************************************************
+
+	var bdPhotos_OverlayTrigger_postClosePopStateBinder = null;
+	var bdPhotos_OverlayTrigger_postClosePopState = function(e)
+	{
+		var state = e.originalEvent.state;
+
+		if (state && state._owner && state._owner == 'bdPhotos_OverlayTrigger')
+		{
+			if (bdPhotos_OverlayTrigger_postClosePopStateBinder && bdPhotos_OverlayTrigger_postClosePopStateBinder.href == state.href)
+			{
+				bdPhotos_OverlayTrigger_postClosePopStateBinder.shownByPostClose = true;
+				bdPhotos_OverlayTrigger_postClosePopStateBinder.show(e);
+
+				bdPhotos_Overlay_pushStateCount = state.pushStateCount;
+			}
+		}
+	};
 
 	XenForo.bdPhotos_OverlayTrigger = function($trigger)
 	{
@@ -152,6 +198,7 @@ function($, window, document, _undefined)
 		__construct: function($trigger)
 		{
 			this.$trigger = $trigger.click($.context(this, 'show'));
+			this.href = this.$trigger.attr('href');
 			this.options =
 			{
 				className: 'primaryContent bdPhotos_Overlay',
@@ -168,8 +215,10 @@ function($, window, document, _undefined)
 				onClose: $.context(this, 'overlayClose'),
 			});
 
-			this.historyCount = window.history.length;
 			this.documentTitle = document.title;
+
+			this.shownByPostClose = false;
+			this.windowPopStateContext = $.context(this, 'windowPopState');
 		},
 
 		overlayCallback: function()
@@ -199,32 +248,58 @@ function($, window, document, _undefined)
 
 		overlayClose: function(e)
 		{
+			$(window).unbind('popstate', this.windowPopStateContext);
+
 			if (window.history.pushState)
 			{
-				var count = window.history.length;
+				if (bdPhotos_Overlay_pushStateCount > 0)
+				{
+					window.history.go(-bdPhotos_Overlay_pushStateCount);
+					bdPhotos_Overlay_pushStateCount = 0;
+				}
 
-				window.history.go(this.historyCount - count);
 				document.title = this.documentTitle;
 			}
 
-			$(window).unbind('popstate', $.context(this, 'windowPopState'));
+			bdPhotos_OverlayTrigger_postClosePopStateBinder = this;
+			$(window).bind('popstate', bdPhotos_OverlayTrigger_postClosePopState);
+
+			if (this.OverlayLoader)
+			{
+				this.OverlayLoader.overlay.getTrigger().removeData('overlay');
+				this.OverlayLoader.overlay.getOverlay().empty().remove();
+			}
+			delete (this.OverlayLoader);
 		},
 
 		overlayLoad: function(e)
 		{
+			$(window).unbind('popstate', bdPhotos_OverlayTrigger_postClosePopState);
+
 			if (window.history.pushState)
 			{
 				$bdPhotos_NavigationLink_firstState = null;
 
-				window.history.pushState(
+				if (this.shownByPostClose)
 				{
-					'_owner': 'bdPhotos_OverlayTrigger',
-				}, '', this.$trigger.attr('href'));
+					this.shownByPostClose = false;
+				}
+				else
+				{
+					bdPhotos_Overlay_pushStateCount++;
+
+					window.history.pushState(
+					{
+						'_owner': 'bdPhotos_OverlayTrigger',
+						'href': this.href,
+						'pushStateCount': bdPhotos_Overlay_pushStateCount
+					}, '', this.href);
+				}
 
 				document.title = this.$trigger.data('overlay').getConf().title;
 			}
 
-			$(window).bind('popstate', $.context(this, 'windowPopState'));
+			$(window).bind('popstate', this.windowPopStateContext);
 		},
 
 		windowPopState: function(e)
@@ -233,7 +308,13 @@ function($, window, document, _undefined)
 
 			if (!state)
 			{
-				this.$trigger.data('overlay').close();
+				bdPhotos_Overlay_pushStateCount = 0;
+
+				var api = this.$trigger.data('overlay');
+				if (api)
+				{
+					api.close();
+				}
 			}
 		},
 
@@ -264,7 +345,9 @@ function($, window, document, _undefined)
 
 			e.preventDefault();
 
-			options = $.extend(this.options, this.$trigger.data('overlayoptions'));
+			options = $.extend(
+			{
+			}, this.options, this.$trigger.data('overlayoptions'));
 
 			this.OverlayLoader = new XenForo.OverlayLoader(this.$trigger, false, options);
 			this.OverlayLoader.load($.context(this, 'overlayCallback'));
@@ -273,6 +356,74 @@ function($, window, document, _undefined)
 
 		}
 	};
+
+	// *********************************************************************
+
+	$(window).bind('keyup', function(e)
+	{
+		var direction = 0;
+		switch (e.which)
+		{
+			case 37:
+				direction = -1;
+				break;
+			case 39:
+				direction = 1;
+				break;
+		}
+
+		if ($(e.target).attr('name'))
+		{
+			// easy way to determine an input element
+			return false;
+		}
+
+		if (direction != 0)
+		{
+			var $link;
+
+			if (direction < 0)
+			{
+				$link = $('.bdPhotos_NavigationLink.prev');
+			}
+			else
+			{
+				$link = $('.bdPhotos_NavigationLink.next');
+			}
+
+			if ($link.length > 0)
+			{
+				var $foundLink = null;
+
+				$link.each(function()
+				{
+					var $this = $(this);
+
+					var $thisOverlay = $this.parents('.xenOverlay');
+					if ($thisOverlay.length == 0)
+					{
+						// this is a page level navigation link
+					}
+					else
+					{
+						// this is a navigation link within an overlay
+						// need to check for overlay visibility
+						if (!$thisOverlay.is(':visible'))
+						{
+							return;
+						}
+					}
+
+					$foundLink = $this;
+				});
+
+				if ($foundLink != null)
+				{
+					$foundLink.trigger('click');
+				}
+			}
+		}
+	});
 
 	// *********************************************************************
 
