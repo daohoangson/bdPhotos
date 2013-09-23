@@ -4,33 +4,9 @@ class bdPhotos_XenForo_Image_Gd extends XFCP_bdPhotos_XenForo_Image_Gd
 {
 	protected $_bdPhotos_manualOrientation = false;
 
-	public function bdPhotos_setManualOrientation($orientation)
+	public function bdPhotos_dropFramesLeavingThree()
 	{
-		if (!bdPhotos_Option::get('doExifRotate'))
-		{
-			return;
-		}
-
-		$this->_bdPhotos_manualOrientation = $orientation;
-
-		if (in_array($orientation, array(
-			bdPhotos_Helper_Image::ORIENTATION_LEFT,
-			bdPhotos_Helper_Image::ORIENTATION_RIGHT
-		)))
-		{
-			// update width and height for the image
-			// we do not perform roting here because sometime the caller
-			// only needs the dimensions
-			// the image will be rotated before crop/thumbnail
-			$tmp = $this->_width;
-			$this->_width = $this->_height;
-			$this->_height = $tmp;
-		}
-	}
-
-	public function bdPhotos_strip()
-	{
-		// gd always strips!
+		// gd doesn't support frames
 	}
 
 	public function bdPhotos_getEntropy()
@@ -68,6 +44,35 @@ class bdPhotos_XenForo_Image_Gd extends XFCP_bdPhotos_XenForo_Image_Gd
 		}
 
 		return -$sum;
+	}
+
+	public function bdPhotos_setManualOrientation($orientation)
+	{
+		if (!bdPhotos_Option::get('doExifRotate'))
+		{
+			return;
+		}
+
+		$this->_bdPhotos_manualOrientation = $orientation;
+
+		if (in_array($orientation, array(
+			bdPhotos_Helper_Image::ORIENTATION_LEFT,
+			bdPhotos_Helper_Image::ORIENTATION_RIGHT
+		)))
+		{
+			// update width and height for the image
+			// we do not perform roting here because sometime the caller
+			// only needs the dimensions
+			// the image will be rotated before crop/thumbnail
+			$tmp = $this->_width;
+			$this->_width = $this->_height;
+			$this->_height = $tmp;
+		}
+	}
+
+	public function bdPhotos_strip()
+	{
+		// gd always strips!
 	}
 
 	protected function _bdPhotos_fixOrientation()

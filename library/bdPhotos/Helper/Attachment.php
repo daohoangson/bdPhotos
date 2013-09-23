@@ -65,6 +65,7 @@ class bdPhotos_Helper_Attachment
 		{
 			bdPhotos_Helper_Image::prepareOptionsFromExifData($options, $metadata['exif']);
 		}
+		$options[bdPhotos_Helper_Image::OPTION_DROP_FRAMES_LEAVING_THREE] = true;
 
 		$width = array(
 			'width' => 1024,

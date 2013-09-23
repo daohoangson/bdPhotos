@@ -2,38 +2,60 @@
 
 class bdPhotos_XenForo_Image_Imagemagick_Pecl extends XFCP_bdPhotos_XenForo_Image_Imagemagick_Pecl
 {
-	public function bdPhotos_setManualOrientation($orientation)
+	protected $_bdPhotos_manualOrientation = false;
+
+	public function bdPhotos_dropFramesLeavingThree()
 	{
-		if (!bdPhotos_Option::get('doExifRotate'))
+		$this->_bdPhotos_fixOrientation();
+
+		$count = $this->_image->getNumberImages();
+		if ($count <= 3)
 		{
 			return;
 		}
 
-		$this->_bdPhotos_manualOrientation = $orientation;
-
-		if (in_array($orientation, array(
-			bdPhotos_Helper_Image::ORIENTATION_LEFT,
-			bdPhotos_Helper_Image::ORIENTATION_RIGHT
-		)))
+		$keepCount = min(15, max(3, floor($count / 10)));
+		$keepStep = floor($count / $keepCount);
+		$keep = array();
+		$i = 0;
+		foreach ($this->_image as $frame)
 		{
-			// update width and height for the image
-			// we do not perform roting here because sometime the caller
-			// only needs the dimensions
-			// the image will be rotated before crop/thumbnail
-			$tmp = $this->_width;
-			$this->_width = $this->_height;
-			$this->_height = $tmp;
+			if ($i % $keepStep == 0)
+			{
+				// keep track of the frame delay
+				$keep[$i] = $frame->getImageDelay();
+			}
+			else
+			{
+				// get sum of delays of skipped frames
+				$keep[floor($i / $keepStep) * $keepStep] += $frame->getImageDelay();
+			}
+
+			$i++;
 		}
-	}
 
-	public function bdPhotos_strip()
-	{
-		$this->_bdPhotos_fixOrientation();
+		// make sure the last frame has quite long delay
+		$keepKeys = array_keys($keep);
+		$keepKeyFirst = array_shift($keepKeys);
+		$keepKeyLast = array_pop($keepKeys);
+		$keep[$keepKeyLast] += $keep[$keepKeyFirst];
 
-		foreach ($this->_image AS $frame)
+		$newImage = new Imagick();
+
+		$i = 0;
+		foreach ($this->_image as $frame)
 		{
-			$frame->stripImage();
+			if (!empty($keep[$i]))
+			{
+				$frame->setImageDelay(min($keep[$i], $keep[$i] / $keepCount * 2));
+				$newImage->addImage($frame->getImage());
+			}
+
+			$i++;
 		}
+
+		$this->_image->destroy();
+		$this->_image = $newImage;
 	}
 
 	public function bdPhotos_getEntropy($x, $y, $width, $height)
@@ -77,6 +99,40 @@ class bdPhotos_XenForo_Image_Imagemagick_Pecl extends XFCP_bdPhotos_XenForo_Imag
 		}
 
 		return -$sum;
+	}
+
+	public function bdPhotos_setManualOrientation($orientation)
+	{
+		if (!bdPhotos_Option::get('doExifRotate'))
+		{
+			return;
+		}
+
+		$this->_bdPhotos_manualOrientation = $orientation;
+
+		if (in_array($orientation, array(
+			bdPhotos_Helper_Image::ORIENTATION_LEFT,
+			bdPhotos_Helper_Image::ORIENTATION_RIGHT
+		)))
+		{
+			// update width and height for the image
+			// we do not perform roting here because sometime the caller
+			// only needs the dimensions
+			// the image will be rotated before crop/thumbnail
+			$tmp = $this->_width;
+			$this->_width = $this->_height;
+			$this->_height = $tmp;
+		}
+	}
+
+	public function bdPhotos_strip()
+	{
+		$this->_bdPhotos_fixOrientation();
+
+		foreach ($this->_image AS $frame)
+		{
+			$frame->stripImage();
+		}
 	}
 
 	protected function _bdPhotos_fixOrientation()
