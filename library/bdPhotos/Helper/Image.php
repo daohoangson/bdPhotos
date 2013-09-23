@@ -103,7 +103,7 @@ class bdPhotos_Helper_Image
 		return $inputType;
 	}
 
-	public static function getSize($path, $width, $height)
+	public static function getSize($path)
 	{
 		$size = array(
 			0,
@@ -149,12 +149,14 @@ class bdPhotos_Helper_Image
 		}
 	}
 
-	public static function resizeAndCrop($inPath, $extension, $width, $height, $outPath, array $options = array())
+	public static function resizeAndCrop($inPath, $extension, &$width, &$height, $outPath, array $options = array())
 	{
 		$inputType = self::getInputTypeFromExtension($extension);
 		$crop = true;
 		$thumbnailFixedShorterSide = false;
 		$dropFramesLeavingThree = false;
+
+		$_imageHasBeenChanged = false;
 
 		if (is_array($width) AND empty($height))
 		{
@@ -189,6 +191,24 @@ class bdPhotos_Helper_Image
 			return false;
 		}
 
+		if (file_exists($outPath))
+		{
+			// the output file exists already, yay!
+			// still need to update the width and height variables though...
+			if ($crop)
+			{
+				// no need to update
+			}
+			else
+			{
+				// mark as uncalculated
+				$width = 0;
+				$height = 0;
+			}
+
+			return true;
+		}
+
 		$image = XenForo_Image_Abstract::createFromFile($inPath, $inputType);
 		if (empty($image))
 		{
@@ -203,7 +223,10 @@ class bdPhotos_Helper_Image
 		if ($dropFramesLeavingThree)
 		{
 			// TODO: check for method availability?
-			$image->bdPhotos_dropFramesLeavingThree();
+			if ($image->bdPhotos_dropFramesLeavingThree())
+			{
+				$_imageHasBeenChanged = true;
+			}
 		}
 
 		if ($width > 0 AND $height > 0)
@@ -234,8 +257,17 @@ class bdPhotos_Helper_Image
 					$cropX = min(max(0, floor($roiX - $cropWidth / 2)), $image->getWidth() - $cropWidth);
 					$cropY = min(max(0, floor($roiY - $cropHeight / 2)), $image->getHeight() - $cropHeight);
 
-					$image->crop($cropX, $cropY, $cropWidth, $cropHeight);
-					$image->bdPhotos_thumbnail($width, $height);
+					if ($cropX != 0 OR $cropY != 0 OR $cropWidth != $image->getWidth() OR $cropHeight != $image->getHeight())
+					{
+						$image->crop($cropX, $cropY, $cropWidth, $cropHeight);
+						$_imageHasBeenChanged = true;
+					}
+
+					if ($width != $image->getWidth() OR $height != $image->getHeight())
+					{
+						$image->bdPhotos_thumbnail($width, $height);
+						$_imageHasBeenChanged = true;
+					}
 				}
 				else
 				{
@@ -250,10 +282,16 @@ class bdPhotos_Helper_Image
 						$thumHeight = $width / $origRatio;
 					}
 
-					$image->bdPhotos_thumbnail($thumWidth, $thumHeight);
+					if ($thumWidth != $image->getWidth() OR $thumHeight != $image->getHeight())
+					{
+						$image->bdPhotos_thumbnail($thumWidth, $thumHeight);
+						$_imageHasBeenChanged = true;
+					}
+
 					if ($width != $image->getWidth() OR $height != $image->getHeight())
 					{
 						$image->crop(0, 0, $width, $height);
+						$_imageHasBeenChanged = true;
 					}
 				}
 			}
@@ -264,6 +302,7 @@ class bdPhotos_Helper_Image
 					if ($image->getWidth() > $width OR $image->getHeight() > $height)
 					{
 						$image->thumbnailFixedShorterSide($width);
+						$_imageHasBeenChanged = true;
 					}
 				}
 				else
@@ -280,7 +319,11 @@ class bdPhotos_Helper_Image
 						$thumWidth = $thumHeight * $origRatio;
 					}
 
-					$image->bdPhotos_thumbnail($thumWidth, $thumHeight);
+					if ($thumWidth != $image->getWidth() OR $thumHeight != $image->getHeight())
+					{
+						$image->bdPhotos_thumbnail($thumWidth, $thumHeight);
+						$_imageHasBeenChanged = true;
+					}
 				}
 			}
 		}
@@ -288,13 +331,23 @@ class bdPhotos_Helper_Image
 		{
 			$targetHeight = $height;
 			$targetWidth = $targetHeight / $image->getHeight() * $image->getWidth();
-			$image->bdPhotos_thumbnail($targetWidth, $targetHeight);
+
+			if ($targetWidth != $image->getWidth() OR $targetHeight != $image->getHeight())
+			{
+				$image->bdPhotos_thumbnail($targetWidth, $targetHeight);
+				$_imageHasBeenChanged = true;
+			}
 		}
 		elseif ($width > 0)
 		{
 			$targetWidth = $width;
 			$targetHeight = $targetWidth / $image->getWidth() * $image->getHeight();
-			$image->bdPhotos_thumbnail($targetWidth, $targetHeight);
+
+			if ($targetWidth != $image->getWidth() OR $targetHeight != $image->getHeight())
+			{
+				$image->bdPhotos_thumbnail($targetWidth, $targetHeight);
+				$_imageHasBeenChanged = true;
+			}
 		}
 		else
 		{
@@ -302,7 +355,19 @@ class bdPhotos_Helper_Image
 		}
 
 		XenForo_Helper_File::createDirectory(dirname($outPath), true);
-		$image->output($inputType, $outPath);
+
+		$width = $image->getWidth();
+		$height = $image->getHeight();
+
+		if ($_imageHasBeenChanged)
+		{
+			$image->output($inputType, $outPath);
+		}
+		else
+		{
+			@copy($inPath, $outPath);
+		}
+
 		return true;
 	}
 

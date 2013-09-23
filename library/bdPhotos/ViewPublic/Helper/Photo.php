@@ -197,6 +197,7 @@ class bdPhotos_ViewPublic_Helper_Photo
 							'width' => $spViewWidthOrHeight,
 							'height' => $spViewWidthOrHeight,
 							'crop' => false,
+							'thumbnailFixedShorterSide' => true,
 						);
 						$this->_height = 0;
 					}
@@ -254,21 +255,25 @@ class bdPhotos_ViewPublic_Helper_Photo
 				}
 
 				$cachePath = self::_getCachePath($filePath, $extension, $this->_width, $this->_height, $options);
+				$url = self::_getCacheUrl($filePath, $extension, $this->_width, $this->_height, $options);
 
-				if (file_exists($cachePath) OR bdPhotos_Helper_Image::resizeAndCrop($filePath, $extension, $this->_width, $this->_height, $cachePath, $options))
+				if (bdPhotos_Helper_Image::resizeAndCrop($filePath, $extension, $this->_width, $this->_height, $cachePath, $options))
 				{
-					$url = self::_getCacheUrl($filePath, $extension, $this->_width, $this->_height, $options);
 					$width = $this->_width;
 					$height = $this->_height;
+				}
+				else
+				{
+					$url = false;
 				}
 			}
 		}
 
-		if (!is_numeric($width) OR !is_numeric($height))
+		if (!empty($url) AND (!is_numeric($width) OR !is_numeric($height) OR empty($width) OR empty($height)))
 		{
 			$path = self::_tryToConvertUrlToPath($url);
 
-			list($width, $height) = bdPhotos_Helper_Image::getSize($path, $this->_width, $this->_height);
+			list($width, $height) = bdPhotos_Helper_Image::getSize($path);
 		}
 
 		return array(

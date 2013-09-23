@@ -7,6 +7,7 @@ class bdPhotos_XenForo_Image_Gd extends XFCP_bdPhotos_XenForo_Image_Gd
 	public function bdPhotos_dropFramesLeavingThree()
 	{
 		// gd doesn't support frames
+		return false;
 	}
 
 	public function bdPhotos_getEntropy()
@@ -72,7 +73,8 @@ class bdPhotos_XenForo_Image_Gd extends XFCP_bdPhotos_XenForo_Image_Gd
 
 	public function bdPhotos_strip()
 	{
-		// gd always strips!
+		// gd always strips!'
+		return false;
 	}
 
 	public function bdPhotos_thumbnail($width, $height)

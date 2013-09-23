@@ -11,7 +11,7 @@ class bdPhotos_XenForo_Image_Imagemagick_Pecl extends XFCP_bdPhotos_XenForo_Imag
 		$count = $this->_image->getNumberImages();
 		if ($count <= 3)
 		{
-			return;
+			return false;
 		}
 
 		$keepCount = min(15, max(3, floor($count / 10)));
@@ -56,6 +56,8 @@ class bdPhotos_XenForo_Image_Imagemagick_Pecl extends XFCP_bdPhotos_XenForo_Imag
 
 		$this->_image->destroy();
 		$this->_image = $newImage;
+		
+		return true;
 	}
 
 	public function bdPhotos_getEntropy($x, $y, $width, $height)
@@ -133,6 +135,8 @@ class bdPhotos_XenForo_Image_Imagemagick_Pecl extends XFCP_bdPhotos_XenForo_Imag
 		{
 			$frame->stripImage();
 		}
+		
+		return true;
 	}
 
 	public function bdPhotos_thumbnail($width, $height)
