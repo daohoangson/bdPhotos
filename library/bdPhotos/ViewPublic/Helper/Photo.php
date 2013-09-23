@@ -276,6 +276,11 @@ class bdPhotos_ViewPublic_Helper_Photo
 			list($width, $height) = bdPhotos_Helper_Image::getSize($path);
 		}
 
+		if (!empty($url))
+		{
+			$url = XenForo_Link::convertUriToAbsoluteUri($url, true);
+		}
+
 		return array(
 			$url,
 			$width,
