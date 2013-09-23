@@ -7,9 +7,9 @@
 			AttachmentUploaded: function(e)
 			{
 				if (e.file)// SWFupload method
-				{console.log('swfupload');
+				{
 					window.setTimeout(function()
-					{console.log('timedout');
+					{
 						var $attachment = $('#attachment' + e.ajaxData.attachment_id);
 						var $templateHtml = $(e.ajaxData.templateHtml);
 
