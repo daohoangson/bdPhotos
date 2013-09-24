@@ -114,6 +114,8 @@ class bdPhotos_ControllerPublic_Uploader extends bdPhotos_ControllerPublic_Abstr
 			'totalPhotos' => $totalPhotos,
 		);
 
+		$viewParams = array_merge($viewParams, $this->_getSetHelper()->getViewParamsForPhotoList($conditions, $fetchOptions));
+
 		return $this->responseView('bdPhotos_ViewPublic_Uploader_Photos', 'bdphotos_uploader_photos', $viewParams);
 	}
 

@@ -900,7 +900,8 @@ step=1024</edit_format_params>
 	<input type="hidden" name="_xfToken" value="{$visitor.csrf_token_page}" />
 	<input type="hidden" name="is_album_edit" value="1" />
 </form>]]></template>
-    <template title="bdphotos_album_index" version_id="1" version_string="0.9-dev"><![CDATA[<xen:title>{xen:phrase bdphotos_albums}</xen:title>
+    <template title="bdphotos_album_index" version_id="3" version_string="0.9.1"><![CDATA[<xen:title>{xen:phrase bdphotos_albums}{xen:helper pagenumber, $page}</xen:title>
+<xen:h1>{xen:phrase bdphotos_albums}</xen:h1>
 
 <xen:if is="{$canUpload}">
 	<xen:topctrl>
@@ -932,7 +933,7 @@ step=1024</edit_format_params>
 		</span>
 	</div>
 </xen:if>]]></template>
-    <template title="bdphotos_album_list" version_id="1" version_string="0.9-dev"><![CDATA[<xen:if hascontent="true">
+    <template title="bdphotos_album_list" version_id="3" version_string="0.9.1"><![CDATA[<xen:if hascontent="true">
 	<xen:require css="bdphotos.css" />
 
 	<ol class="bdPhotos_AlbumList">
@@ -942,10 +943,16 @@ step=1024</edit_format_params>
 			</xen:foreach>
 		</xen:contentcheck>
 	</ol>
-</xen:if>]]></template>
-    <template title="bdphotos_album_list_album" version_id="1" version_string="0.9-dev"><![CDATA[<xen:require css="bdphotos.css" />
 
-<li class="bdPhotos_AlbumList_Album {xen:if '!{$album.album_publish_date}', 'not-published'}" id="album{$album.album_id}">
+	<xen:if is="{$pageNavLink} AND {$totalAlbums}">
+		<div class="bdPhotos_AlbumList_PageNav">
+			<xen:pagenav link="{$pageNavLink}" linkdata="{$pageNavData}" linkparams="{$pageNavParams}" page="{$page}" perpage="{xen:helper bdPhotos_getOption, albumsPerPage}" total="{$totalAlbums}" />
+		</div>
+	</xen:if>
+</xen:if>]]></template>
+    <template title="bdphotos_album_list_album" version_id="3" version_string="0.9.1"><![CDATA[<xen:require css="bdphotos.css" />
+
+<li class="bdPhotos_AlbumList_Album {xen:if '!{$album.album_publish_date}', 'not-published'}" id="album-{$album.album_id}">
 	
 	<div class="container">
 
@@ -996,7 +1003,7 @@ step=1024</edit_format_params>
 		</div>
 	</div>
 </li>]]></template>
-    <template title="bdphotos_album_view" version_id="1" version_string="0.9-dev"><![CDATA[<xen:title>{$album.album_name} {xen:phrase by_x, 'name={$uploader.username}'}</xen:title>
+    <template title="bdphotos_album_view" version_id="3" version_string="0.9.1"><![CDATA[<xen:title>{$album.album_name} {xen:phrase by_x, 'name={$uploader.username}'}{xen:helper pagenumber, $page}</xen:title>
 <xen:h1></xen:h1>
 
 <xen:if is="{$breadcrumbs}">
@@ -1029,7 +1036,7 @@ step=1024</edit_format_params>
 <xen:require js="js/xenforo/comments_simple.js" />
 <xen:require js="js/bdPhotos/comments_simple.js" />
 
-<div itemscope="itemscope" itemtype="http://schema.org/ImageGallery">
+<div class="bdPhotos_Album" id="album-view-{$album.album_id}" itemscope="itemscope" itemtype="http://schema.org/ImageGallery">
 	<div class="bdPhotos_AlbumHead">
 		<h3 class="name" itemprop="name">{$album.album_name}</h3>
 		<div class="album-info faint">
@@ -1168,7 +1175,7 @@ step=1024</edit_format_params>
 	</div>
 
 </xen:if>]]></template>
-    <template title="bdphotos_attachment_editor_attachment" version_id="2" version_string="0.9"><![CDATA[<xen:require css="bdphotos.css" />
+    <template title="bdphotos_attachment_editor_attachment" version_id="3" version_string="0.9.1"><![CDATA[<xen:require css="bdphotos.css" />
 
 <li id="{xen:if $isTemplate, 'AttachedFileTemplate', 'attachment{$attachment.attachment_id}'}"
 	class="AttachedFile AttachedImage bdPhotos_PhotoList_Photo">
@@ -1180,7 +1187,7 @@ step=1024</edit_format_params>
 			</xen:if>
 		</div>
 		
-		<div class="controls top">
+		<div class="controls top" {xen:if $isTemplate, 'style="display: none"'}>
 			<div class="controls-container">
 				<input type="button" value="{xen:phrase delete}" class="button smallButton AttachmentDeleter" data-href="{xen:link 'attachments/delete', $attachment}" />
 
@@ -1248,7 +1255,7 @@ step=1024</edit_format_params>
 	</div>
 
 </li>]]></template>
-    <template title="bdphotos_device_photos" version_id="1" version_string="0.9-dev"><![CDATA[<xen:title>{xen:phrase bdphotos_photos_taken_with_x, 'device_name={$device.device_name}'}</xen:title>
+    <template title="bdphotos_device_photos" version_id="3" version_string="0.9.1"><![CDATA[<xen:title>{xen:phrase bdphotos_photos_taken_with_x, 'device_name={$device.device_name}'}{xen:helper pagenumber, $page}</xen:title>
 <xen:h1>{$device.device_name}</xen:h1>
 
 <xen:if hascontent="true">
@@ -1263,7 +1270,7 @@ step=1024</edit_format_params>
 		<p>{xen:phrase bdphotos_there_is_no_photos_here}</p>
 	</div>
 </xen:if>]]></template>
-    <template title="bdphotos_location_photos" version_id="2" version_string="0.9"><![CDATA[<xen:title>{xen:phrase bdphotos_photos_taken_near_x, 'location_name={xen:helper bdPhotos_formatLocationName, $location}'}</xen:title>
+    <template title="bdphotos_location_photos" version_id="3" version_string="0.9.1"><![CDATA[<xen:title>{xen:phrase bdphotos_photos_taken_near_x, 'location_name={xen:helper bdPhotos_formatLocationName, $location}'}{xen:helper pagenumber, $page}</xen:title>
 <xen:h1>{xen:helper bdPhotos_formatLocationName, $location}</xen:h1>
 <xen:description>{$location.location_name}</xen:description>
 
@@ -1285,7 +1292,9 @@ step=1024</edit_format_params>
 		<xen:if is="{$visitor.user_id}"><li><a href="{xen:link 'members/photos', $visitor}">{xen:phrase bdphotos_your_photos}</a></li></xen:if>
 	</xen:hook>
 </ul>]]></template>
-    <template title="bdphotos_photo_index" version_id="1" version_string="0.9-dev"><![CDATA[<xen:title>{xen:phrase bdphotos_photos}</xen:title>
+    <template title="bdphotos_photo_index" version_id="3" version_string="0.9.1"><![CDATA[<xen:title>{xen:phrase bdphotos_photos}{xen:helper pagenumber, $page}</xen:title>
+<xen:h1>{xen:phrase bdphotos_photos}</xen:h1>
+<xen:set var="$setTitle">{xen:phrase bdphotos_photos}</xen:set>
 
 <xen:if is="{$canUpload}">
 	<xen:topctrl>
@@ -1346,7 +1355,7 @@ step=1024</edit_format_params>
 		</span>
 	</div>
 </xen:if>]]></template>
-    <template title="bdphotos_photo_list" version_id="1" version_string="0.9-dev"><![CDATA[<xen:if hascontent="true">
+    <template title="bdphotos_photo_list" version_id="3" version_string="0.9.1"><![CDATA[<xen:if hascontent="true">
 	<xen:require css="bdphotos.css" />
 
 	<ol class="bdPhotos_PhotoList" {xen:if '{$parentItemType} == "ImageGallery"', 'itemprop="mainContentOfPage"'}>
@@ -1356,16 +1365,22 @@ step=1024</edit_format_params>
 			</xen:foreach>
 		</xen:contentcheck>
 	</ol>
+
+	<xen:if is="{$pageNavLink} AND {$totalPhotos}">
+		<div class="bdPhotos_PhotoList_PageNav">
+			<xen:pagenav link="{$pageNavLink}" linkdata="{$pageNavData}" linkparams="{$pageNavParams}" page="{$page}" perpage="{xen:helper bdPhotos_getOption, photosPerPage}" total="{$totalPhotos}" />
+		</div>
+	</xen:if>
 </xen:if>]]></template>
     <template title="bdphotos_photo_list_photo" version_id="3" version_string="0.9.1"><![CDATA[<xen:require css="bdphotos.css" />
 <xen:require js="js/bdPhotos/viewer.js" />
 
-<li class="bdPhotos_PhotoList_Photo {xen:if '!{$photo.publish_date}', 'not-published'}" id="photo{$photo.photo_id}" {xen:if '{$parentItemType} == "ImageGallery" AND {$coverPhotoId} == {$photo.photo_id}', 'itemprop="primaryImageOfPage"'} itemscope="itemscope" itemtype="http://schema.org/ImageObject">
+<li class="bdPhotos_PhotoList_Photo {xen:if '!{$photo.publish_date}', 'not-published'}" id="photo-{$photo.photo_id}" {xen:if '{$parentItemType} == "ImageGallery" AND {$coverPhotoId} == {$photo.photo_id}', 'itemprop="primaryImageOfPage"'} itemscope="itemscope" itemtype="http://schema.org/ImageObject">
 
 	<div class="container">
 	
 		<xen:if is="{$photo.photoObj}">
-			<div class="photo"><a href="{xen:link photos, $photo}" itemprop="contentURL" class="bdPhotos_OverlayTrigger">{xen:raw $photo.photoObj}</a></div>
+			<div class="photo"><a href="{xen:link photos, $photo, 'setTitle={$setTitle}', 'setString={$setString}'}" itemprop="contentURL" class="bdPhotos_OverlayTrigger">{xen:raw $photo.photoObj}</a></div>
 		<xen:else />
 			<div class="photo nophoto">&nbsp;</div>
 		</xen:if>
@@ -1384,7 +1399,7 @@ step=1024</edit_format_params>
 					<span class="from-album faint">{xen:phrase bdphotos_from_album}:</span>
 					<a href="{xen:link photos/albums, $photo}">{$photo.album_name}</a>
 				<xen:else />
-					<a href="{xen:link photos, $photo}" itemprop="caption" class="bdPhotos_OverlayTrigger">{$photo.photo_caption}</a>
+					<a href="{xen:link photos, $photo, 'setTitle={$setTitle}', 'setString={$setString}'}" itemprop="caption" class="bdPhotos_OverlayTrigger">{$photo.photo_caption}</a>
 				</xen:if>
 			</div>
 
@@ -1406,7 +1421,7 @@ step=1024</edit_format_params>
 				</xen:if>
 
 				<xen:if is="{$photo.canComment}">
-					<a href="{xen:link photos, $photo}" class="CommentLink comments">
+					<a href="{xen:link photos/comments, $photo}" class="CommentLink comments">
 						<span class="icon">{xen:number $photo.photo_comment_count, 0}</span>
 					</a>
 				<xen:else />
@@ -1448,17 +1463,17 @@ step=1024</edit_format_params>
 
 <xen:require js="js/bdPhotos/viewer.js" />
 
-<div class="bdPhotos_Photo NoAutoHeader {xen:if '!{$photo.publish_date}', 'not-published'}" id="photo{$photo.photo_id}">
+<div class="bdPhotos_Photo NoAutoHeader {xen:if '!{$photo.publish_date}', 'not-published'}" id="photo-view-{$photo.photo_id}">
 
 	<xen:if is="{$photo.photoObj}">
 		<div class="bdPhotos_PhotoWrapperWrapper">
 			<div class="bdPhotos_Navigation">
 				<xen:if is="{$setPrev}">
-					<a href="{xen:link photos, $setPrev}" class="bdPhotos_NavigationLink prev">{xen:phrase bdphotos_previous}</a>
+					<a href="{xen:link photos, $setPrev, 'setTitle={$setTitle}', 'setString={$setString}'}" class="bdPhotos_NavigationLink prev">{xen:phrase bdphotos_previous}</a>
 				</xen:if>
 				<xen:if is="{$setPrev} AND {$setNext}"><span>·</span></xen:if>
 				<xen:if is="{$setNext}">
-					<a href="{xen:link photos, $setNext}" class="bdPhotos_NavigationLink next">{xen:phrase next}</a>
+					<a href="{xen:link photos, $setNext, 'setTitle={$setTitle}', 'setString={$setString}'}" class="bdPhotos_NavigationLink next">{xen:phrase next}</a>
 				</xen:if>
 			</div>
 
@@ -1754,11 +1769,11 @@ step=1024</edit_format_params>
 		&nbsp;
 	</div>
 </xen:if>]]></template>
-    <template title="bdphotos_uploader_albums" version_id="1" version_string="0.9-dev"><![CDATA[<xen:title>
+    <template title="bdphotos_uploader_albums" version_id="3" version_string="0.9.1"><![CDATA[<xen:title>
 	<xen:if is="{$uploader.user_id} == {$visitor.user_id}">
-		{xen:phrase bdphotos_your_albums}
+		{xen:phrase bdphotos_your_albums}{xen:helper pagenumber, $page}
 	<xen:else />
-		{xen:phrase bdphotos_albums} {xen:phrase by_x, 'name={$uploader.username}'}
+		{xen:phrase bdphotos_albums} {xen:phrase by_x, 'name={$uploader.username}'}{xen:helper pagenumber, $page}
 	</xen:if>
 </xen:title>
 <xen:h1></xen:h1>
@@ -1791,13 +1806,14 @@ step=1024</edit_format_params>
 		</xen:if>
 	</div>
 </xen:if>]]></template>
-    <template title="bdphotos_uploader_photos" version_id="1" version_string="0.9-dev"><![CDATA[<xen:title>
+    <template title="bdphotos_uploader_photos" version_id="3" version_string="0.9.1"><![CDATA[<xen:set var="$setTitle">
 	<xen:if is="{$uploader.user_id} == {$visitor.user_id}">
 		{xen:phrase bdphotos_your_photos}
 	<xen:else />
 		{xen:phrase bdphotos_photos} {xen:phrase by_x, 'name={$uploader.username}'}
 	</xen:if>
-</xen:title>
+</xen:set>
+<xen:title>{$setTitle}{xen:helper pagenumber, $page}</xen:title>
 <xen:h1></xen:h1>
 
 <xen:if is="{$canUpload}">

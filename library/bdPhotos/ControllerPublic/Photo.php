@@ -45,6 +45,8 @@ class bdPhotos_ControllerPublic_Photo extends bdPhotos_ControllerPublic_Abstract
 			'page' => $page,
 			'totalPhotos' => $totalPhotos,
 		);
+		
+		$viewParams = array_merge($viewParams, $this->_getSetHelper()->getViewParamsForPhotoList($conditions, $fetchOptions));
 
 		return $this->responseView('bdPhotos_ViewPublic_Photo_Index', 'bdphotos_photo_index', $viewParams);
 	}
@@ -86,7 +88,7 @@ class bdPhotos_ControllerPublic_Photo extends bdPhotos_ControllerPublic_Abstract
 			'canonicalUrl' => $canonicalUrl,
 		);
 
-		$viewParams = array_merge($viewParams, $this->_getViewParamsForSet($album, $photo));
+		$viewParams = array_merge($viewParams, $this->_getSetHelper()->getViewParamsForPhotoView($album, $photo));
 
 		return $this->responseView('bdPhotos_ViewPublic_Photo_View', 'bdphotos_photo_view', $viewParams);
 	}

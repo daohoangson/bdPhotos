@@ -24,8 +24,12 @@ class bdPhotos_Route_Prefix_Photos implements XenForo_Route_Interface
 	{
 		$controller = 'bdPhotos_ControllerPublic_Photo';
 		$action = $router->getSubComponentAction($this->_subComponents, $routePath, $request, $controller);
+
 		if ($action === false)
 		{
+			$request->setParam('setString', $request->getParam('s'));
+			$request->setParam('setTitle', $request->getParam('st'));
+
 			$action = $router->resolveActionWithIntegerParam($routePath, $request, 'photo_id');
 		}
 
@@ -42,6 +46,18 @@ class bdPhotos_Route_Prefix_Photos implements XenForo_Route_Interface
 		$link = XenForo_Link::buildSubComponentLink($this->_subComponents, $outputPrefix, $action, $extension, $data);
 		if (!$link)
 		{
+			if (isset($extraParams['setTitle']) OR isset($extraParams['setString']))
+			{
+				if (!empty($extraParams['setTitle']) AND !empty($extraParams['setString']))
+				{
+					$extraParams['s'] = $extraParams['setString'];
+					$extraParams['st'] = utf8_trim($extraParams['setTitle']);
+				}
+
+				unset($extraParams['setTitle']);
+				unset($extraParams['setString']);
+			}
+
 			$link = XenForo_Link::buildBasicLinkWithIntegerParam($outputPrefix, $action, $extension, $data, 'photo_id');
 		}
 

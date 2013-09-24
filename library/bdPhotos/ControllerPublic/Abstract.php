@@ -50,82 +50,6 @@ abstract class bdPhotos_ControllerPublic_Abstract extends XenForo_ControllerPubl
 		return $photo;
 	}
 
-	protected function _getViewParamsForSet($album, $photo)
-	{
-		$set = $this->_input->filterSingle('set', XenForo_Input::STRING);
-		$viewParams = array();
-		$photos = array();
-
-		switch ($set)
-		{
-			default:
-				// no set specified, use photos from the same album
-				$photos = $this->_getPhotoModel()->getPhotos(array('album_id' => $album['album_id']), array('order' => 'position'));
-				break;
-		}
-
-		if (!empty($photos))
-		{
-			$prev = false;
-			$next = false;
-			$found = false;
-
-			if (count($photos) > 1)
-			{
-				foreach ($photos as $_photo)
-				{
-					if ($_photo['photo_id'] == $photo['photo_id'])
-					{
-						$found = true;
-						continue;
-					}
-
-					if (!$found)
-					{
-						$prev = $_photo;
-					}
-					else
-					{
-						$next = $_photo;
-						break;
-					}
-				}
-
-				if ($found)
-				{
-					if ($prev === false)
-					{
-						// the photo is the first one in the set
-						// use the last one as $prev
-						$keys = array_keys($photos);
-						$lastKey = array_pop($keys);
-						$prev = $photos[$lastKey];
-					}
-					elseif ($next === false)
-					{
-						// the photo is the last one in the set
-						// use the first one as $next
-						$keys = array_keys($photos);
-						$firstKey = array_shift($keys);
-						$next = $photos[$firstKey];
-					}
-
-					if (!empty($prev) AND !empty($next) AND $prev['photo_id'] == $next['photo_id'])
-					{
-						// this happens if there are 2 photos in the set
-						$prev = false;
-					}
-				}
-			}
-
-			$viewParams['setPhotos'] = $photos;
-			$viewParams['setPrev'] = $prev;
-			$viewParams['setNext'] = $next;
-		}
-
-		return $viewParams;
-	}
-
 	protected function _assertCanView()
 	{
 		if (!$this->_getUploaderModel()->canView($errorPhraseKey))
@@ -230,6 +154,14 @@ abstract class bdPhotos_ControllerPublic_Abstract extends XenForo_ControllerPubl
 		}
 
 		return parent::_preDispatch($action);
+	}
+
+	/**
+	 * @return bdPhotos_ControllerHelper_Set
+	 */
+	protected function _getSetHelper()
+	{
+		return $this->getHelper('bdPhotos_ControllerHelper_Set');
 	}
 
 	/**
