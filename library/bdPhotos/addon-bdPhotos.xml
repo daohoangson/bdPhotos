@@ -1003,7 +1003,9 @@ step=1024</edit_format_params>
 		</div>
 	</div>
 </li>]]></template>
-    <template title="bdphotos_album_view" version_id="3" version_string="0.9.1"><![CDATA[<xen:title>{$album.album_name} {xen:phrase by_x, 'name={$uploader.username}'}{xen:helper pagenumber, $page}</xen:title>
+    <template title="bdphotos_album_view" version_id="4" version_string="0.9.1b"><![CDATA[<xen:set var="$title">{$album.album_name} {xen:phrase by_x, 'name={$uploader.username}'}</xen:set>
+
+<xen:title>{xen:raw $title}{xen:helper pagenumber, $page}</xen:title>
 <xen:h1></xen:h1>
 
 <xen:if is="{$breadcrumbs}">
@@ -1015,11 +1017,24 @@ step=1024</edit_format_params>
 <xen:container var="$head.canonical">
 	<link rel="canonical" href="{xen:link 'canonical:photos/albums', $album}" />
 </xen:container>
+
 <xen:container var="$head.openGraph">
 	<xen:include template="open_graph_meta">
 		<xen:set var="$url">{xen:link 'canonical:photos/albums', $album}</xen:set>
-		<xen:set var="$title">{$album.album_name}</xen:set>
+		<xen:set var="$title">{xen:raw $title}</xen:set>
 		<xen:set var="$avatar">{$album.ogObj}</xen:set>
+	</xen:include>
+</xen:container>
+<xen:container var="$head.twitterCard">
+	<xen:set var="$twitterImages.cover">{$album.ogObj}</xen:set>
+	<xen:foreach loop="$photos" i="{$i}" value="$photo">
+		<xen:if is="{$photo.photo_id} != {$album.cover_photo_id}">
+			<xen:set var="$twitterImages.{$i}">{$photo.ogObj}</xen:set>
+		</xen:if>
+	</xen:foreach>
+
+	<xen:include template="bdphotos_twitter_card_meta">
+		<xen:set var="$title">{xen:raw $title}</xen:set>
 	</xen:include>
 </xen:container>
 
@@ -1436,7 +1451,9 @@ step=1024</edit_format_params>
 	</div>
 
 </li>]]></template>
-    <template title="bdphotos_photo_view" version_id="3" version_string="0.9.1"><![CDATA[<xen:title>{xen:helper bdPhotos_snippetOrDefault, $photo.photo_caption, {xen:phrase bdphotos_photo}, 50} {xen:phrase by_x, 'name={$uploader.username}'}</xen:title>
+    <template title="bdphotos_photo_view" version_id="4" version_string="0.9.1b"><![CDATA[<xen:set var="$title">{xen:helper bdPhotos_snippetOrDefault, $photo.photo_caption, {xen:phrase bdphotos_photo}, 50} {xen:phrase by_x, 'name={$uploader.username}'}</xen:set>
+
+<xen:title>{xen:raw $title}</xen:title>
 <xen:h1></xen:h1>
 
 <xen:navigation>
@@ -1446,11 +1463,19 @@ step=1024</edit_format_params>
 <xen:container var="$head.canonical">
 	<link rel="canonical" href="{xen:link 'canonical:photos', $photo}" />
 </xen:container>
+
 <xen:container var="$head.openGraph">
 	<xen:include template="open_graph_meta">
 		<xen:set var="$url">{xen:link 'canonical:photos', $photo}</xen:set>
-		<xen:set var="$title">{$album.album_name}</xen:set>
+		<xen:set var="$title">{xen:raw $title}</xen:set>
 		<xen:set var="$avatar">{$photo.ogObj}</xen:set>
+	</xen:include>
+</xen:container>
+<xen:container var="$head.twitterCard">
+	<xen:set var="$twitterImages.0">{$photo.ogObj}</xen:set>
+
+	<xen:include template="bdphotos_twitter_card_meta">
+		<xen:set var="$title">{xen:raw $title}</xen:set>
 	</xen:include>
 </xen:container>
 
@@ -1768,6 +1793,17 @@ step=1024</edit_format_params>
 	<div class="bdPhotos_snippetLocationStaticMap" style="width: {$width}px; height: {$height}px; background: url({$imageUrl}) no-repeat center center">
 		&nbsp;
 	</div>
+</xen:if>]]></template>
+    <template title="bdphotos_twitter_card_meta" version_id="4" version_string="0.9.1b"><![CDATA[<xen:if is="{$twitterImages}">
+	<meta property="twitter:card" content="{xen:if '{xen:count $twitterImages} < 4', 'photo', 'gallery'}">
+	<xen:if is="{$xenOptions.tweet.via}"><meta property="twitter:site" content="@{$xenOptions.tweet.via}"></xen:if>
+	<meta property="twitter:title" content="{$title}"><xen:comment>
+
+	</xen:comment><xen:if is="{xen:count $twitterImages} < 4">
+	<xen:foreach loop="$twitterImages" i="$i" value="$twitterImage"><xen:if is="{$i} == 1"><meta property="twitter:image:src" content="{$twitterImage}" /></xen:if></xen:foreach>
+	<xen:else />
+	<xen:foreach loop="$twitterImages" i="$i" value="$twitterImage"><xen:if is="{$i} <= 4"><meta property="twitter:image{xen:calc '{$i} - 1'}" content="{$twitterImage}" /></xen:if></xen:foreach>
+	</xen:if>
 </xen:if>]]></template>
     <template title="bdphotos_uploader_albums" version_id="3" version_string="0.9.1"><![CDATA[<xen:title>
 	<xen:if is="{$uploader.user_id} == {$visitor.user_id}">

@@ -9,6 +9,11 @@ class bdPhotos_ViewPublic_Album_View extends XenForo_ViewPublic_Base
 			'template' => '%1$s',
 		));
 
+		bdPhotos_ViewPublic_Helper_Photo::preparePhotosForDisplay($this->_params['photos'], array(
+			'objKey' => 'ogObj',
+			'template' => '%1$s',
+		));
+
 		bdPhotos_ViewPublic_Helper_Photo::preparePhotosForDisplay($this->_params['photos']);
 	}
 
