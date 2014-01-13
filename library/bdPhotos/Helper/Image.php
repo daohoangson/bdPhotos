@@ -3,10 +3,7 @@
 class bdPhotos_Helper_Image
 {
 	const OPTION_MANUAL_ORIENTATION = 'manualOrientation';
-	const ORIENTATION_UP_SIDE_DOWN = 'upSideDown';
-	const ORIENTATION_LEFT = 'left';
-	const ORIENTATION_RIGHT = 'right';
-
+	
 	const OPTION_ROI = 'roi';
 
 	public static function detectROI($path, $extension, array $options = array())
@@ -134,18 +131,7 @@ class bdPhotos_Helper_Image
 
 		if (!empty($exifOrientation))
 		{
-			switch ($exifOrientation)
-			{
-				case 3:
-					$options[self::OPTION_MANUAL_ORIENTATION] = self::ORIENTATION_UP_SIDE_DOWN;
-					break;
-				case 6:
-					$options[self::OPTION_MANUAL_ORIENTATION] = self::ORIENTATION_LEFT;
-					break;
-				case 8:
-					$options[self::OPTION_MANUAL_ORIENTATION] = self::ORIENTATION_RIGHT;
-					break;
-			}
+			$options[self::OPTION_MANUAL_ORIENTATION] = $exifOrientation;
 		}
 	}
 

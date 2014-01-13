@@ -57,8 +57,8 @@ class bdPhotos_XenForo_Image_Gd extends XFCP_bdPhotos_XenForo_Image_Gd
 		$this->_bdPhotos_manualOrientation = $orientation;
 
 		if (in_array($orientation, array(
-			bdPhotos_Helper_Image::ORIENTATION_LEFT,
-			bdPhotos_Helper_Image::ORIENTATION_RIGHT
+			bdPhotos_Helper_Metadata::ORIENTATION_LEFT,
+			bdPhotos_Helper_Metadata::ORIENTATION_RIGHT
 		)))
 		{
 			// update width and height for the image
@@ -96,13 +96,13 @@ class bdPhotos_XenForo_Image_Gd extends XFCP_bdPhotos_XenForo_Image_Gd
 		{
 			switch ($this->_bdPhotos_manualOrientation)
 			{
-				case bdPhotos_Helper_Image::ORIENTATION_UP_SIDE_DOWN:
+				case bdPhotos_Helper_Metadata::ORIENTATION_UP_SIDE_DOWN:
 					$rotated = imagerotate($this->_image, 180, 0);
 					break;
-				case bdPhotos_Helper_Image::ORIENTATION_LEFT:
+				case bdPhotos_Helper_Metadata::ORIENTATION_LEFT:
 					$rotated = imagerotate($this->_image, -90, 0);
 					break;
-				case bdPhotos_Helper_Image::ORIENTATION_RIGHT:
+				case bdPhotos_Helper_Metadata::ORIENTATION_RIGHT:
 					$rotated = imagerotate($this->_image, 90, 0);
 					break;
 			}

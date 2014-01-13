@@ -113,8 +113,8 @@ class bdPhotos_XenForo_Image_Imagemagick_Pecl extends XFCP_bdPhotos_XenForo_Imag
 		$this->_bdPhotos_manualOrientation = $orientation;
 
 		if (in_array($orientation, array(
-			bdPhotos_Helper_Image::ORIENTATION_LEFT,
-			bdPhotos_Helper_Image::ORIENTATION_RIGHT
+			bdPhotos_Helper_Metadata::ORIENTATION_LEFT,
+			bdPhotos_Helper_Metadata::ORIENTATION_RIGHT
 		)))
 		{
 			// update width and height for the image
@@ -170,13 +170,13 @@ class bdPhotos_XenForo_Image_Imagemagick_Pecl extends XFCP_bdPhotos_XenForo_Imag
 			{
 				switch ($this->_bdPhotos_manualOrientation)
 				{
-					case bdPhotos_Helper_Image::ORIENTATION_UP_SIDE_DOWN:
+					case bdPhotos_Helper_Metadata::ORIENTATION_UP_SIDE_DOWN:
 						$frame->rotateImage($pixel, 180);
 						break;
-					case bdPhotos_Helper_Image::ORIENTATION_LEFT:
+					case bdPhotos_Helper_Metadata::ORIENTATION_LEFT:
 						$frame->rotateImage($pixel, 90);
 						break;
-					case bdPhotos_Helper_Image::ORIENTATION_RIGHT:
+					case bdPhotos_Helper_Metadata::ORIENTATION_RIGHT:
 						$frame->rotateImage($pixel, -90);
 						break;
 				}

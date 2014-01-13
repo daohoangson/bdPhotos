@@ -2,12 +2,17 @@
 
 class bdPhotos_Helper_Metadata
 {
+	const EXIF_ORIENTATION = 'Orientation';
+
+	const ORIENTATION_UP_SIDE_DOWN = 'upSideDown';
+	const ORIENTATION_LEFT = 'left';
+	const ORIENTATION_RIGHT = 'right';
 
 	public static function cleanUpExifDataAfterStripping(array $exifData)
 	{
-		if (!empty($exifData['Orientation']))
+		if (!empty($exifData[self::EXIF_ORIENTATION]))
 		{
-			unset($exifData['Orientation']);
+			unset($exifData[self::EXIF_ORIENTATION]);
 		}
 
 		return $exifData;
@@ -62,9 +67,17 @@ class bdPhotos_Helper_Metadata
 
 	public static function extractOrientationFromExifData(array $exifData)
 	{
-		if (!empty($exifData['Orientation']))
+		if (!empty($exifData[self::EXIF_ORIENTATION]))
 		{
-			return $exifData['Orientation'];
+			switch ($exifData[self::EXIF_ORIENTATION])
+			{
+				case 3:
+					return self::ORIENTATION_UP_SIDE_DOWN;
+				case 6:
+					return self::ORIENTATION_LEFT;
+				case 8:
+					return self::ORIENTATION_RIGHT;
+			}
 		}
 
 		return false;
