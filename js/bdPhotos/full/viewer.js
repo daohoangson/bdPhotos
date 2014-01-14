@@ -138,6 +138,7 @@ function($, window, document, _undefined)
 			this.$link = $link;
 			this.$photo = this.$link.parents('.bdPhotos_Photo');
 			this.href = $link.attr('href');
+			this.hrefReal = $link.data('href') ? $link.data('href') : $link.attr('href');
 
 			$link.click($.context(this, 'click'));
 
@@ -177,7 +178,7 @@ function($, window, document, _undefined)
 				this.xhr.abort();
 			}
 
-			this.xhr = XenForo.ajax(this.href,
+			this.xhr = XenForo.ajax(this.hrefReal,
 			{
 				'_navigationLink': 1
 			}, $.context(this, 'loadSuccess'));

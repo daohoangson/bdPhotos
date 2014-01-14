@@ -1424,7 +1424,7 @@ step=1024</edit_format_params>
 		</div>
 	</xen:if>
 </xen:if>]]></template>
-    <template title="bdphotos_photo_list_photo" version_id="3" version_string="0.9.1"><![CDATA[<xen:require css="bdphotos.css" />
+    <template title="bdphotos_photo_list_photo" version_id="4" version_string="0.9.1b"><![CDATA[<xen:require css="bdphotos.css" />
 <xen:require js="js/bdPhotos/viewer.js" />
 
 <li class="bdPhotos_PhotoList_Photo {xen:if '!{$photo.publish_date}', 'not-published'}" id="photo-{$photo.photo_id}" {xen:if '{$parentItemType} == "ImageGallery" AND {$coverPhotoId} == {$photo.photo_id}', 'itemprop="primaryImageOfPage"'} itemscope="itemscope" itemtype="http://schema.org/ImageObject">
@@ -1432,7 +1432,12 @@ step=1024</edit_format_params>
 	<div class="container">
 	
 		<xen:if is="{$photo.photoObj}">
-			<div class="photo"><a href="{xen:link photos, $photo, 'setTitle={$setTitle}', 'setString={$setString}'}" itemprop="contentURL" class="bdPhotos_OverlayTrigger">{xen:raw $photo.photoObj}</a></div>
+			<div class="photo">
+				<a
+				   href="{xen:link photos, $photo}"
+				   {xen:if '{$setString}', 'data-href="{xen:link photos, $photo, 'setTitle={$setTitle}', 'setString={$setString}'}"'}
+				   itemprop="contentURL"
+				   class="bdPhotos_OverlayTrigger">{xen:raw $photo.photoObj}</a></div>
 		<xen:else />
 			<div class="photo nophoto">&nbsp;</div>
 		</xen:if>
@@ -1451,7 +1456,11 @@ step=1024</edit_format_params>
 					<span class="from-album faint">{xen:phrase bdphotos_from_album}:</span>
 					<a href="{xen:link photos/albums, $photo}">{$photo.album_name}</a>
 				<xen:else />
-					<a href="{xen:link photos, $photo, 'setTitle={$setTitle}', 'setString={$setString}'}" itemprop="caption" class="bdPhotos_OverlayTrigger">{$photo.photo_caption}</a>
+					<a
+					   href="{xen:link photos, $photo}"
+					   {xen:if '{$setString}', 'data-href="{xen:link photos, $photo, 'setTitle={$setTitle}', 'setString={$setString}'}"'}
+					   itemprop="caption"
+					   class="bdPhotos_OverlayTrigger">{$photo.photo_caption}</a>
 				</xen:if>
 			</div>
 
@@ -1533,11 +1542,17 @@ step=1024</edit_format_params>
 		<div class="bdPhotos_PhotoWrapperWrapper">
 			<div class="bdPhotos_Navigation">
 				<xen:if is="{$setPrev}">
-					<a href="{xen:link photos, $setPrev, 'setTitle={$setTitle}', 'setString={$setString}'}" class="bdPhotos_NavigationLink prev">{xen:phrase bdphotos_previous}</a>
+					<a
+					   href="{xen:link photos, $setPrev}"
+					   {xen:if '{$setString}', 'data-href="{xen:link photos, $setPrev, 'setTitle={$setTitle}', 'setString={$setString}'}"'}
+					   class="bdPhotos_NavigationLink prev">{xen:phrase bdphotos_previous}</a>
 				</xen:if>
 				<xen:if is="{$setPrev} AND {$setNext}"><span>·</span></xen:if>
 				<xen:if is="{$setNext}">
-					<a href="{xen:link photos, $setNext, 'setTitle={$setTitle}', 'setString={$setString}'}" class="bdPhotos_NavigationLink next">{xen:phrase next}</a>
+					<a
+					   href="{xen:link photos, $setNext}"
+					   {xen:if '{$setString}', 'data-href="{xen:link photos, $setNext, 'setTitle={$setTitle}', 'setString={$setString}'}"'}
+					   class="bdPhotos_NavigationLink next">{xen:phrase next}</a>
 				</xen:if>
 			</div>
 
