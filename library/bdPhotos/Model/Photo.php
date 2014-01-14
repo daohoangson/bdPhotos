@@ -666,7 +666,7 @@ class bdPhotos_Model_Photo extends XenForo_Model
 	protected function _preparePhotoOrderOptionsCustomized(array &$choices, array &$fetchOptions)
 	{
 		$choices['position'] = 'photo.photo_position %s, photo.photo_id';
-		$choices['publish_date'] = 'photo.publish_date';
+		$choices['publish_date'] = 'photo.publish_date %s, photo.photo_id';
 	}
 
 }
