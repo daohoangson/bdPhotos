@@ -29,18 +29,41 @@ function($, window, document, _undefined)
 		}
 	});
 
+	var bdPhotos_setupOverlay = function($photo)
+	{
+		var $bdPhotos_PhotoComments = $photo.find('.bdPhotos_PhotoComments');
+		var $messageInfo = $bdPhotos_PhotoComments.find('.messageInfo');
+		var $messageResponse = $messageInfo.find('.messageResponse');
+
+		$messageResponse.css('height', '0px');
+		var messageResponseMaxHeight = ($bdPhotos_PhotoComments.height() - $messageInfo.height());
+
+		if (messageResponseMaxHeight <= 0)
+		{
+			window.setTimeout(function()
+			{
+				bdPhotos_setupOverlay($photo);
+			}, 100);
+			return;
+		}
+
+		$messageResponse.css('height', '');
+		$messageResponse.css('max-height', messageResponseMaxHeight + 'px');
+		$messageResponse.show();
+	};
+
 	var bdPhotos_NavigationLink_updateHtml = function(photoSelector, href, title, photoHtml, sidebarHtml, pushState)
 	{
 		var $photo = $(photoSelector);
-
 		if ($photo.length != 1)
 		{
 			console.warn('Unable to find photo', photoSelector);
 			return;
 		}
+		var $photoOverlay = $photo.parents('.bdPhotos_Overlay');
+		var photoHasOverlay = $photoOverlay.length > 0;
 
 		var $html = $('<div />').html(photoHtml);
-		var $sidebar = $('<div />').html(sidebarHtml);
 		var $newPhoto = $html.find('.bdPhotos_Photo');
 		if ($newPhoto.length != 1)
 		{
@@ -49,6 +72,7 @@ function($, window, document, _undefined)
 		}
 		if ($photo.attr('id') == $newPhoto.attr('id'))
 		{
+			// same photo, nothing to do here
 			return;
 		}
 
@@ -75,6 +99,11 @@ function($, window, document, _undefined)
 
 		$newComents.xfInsert('insertBefore', $comments, 'show');
 		$comments.empty().remove();
+
+		if (photoHasOverlay)
+		{
+			bdPhotos_setupOverlay($photo);
+		}
 
 		if (pushState && window.history.pushState)
 		{
@@ -230,7 +259,6 @@ function($, window, document, _undefined)
 			var $overlay = api.getOverlay();
 
 			var $photoWrapperWrapper = $overlay.find('.bdPhotos_PhotoWrapperWrapper');
-			var $photo = $overlay.find('.bdPhotos_PhotoWrapper img');
 
 			var windowWidth = $(window).width();
 			var photoWidth = Math.floor(windowWidth / 5 * 3);
@@ -247,6 +275,8 @@ function($, window, document, _undefined)
 				$style.empty().remove();
 			}
 			$('<style id="bdPhotos_OverlayTrigger_Css">' + css + '</style>').appendTo('head');
+
+			bdPhotos_setupOverlay($overlay.find('.bdPhotos_Photo'));
 		},
 
 		overlayClose: function(e)

@@ -746,8 +746,15 @@ step=1024</edit_format_params>
 	{xen:helper clearfix, '.bdPhotos_Overlay .bdPhotos_PhotoComments'}
 		.bdPhotos_Overlay .bdPhotos_Photo .bdPhotos_PhotoComments .messageSimple
 		{
+			border: 0;
 			margin: 0;
 		}
+	.bdPhotos_Overlay .bdPhotos_Photo .messageResponse 
+	{
+		display: none;
+		max-height: 200px;
+		overflow-y: scroll;
+	}
 
 .sidebar .bdPhotos_sidebarPhotoInfo,
 .sidebar .bdPhotos_sidebarPhotoExif
