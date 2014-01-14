@@ -324,7 +324,12 @@ step=1024</edit_format_params>
     <phrase title="bdphotos_dimensions" version_id="1" version_string="0.9-dev"><![CDATA[Dimensions]]></phrase>
     <phrase title="bdphotos_download_full" version_id="1" version_string="0.9-dev"><![CDATA[Download Fullsize]]></phrase>
     <phrase title="bdphotos_edit_album" version_id="1" version_string="0.9-dev"><![CDATA[Edit Album]]></phrase>
+    <phrase title="bdphotos_exposure_time" version_id="4" version_string="0.9.1b"><![CDATA[Exposure Time]]></phrase>
+    <phrase title="bdphotos_flash" version_id="4" version_string="0.9.1b"><![CDATA[Flash]]></phrase>
+    <phrase title="bdphotos_focal_length" version_id="4" version_string="0.9.1b"><![CDATA[Focal Length]]></phrase>
     <phrase title="bdphotos_from_album" version_id="1" version_string="0.9-dev"><![CDATA[Album]]></phrase>
+    <phrase title="bdphotos_f_stop" version_id="4" version_string="0.9.1b"><![CDATA[F-stop]]></phrase>
+    <phrase title="bdphotos_iso" version_id="4" version_string="0.9.1b"><![CDATA[ISO]]></phrase>
     <phrase title="bdphotos_location" version_id="1" version_string="0.9-dev"><![CDATA[Location]]></phrase>
     <phrase title="bdphotos_locations" version_id="1" version_string="0.9-dev"><![CDATA[Locations]]></phrase>
     <phrase title="bdphotos_location_add" version_id="1" version_string="0.9-dev"><![CDATA[Add New Location]]></phrase>
@@ -348,18 +353,23 @@ step=1024</edit_format_params>
     <phrase title="bdphotos_photos_taken_near_x" version_id="1" version_string="0.9-dev"><![CDATA[Photos taken near {location_name}]]></phrase>
     <phrase title="bdphotos_photos_taken_with_x" version_id="1" version_string="0.9-dev"><![CDATA[Photos taken with {device_name}]]></phrase>
     <phrase title="bdphotos_photo_caption" version_id="1" version_string="0.9-dev"><![CDATA[Photo Caption]]></phrase>
+    <phrase title="bdphotos_photo_exif" version_id="4" version_string="0.9.1b"><![CDATA[EXIF]]></phrase>
     <phrase title="bdphotos_photo_info" version_id="1" version_string="0.9-dev"><![CDATA[Photo Information]]></phrase>
     <phrase title="bdphotos_photo_location" version_id="1" version_string="0.9-dev"><![CDATA[Photo Location]]></phrase>
     <phrase title="bdphotos_photo_not_found" version_id="1" version_string="0.9-dev"><![CDATA[The requested photo could not be found]]></phrase>
     <phrase title="bdphotos_previous" version_id="1" version_string="0.9-dev"><![CDATA[Previous]]></phrase>
     <phrase title="bdphotos_publish_album" version_id="1" version_string="0.9-dev"><![CDATA[Publish Album]]></phrase>
     <phrase title="bdphotos_rebuild_photo_counters" version_id="1" version_string="0.9-dev"><![CDATA[[bd] Photos: Rebuild Photo Counters]]></phrase>
+    <phrase title="bdphotos_software" version_id="4" version_string="0.9.1b"><![CDATA[Software]]></phrase>
     <phrase title="bdphotos_sw_lat" version_id="1" version_string="0.9-dev"><![CDATA[South West Latitude]]></phrase>
     <phrase title="bdphotos_sw_lng" version_id="1" version_string="0.9-dev"><![CDATA[South West Longitude]]></phrase>
     <phrase title="bdphotos_taken" version_id="1" version_string="0.9-dev"><![CDATA[Taken]]></phrase>
     <phrase title="bdphotos_there_is_no_albums_here" version_id="1" version_string="0.9-dev"><![CDATA[There is no albums here.]]></phrase>
     <phrase title="bdphotos_there_is_no_photos_here" version_id="1" version_string="0.9-dev"><![CDATA[There is no photos here.]]></phrase>
     <phrase title="bdphotos_use_as_album_cover_photo" version_id="1" version_string="0.9-dev"><![CDATA[Album Cover]]></phrase>
+    <phrase title="bdphotos_white_balance" version_id="4" version_string="0.9.1b"><![CDATA[White Balance]]></phrase>
+    <phrase title="bdphotos_white_balance_auto" version_id="4" version_string="0.9.1b"><![CDATA[Auto]]></phrase>
+    <phrase title="bdphotos_white_balance_manual" version_id="4" version_string="0.9.1b"><![CDATA[Manual]]></phrase>
     <phrase title="bdphotos_with_lowercase" version_id="1" version_string="0.9-dev"><![CDATA[with]]></phrase>
     <phrase title="bdphotos_x_commented_on_your_album_y" version_id="1" version_string="0.9-dev"><![CDATA[{name} commented on your album {album_name}.]]></phrase>
     <phrase title="bdphotos_x_commented_on_your_photo_in_the_album_y" version_id="1" version_string="0.9-dev"><![CDATA[{name} commented on your photo in the album {album_name}.]]></phrase>
@@ -427,7 +437,7 @@ step=1024</edit_format_params>
     </group>
   </style_properties>
   <templates>
-    <template title="bdphotos.css" version_id="3" version_string="0.9.1"><![CDATA[.bdPhotos_AlbumList
+    <template title="bdphotos.css" version_id="4" version_string="0.9.1b"><![CDATA[.bdPhotos_AlbumList
 {
 	margin: 0 -10px;
 }
@@ -738,6 +748,26 @@ step=1024</edit_format_params>
 		{
 			margin: 0;
 		}
+
+.sidebar .bdPhotos_sidebarPhotoInfo,
+.sidebar .bdPhotos_sidebarPhotoExif
+{
+	{xen:property section}
+}
+
+.bdPhotos_pseudoSidebar
+{
+	font-size: 11px;
+	line-height: 14px;
+}
+.bdPhotos_pseudoSidebar h3 { display: none; }
+.bdPhotos_pseudoSidebar .bdPhotos_sidebarPhotoInfo { display: none; }
+.messageSimple .bdPhotos_pseudoSidebar .secondaryContent {
+	background: transparent;
+	border: 0;
+	margin: 0 5px 0 0;
+	padding: 0;
+}
 
 .bdPhotos_sidebarPhotoInfo .bdPhotos_snippetLocationStaticMap
 {
@@ -1488,6 +1518,8 @@ step=1024</edit_format_params>
 
 <xen:require js="js/bdPhotos/viewer.js" />
 
+<xen:set var="$sidebarContents"><xen:include template="bdphotos_sidebar_photo_info" /></xen:set>
+
 <div class="bdPhotos_Photo NoAutoHeader {xen:if '!{$photo.publish_date}', 'not-published'}" id="photo-view-{$photo.photo_id}">
 
 	<xen:if is="{$photo.photoObj}">
@@ -1539,6 +1571,12 @@ step=1024</edit_format_params>
 						</div>
 				</div>
 
+				<xen:if is="{$_noRedirect}">
+					<div class="bdPhotos_pseudoSidebar">
+						{xen:raw $sidebarContents}
+					</div>
+				</xen:if>
+
 				<ol class="messageResponse">
 
 					<li id="likes-photo-{$photo.photo_id}">
@@ -1582,9 +1620,7 @@ step=1024</edit_format_params>
 </div>
 
 <xen:container var="$noVisitorPanel">1</xen:container>
-<xen:sidebar>
-	<xen:include template="bdphotos_sidebar_photo_info" />
-</xen:sidebar>]]></template>
+<xen:if is="!{$_noRedirect}"><xen:sidebar>{xen:raw $sidebarContents}</xen:sidebar></xen:if>]]></template>
     <template title="bdphotos_responsive.css" version_id="3" version_string="0.9.1"><![CDATA[@media (max-width:{xen:helper bdPhotos_formatCssProperty, pixel, {xen:calc '{xen:property bdPhotos_thumbnailWidth} * 2.4'}})
 {
 	.bdPhotos_AlbumList
@@ -1710,12 +1746,13 @@ step=1024</edit_format_params>
 		height: auto;
 	}
 }]]></template>
-    <template title="bdphotos_sidebar_photo_info" version_id="1" version_string="0.9-dev"><![CDATA[<xen:if is="{$photo}">
+    <template title="bdphotos_sidebar_photo_info" version_id="4" version_string="0.9.1b"><![CDATA[<xen:if is="{$photo}">
 	<xen:require css="bdphotos.css" />
 
-	<div class="section bdPhotos_sidebarPhotoInfo">
+	<div class="bdPhotos_sidebarPhotoInfo">
 		<div class="secondaryContent">
 			<h3>{xen:phrase bdphotos_photo_info}</h3>
+
 			<div class="pairsJustified">
 				<dl class="dimensions">
 					<dt>{xen:phrase bdphotos_dimensions}:</dt>
@@ -1740,17 +1777,6 @@ step=1024</edit_format_params>
 					<dd>{xen:number $photo.photo_comment_count, 0}</dd>
 				</dl>
 
-				<xen:if is="{$photo.device_id}">
-					<dl class="device">
-						<dt>{xen:phrase bdphotos_device}:</dt>
-						<dd>
-							<xen:include template="bdphotos_snippet_device_name">
-								<xen:map from="$photo" to="$device" />
-							</xen:include>
-						</dd>
-					</dl>
-				</xen:if>
-				
 				<xen:if is="{$photo.location_id}">
 					<dl class="location">
 						<dt>{xen:phrase bdphotos_location}:</dt>
@@ -1770,6 +1796,80 @@ step=1024</edit_format_params>
 			</div>
 		</div>
 	</div>
+
+	<xen:if hascontent="true">
+	<div class="bdPhotos_sidebarPhotoExif">
+		<div class="secondaryContent">
+			<h3>{xen:phrase bdphotos_photo_exif}</h3>
+
+			<div class="pairsJustified">
+				<xen:contentcheck>
+
+					<xen:if is="{$photo.device_id}">
+						<dl class="device">
+							<dt>{xen:phrase bdphotos_device}:</dt>
+							<dd>
+								<xen:include template="bdphotos_snippet_device_name">
+									<xen:map from="$photo" to="$device" />
+								</xen:include>
+							</dd>
+						</dl>
+					</xen:if>
+
+					<xen:if is="isset({$photo.preparedExif.ExposureTime})">
+						<dl class="exposureTime">
+							<dt>{xen:phrase bdphotos_exposure_time}:</dt>
+							<dd>{$photo.preparedExif.ExposureTime}s</dd>
+						</dl>
+					</xen:if>
+
+					<xen:if is="isset({$photo.preparedExif.FNumber})">
+						<dl class="fStop">
+							<dt>{xen:phrase bdphotos_f_stop}:</dt>
+							<dd>ƒ/{$photo.preparedExif.FNumber}</dd>
+						</dl>
+					</xen:if>
+
+					<xen:if is="isset({$photo.preparedExif.Flash})">
+						<dl class="flash">
+							<dt>{xen:phrase bdphotos_flash}:</dt>
+							<dd>{xen:if '{$photo.preparedExif.Flash}', {xen:phrase yes}, {xen:phrase no}}</dd>
+						</dl>
+					</xen:if>
+
+					<xen:if is="isset({$photo.preparedExif.ISOSpeedRatings})">
+						<dl class="iso">
+							<dt>{xen:phrase bdphotos_iso}:</dt>
+							<dd>{$photo.preparedExif.ISOSpeedRatings}</dd>
+						</dl>
+					</xen:if>
+
+					<xen:if is="isset({$photo.preparedExif.FocalLength})">
+						<dl class="focalLength">
+							<dt>{xen:phrase bdphotos_focal_length}:</dt>
+							<dd>{$photo.preparedExif.FocalLength}mm</dd>
+						</dl>
+					</xen:if>
+
+					<xen:if is="isset({$photo.preparedExif.Software})">
+						<dl class="software">
+							<dt>{xen:phrase bdphotos_software}:</dt>
+							<dd>{$photo.preparedExif.Software}</dd>
+						</dl>
+					</xen:if>
+
+					<xen:if is="isset({$photo.preparedExif.WhiteBalance})">
+						<dl class="whiteBalance">
+							<dt>{xen:phrase bdphotos_white_balance}:</dt>
+							<dd>{xen:if '{$photo.preparedExif.WhiteBalance}', {xen:phrase bdphotos_white_balance_manual}, {xen:phrase bdphotos_white_balance_auto}}</dd>
+						</dl>
+					</xen:if>
+
+				</xen:contentcheck>
+			</div>
+		</div>
+	</div>
+	</xen:if>
 </xen:if>]]></template>
     <template title="bdphotos_snippet_device_name" version_id="1" version_string="0.9-dev"><![CDATA[<xen:if is="{$device.manufacture} OR {$device.code}">
 	<xen:set var="$title">{$device.manufacture} {$device.code}</xen:set>

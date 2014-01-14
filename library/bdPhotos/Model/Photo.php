@@ -152,6 +152,97 @@ class bdPhotos_Model_Photo extends XenForo_Model
 		return $photos;
 	}
 
+	public function preparePhotoExif(array $photo)
+	{
+		$exif = array();
+
+		if (!empty($photo['metadataArray']['exif']))
+		{
+			$raw = &$photo['metadataArray']['exif'];
+
+			foreach (array(
+			bdPhotos_Helper_Metadata::EXIF_EXPOSURE_TIME,
+			bdPhotos_Helper_Metadata::EXIF_DATETIME,
+			bdPhotos_Helper_Metadata::EXIF_F_STOP,
+			bdPhotos_Helper_Metadata::EXIF_FLASH,
+			bdPhotos_Helper_Metadata::EXIF_ISO,
+			bdPhotos_Helper_Metadata::EXIF_FOCAL_LENGTH,
+			bdPhotos_Helper_Metadata::EXIF_SOFTWARE,
+			bdPhotos_Helper_Metadata::EXIF_WHITE_BALANCE,
+			) as $key)
+			{
+				if (empty($raw[$key]))
+				{
+					continue;
+				}
+				$value = $raw[$key];
+
+				switch ($key)
+				{
+					case bdPhotos_Helper_Metadata::EXIF_EXPOSURE_TIME:
+					case bdPhotos_Helper_Metadata::EXIF_F_STOP:
+					case bdPhotos_Helper_Metadata::EXIF_FOCAL_LENGTH:
+						$parts = explode('/', $value);
+						if (count($parts) == 2 AND $parts[1] > 0)
+						{
+							$value = bdPhotos_Helper_String::formatFloat($parts[0] / $parts[1]);
+						}
+						else
+						{
+							$value = false;
+						}
+						break;
+					case bdPhotos_Helper_Metadata::EXIF_FLASH:
+						if (!empty($value))
+						{
+							$value = 1;
+						}
+						else
+						{
+							$value = 0;
+						}
+						break;
+					case bdPhotos_Helper_Metadata::EXIF_ISO:
+						if (is_array($value) AND count($value) == 2 AND $value[0] == $value[1])
+						{
+							$value = $value[0];
+						}
+						break;
+					case bdPhotos_Helper_Metadata::EXIF_WHITE_BALANCE:
+						$value = intval($value);
+						switch ($value)
+						{
+							case 1:
+							case 0:
+								// keep
+								break;
+							default:
+								// unrecognized, reset
+								$value = false;
+						}
+						break;
+				}
+
+				if ($value !== false)
+				{
+					$exif[$key] = $value;
+				}
+				elseif (XenForo_Application::debugMode())
+				{
+					throw new XenForo_Exception(call_user_func_array('sprintf', array(
+						'Unable to parse %s: %s (version %s)',
+						$key,
+						var_export($raw[$key], true),
+						isset($raw['ExifVersion']) ? $raw['ExifVersion'] : 'N/A',
+					)));
+				}
+
+			}
+		}
+
+		return $exif;
+	}
+
 	public function updatePhotoViews()
 	{
 		$db = $this->_getDb();

@@ -75,6 +75,7 @@ class bdPhotos_ControllerPublic_Photo extends bdPhotos_ControllerPublic_Abstract
 		));
 
 		$photo = $this->_getPhotoModel()->preparePhoto($album, $photo);
+		$photo['preparedExif'] = $this->_getPhotoModel()->preparePhotoExif($photo);
 
 		$this->_getPhotoModel()->logPhotoView($photo['photo_id']);
 
@@ -86,6 +87,7 @@ class bdPhotos_ControllerPublic_Photo extends bdPhotos_ControllerPublic_Abstract
 
 			'breadcrumbs' => $this->_getAlbumModel()->getBreadcrumbs($album, $uploader, true),
 			'canonicalUrl' => $canonicalUrl,
+			'_noRedirect' => $this->_noRedirect(),
 		);
 
 		$viewParams = array_merge($viewParams, $this->_getSetHelper()->getViewParamsForPhotoView($album, $photo));

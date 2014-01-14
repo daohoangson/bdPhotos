@@ -41,22 +41,29 @@ function($, window, document, _undefined)
 
 		var $html = $('<div />').html(photoHtml);
 		var $sidebar = $('<div />').html(sidebarHtml);
+		var $newPhoto = $html.find('.bdPhotos_Photo');
+		if ($newPhoto.length != 1)
+		{
+			console.warn('Unable to find new photo');
+			return;
+		}
+		if ($photo.attr('id') == $newPhoto.attr('id'))
+		{
+			return;
+		}
 
 		var $navigation = $photo.find('.bdPhotos_Navigation');
 		var $wrapper = $photo.find('.bdPhotos_PhotoWrapper');
 		var $comments = $photo.find('.bdPhotos_PhotoComments');
-		var $sidebarInfo = $('.sidebar .bdPhotos_sidebarPhotoInfo');
 		if ($navigation.length == 0 || $wrapper.length == 0 || $comments.length == 0)
 		{
 			console.warn('Unable to find navigation/wraper/comments from photo');
 			return;
 		}
 
-		var $newPhoto = $html.find('.bdPhotos_Photo');
 		var $newNavigation = $newPhoto.find('.bdPhotos_Navigation');
 		var $newWrapper = $newPhoto.find('.bdPhotos_PhotoWrapper');
 		var $newComents = $newPhoto.find('.bdPhotos_PhotoComments');
-		var $newSidebarInfo = $sidebar.find('.bdPhotos_sidebarPhotoInfo');
 
 		$photo.attr('id', $newPhoto.attr('id'));
 		var $navigationParent = $navigation.parent();
@@ -68,10 +75,6 @@ function($, window, document, _undefined)
 
 		$newComents.xfInsert('insertBefore', $comments, 'show');
 		$comments.empty().remove();
-
-		// intentionally let it fade down
-		$newSidebarInfo.xfInsert('insertBefore', $sidebarInfo);
-		$sidebarInfo.empty().remove();
 
 		if (pushState && window.history.pushState)
 		{
