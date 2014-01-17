@@ -189,15 +189,15 @@ class bdPhotos_ViewPublic_Helper_Photo
 					}
 					break;
 				case self::SIZE_PRESET_VIEW:
-					$spViewWidthOrHeight = XenForo_Template_Helper_Core::styleProperty('bdPhotos_viewWidthOrHeight');
+					$spViewWidth = XenForo_Template_Helper_Core::styleProperty('bdPhotos_viewWidth');
+					$spViewHeight = XenForo_Template_Helper_Core::styleProperty('bdPhotos_viewHeight');
 
-					if (!empty($spViewWidthOrHeight))
+					if (!empty($spViewWidth) AND !empty($spViewHeight))
 					{
 						$this->_width = array(
-							'width' => $spViewWidthOrHeight,
-							'height' => $spViewWidthOrHeight,
+							'width' => $spViewWidth,
+							'height' => $spViewHeight,
 							'crop' => false,
-							'thumbnailFixedShorterSide' => true,
 						);
 						$this->_height = 0;
 					}

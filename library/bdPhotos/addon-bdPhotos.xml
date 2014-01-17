@@ -412,8 +412,10 @@ step=1024</edit_format_params>
     <phrase title="style_property_bdPhotos_thumbnailHeight_master" version_id="1" version_string="0.9-dev"><![CDATA[Thumbnail Height]]></phrase>
     <phrase title="style_property_bdPhotos_thumbnailWidth_description_master" version_id="1" version_string="0.9-dev"><![CDATA[]]></phrase>
     <phrase title="style_property_bdPhotos_thumbnailWidth_master" version_id="1" version_string="0.9-dev"><![CDATA[Thumbnail Width]]></phrase>
-    <phrase title="style_property_bdPhotos_viewWidthOrHeight_description_master" version_id="1" version_string="0.9-dev"><![CDATA[]]></phrase>
-    <phrase title="style_property_bdPhotos_viewWidthOrHeight_master" version_id="1" version_string="0.9-dev"><![CDATA[View Size]]></phrase>
+    <phrase title="style_property_bdPhotos_viewHeight_description_master" version_id="4" version_string="0.9.1b"><![CDATA[The maximum height for photos in viewer.]]></phrase>
+    <phrase title="style_property_bdPhotos_viewHeight_master" version_id="4" version_string="0.9.1b"><![CDATA[View Height]]></phrase>
+    <phrase title="style_property_bdPhotos_viewWidth_description_master" version_id="4" version_string="0.9.1b"><![CDATA[The maximum width for photos in viewer.]]></phrase>
+    <phrase title="style_property_bdPhotos_viewWidth_master" version_id="4" version_string="0.9.1b"><![CDATA[View Width]]></phrase>
     <phrase title="style_property_group_bdPhotos_master" version_id="1" version_string="0.9-dev"><![CDATA[[bd] Photos]]></phrase>
     <phrase title="style_property_group_bdPhotos_master_desc" version_id="1" version_string="0.9-dev"><![CDATA[]]></phrase>
   </phrases>
@@ -430,7 +432,8 @@ step=1024</edit_format_params>
   <style_properties>
     <property property_name="bdPhotos_thumbnailWidth" property_type="scalar" definition="1" group_name="bdPhotos" title="Thumbnail Width" description="" css_components="" scalar_type="number" scalar_parameters="" display_order="1000" sub_group="thumbnail"><![CDATA[300]]></property>
     <property property_name="bdPhotos_thumbnailHeight" property_type="scalar" definition="1" group_name="bdPhotos" title="Thumbnail Height" description="" css_components="" scalar_type="number" scalar_parameters="" display_order="1000" sub_group="thumbnail"><![CDATA[300]]></property>
-    <property property_name="bdPhotos_viewWidthOrHeight" property_type="scalar" definition="1" group_name="bdPhotos" title="View Size" description="" css_components="" scalar_type="number" scalar_parameters="" display_order="1000" sub_group="view"><![CDATA[800]]></property>
+    <property property_name="bdPhotos_viewWidth" property_type="scalar" definition="1" group_name="bdPhotos" title="View Width" description="The maximum width for photos in viewer." css_components="" scalar_type="number" scalar_parameters="" display_order="1000" sub_group="view"><![CDATA[1200]]></property>
+    <property property_name="bdPhotos_viewHeight" property_type="scalar" definition="1" group_name="bdPhotos" title="View Height" description="The maximum height for photos in viewer." css_components="" scalar_type="number" scalar_parameters="" display_order="1000" sub_group="view"><![CDATA[800]]></property>
     <group group_name="bdPhotos" display_order="9999">
       <title>[bd] Photos</title>
       <description></description>
@@ -688,7 +691,7 @@ step=1024</edit_format_params>
 	.bdPhotos_Photo .bdPhotos_PhotoWrapperWrapper table
 	{
 		text-align: center;
-		min-height: {xen:helper bdPhotos_formatCssProperty, pixel, {xen:calc '{xen:property bdPhotos_viewWidthOrHeight} / 2'}};
+		min-height: {xen:helper bdPhotos_formatCssProperty, pixel, {xen:calc '{xen:property bdPhotos_viewHeight} / 2'}};
 		width: 100%;
 	}
 		.bdPhotos_Photo .bdPhotos_PhotoWrapper
@@ -1344,7 +1347,7 @@ step=1024</edit_format_params>
 		<xen:if is="{$visitor.user_id}"><li><a href="{xen:link 'members/photos', $visitor}">{xen:phrase bdphotos_your_photos}</a></li></xen:if>
 	</xen:hook>
 </ul>]]></template>
-    <template title="bdphotos_photo_index" version_id="3" version_string="0.9.1"><![CDATA[<xen:title>{xen:phrase bdphotos_photos}{xen:helper pagenumber, $page}</xen:title>
+    <template title="bdphotos_photo_index" version_id="4" version_string="0.9.1b"><![CDATA[<xen:title>{xen:phrase bdphotos_photos}{xen:helper pagenumber, $page}</xen:title>
 <xen:h1>{xen:phrase bdphotos_photos}</xen:h1>
 <xen:set var="$setTitle">{xen:phrase bdphotos_photos}</xen:set>
 
@@ -1360,6 +1363,7 @@ step=1024</edit_format_params>
 			<xen:set var="$showUploader">1</xen:set>
 			<xen:set var="$showAlbum">1</xen:set>
 		</xen:include>
+		<xen:edithint template="bdphotos_photo_list_photo" />
 	</xen:contentcheck>
 <xen:else />
 	<div class="sectionMain">
@@ -1643,7 +1647,7 @@ step=1024</edit_format_params>
 
 <xen:container var="$noVisitorPanel">1</xen:container>
 <xen:if is="!{$_noRedirect}"><xen:sidebar>{xen:raw $sidebarContents}</xen:sidebar></xen:if>]]></template>
-    <template title="bdphotos_responsive.css" version_id="3" version_string="0.9.1"><![CDATA[@media (max-width:{xen:helper bdPhotos_formatCssProperty, pixel, {xen:calc '{xen:property bdPhotos_thumbnailWidth} * 2.4'}})
+    <template title="bdphotos_responsive.css" version_id="4" version_string="0.9.1b"><![CDATA[@media (max-width:{xen:helper bdPhotos_formatCssProperty, pixel, {xen:calc '{xen:property bdPhotos_thumbnailWidth} * 2.4'}})
 {
 	.bdPhotos_AlbumList
 	{
@@ -1756,7 +1760,7 @@ step=1024</edit_format_params>
 		}
 }
 
-@media (max-width:{xen:helper bdPhotos_formatCssProperty, pixel, {xen:calc '{xen:property bdPhotos_viewWidthOrHeight} * 1.2 + {xen:property sidebar.width}'}})
+@media (max-width:{xen:helper bdPhotos_formatCssProperty, pixel, {xen:calc '{xen:property bdPhotos_viewWidth} * 1.2 + {xen:property sidebar.width}'}})
 {
 	.bdPhotos_Photo .photo
 	{
