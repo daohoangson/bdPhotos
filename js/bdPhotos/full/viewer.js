@@ -104,6 +104,14 @@ function($, window, document, _undefined)
 		{
 			bdPhotos_setupOverlay($photo);
 		}
+		else
+		{
+			var $sidebar = $('.sidebar').html('');
+
+			$newComents.find('.bdPhotos_pseudoSidebar > div').each(function() {
+				var $sidebarBlock = $(this).xfInsert('appendTo', $sidebar, 'show');
+			});
+		}
 
 		if (pushState && window.history.pushState)
 		{
