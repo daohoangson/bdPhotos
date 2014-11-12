@@ -168,7 +168,7 @@ class bdPhotos_Model_Photo extends XenForo_Model
 			bdPhotos_Helper_Metadata::EXIF_ISO,
 			bdPhotos_Helper_Metadata::EXIF_FOCAL_LENGTH,
 			bdPhotos_Helper_Metadata::EXIF_SOFTWARE,
-			bdPhotos_Helper_Metadata::EXIF_WHITE_BALANCE,
+			//bdPhotos_Helper_Metadata::EXIF_WHITE_BALANCE,
 			) as $key)
 			{
 				if (empty($raw[$key]))
