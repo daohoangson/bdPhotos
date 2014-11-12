@@ -3,7 +3,7 @@
 class bdPhotos_Helper_Image
 {
 	const OPTION_MANUAL_ORIENTATION = 'manualOrientation';
-	
+
 	const OPTION_ROI = 'roi';
 
 	public static function detectROI($path, $extension, array $options = array())
@@ -100,31 +100,6 @@ class bdPhotos_Helper_Image
 		return $inputType;
 	}
 
-	public static function getSize($path)
-	{
-		$size = array(
-			0,
-			0
-		);
-
-		if (file_exists($path))
-		{
-			$extension = XenForo_Helper_File::getFileExtension($path);
-			$inputType = self::getInputTypeFromExtension($extension);
-			if (!empty($inputType))
-			{
-				$image = XenForo_Image_Abstract::createFromFile($path, $inputType);
-				if (!empty($image))
-				{
-					$size[0] = $image->getWidth();
-					$size[1] = $image->getHeight();
-				}
-			}
-		}
-
-		return $size;
-	}
-
 	public static function prepareOptionsFromExifData(array &$options, array $exifData)
 	{
 		$exifOrientation = bdPhotos_Helper_Metadata::extractOrientationFromExifData($exifData);
@@ -142,6 +117,7 @@ class bdPhotos_Helper_Image
 		$thumbnailFixedShorterSide = false;
 		$dropFramesLeavingThree = false;
 
+		$_generateThumbnail = true;
 		$_imageHasBeenChanged = false;
 
 		if (is_array($width) AND empty($height))
@@ -184,15 +160,13 @@ class bdPhotos_Helper_Image
 			if ($crop)
 			{
 				// no need to update
+				return true;
 			}
 			else
 			{
-				// mark as uncalculated
-				$width = 0;
-				$height = 0;
+				// re-calculate the width and height but do not generate thumbnail
+				$_generateThumbnail = false;
 			}
-
-			return true;
 		}
 
 		$image = XenForo_Image_Abstract::createFromFile($inPath, $inputType);
@@ -206,7 +180,7 @@ class bdPhotos_Helper_Image
 		// try to request longer time limit
 		@set_time_limit(60);
 
-		if ($dropFramesLeavingThree)
+		if ($_generateThumbnail AND $dropFramesLeavingThree)
 		{
 			// TODO: check for method availability?
 			if ($image->bdPhotos_dropFramesLeavingThree())
@@ -217,7 +191,7 @@ class bdPhotos_Helper_Image
 
 		if ($width > 0 AND $height > 0)
 		{
-			if ($crop)
+			if ($crop AND $_generateThumbnail)
 			{
 				$origRatio = round($image->getWidth() / $image->getHeight(), 1);
 				$cropRatio = round($width / $height, 1);
@@ -287,8 +261,33 @@ class bdPhotos_Helper_Image
 				{
 					if ($image->getWidth() > $width OR $image->getHeight() > $height)
 					{
-						$image->thumbnailFixedShorterSide($width);
-						$_imageHasBeenChanged = true;
+						if ($width < 10)
+						{
+							$shortSideLength = 10;
+						}
+						else
+						{
+							$shortSideLength = $width;
+						}
+
+						if ($_generateThumbnail)
+						{
+							$image->thumbnailFixedShorterSide($shortSideLength);
+							$_imageHasBeenChanged = true;
+						}
+
+						$ratio = $image->getWidth() / $image->getHeight();
+						if ($ratio > 1)
+						{
+							// landscape
+							$width = $shortSideLength * $ratio;
+							$height = $shortSideLength;
+						}
+						else
+						{
+							$width = $shortSideLength;
+							$height = max(1, $shortSideLength / $ratio);
+						}
 					}
 				}
 				else
@@ -305,11 +304,14 @@ class bdPhotos_Helper_Image
 						$thumWidth = $thumHeight * $origRatio;
 					}
 
-					if ($thumWidth != $image->getWidth() OR $thumHeight != $image->getHeight())
+					if (($thumWidth != $image->getWidth() OR $thumHeight != $image->getHeight()) AND $_generateThumbnail)
 					{
 						$image->bdPhotos_thumbnail($thumWidth, $thumHeight);
 						$_imageHasBeenChanged = true;
 					}
+
+					$width = $thumWidth;
+					$height = $thumHeight;
 				}
 			}
 		}
@@ -318,39 +320,47 @@ class bdPhotos_Helper_Image
 			$targetHeight = $height;
 			$targetWidth = $targetHeight / $image->getHeight() * $image->getWidth();
 
-			if ($targetWidth != $image->getWidth() OR $targetHeight != $image->getHeight())
+			if (($targetWidth != $image->getWidth() OR $targetHeight != $image->getHeight()) AND $_generateThumbnail)
 			{
 				$image->bdPhotos_thumbnail($targetWidth, $targetHeight);
 				$_imageHasBeenChanged = true;
 			}
+
+			$width = $targetWidth;
+			$height = $targetHeight;
 		}
 		elseif ($width > 0)
 		{
 			$targetWidth = $width;
 			$targetHeight = $targetWidth / $image->getWidth() * $image->getHeight();
 
-			if ($targetWidth != $image->getWidth() OR $targetHeight != $image->getHeight())
+			if (($targetWidth != $image->getWidth() OR $targetHeight != $image->getHeight()) AND $_generateThumbnail)
 			{
 				$image->bdPhotos_thumbnail($targetWidth, $targetHeight);
 				$_imageHasBeenChanged = true;
 			}
+
+			$width = $targetWidth;
+			$height = $targetHeight;
 		}
 		else
 		{
 			return false;
 		}
 
-		XenForo_Helper_File::createDirectory(dirname($outPath), true);
-
-		$width = $image->getWidth();
-		$height = $image->getHeight();
-
 		if ($_imageHasBeenChanged)
 		{
-			$image->output($inputType, $outPath);
+			XenForo_Helper_File::createDirectory(dirname($outPath), true);
+
+			$tempFile = tempnam(XenForo_Helper_File::getTempDir(), 'xf');
+			$image->output($inputType, $tempFile);
+
+			XenForo_Helper_File::safeRename($tempFile, $outPath);
 		}
-		else
+		elseif ($_generateThumbnail)
 		{
+			XenForo_Helper_File::createDirectory(dirname($outPath), true);
+
 			@copy($inPath, $outPath);
 		}
 

@@ -269,13 +269,6 @@ class bdPhotos_ViewPublic_Helper_Photo
 			}
 		}
 
-		if (!empty($url) AND (!is_numeric($width) OR !is_numeric($height) OR empty($width) OR empty($height)))
-		{
-			$path = self::_tryToConvertUrlToPath($url);
-
-			list($width, $height) = bdPhotos_Helper_Image::getSize($path);
-		}
-
 		if (!empty($url))
 		{
 			$url = XenForo_Link::convertUriToAbsoluteUri($url, true);
