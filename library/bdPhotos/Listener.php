@@ -8,7 +8,7 @@ class bdPhotos_Listener
 			'XenForo_ControllerPublic_Member',
 			'XenForo_DataWriter_User',
 			'XenForo_Image_Gd',
-			'XenForo_Image_Imagemagick_Pecl',
+			'XenForo_Image_ImageMagick_Pecl',
 			'XenForo_ViewPublic_Attachment_DoUpload',
 		);
 

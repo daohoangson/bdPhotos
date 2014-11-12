@@ -4,6 +4,15 @@ class bdPhotos_XenForo_Image_Imagemagick_Pecl extends XFCP_bdPhotos_XenForo_Imag
 {
 	protected $_bdPhotos_manualOrientation = false;
 
+    public function bdPhotos_copy()
+    {
+        $class = get_class($this);
+
+        $image = clone $this->_image;
+
+        return new $class($image);
+    }
+
 	public function bdPhotos_dropFramesLeavingThree()
 	{
 		$this->_bdPhotos_fixOrientation();

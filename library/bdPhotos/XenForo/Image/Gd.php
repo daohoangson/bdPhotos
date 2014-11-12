@@ -4,6 +4,16 @@ class bdPhotos_XenForo_Image_Gd extends XFCP_bdPhotos_XenForo_Image_Gd
 {
 	protected $_bdPhotos_manualOrientation = false;
 
+    public function bdPhotos_copy()
+    {
+        $class = get_class($this);
+
+        $image = imagecreatetruecolor($this->_width, $this->_height);
+        imagecopy($image, $this->_image, 0, 0, 0, 0, $this->_width, $this->_height);
+
+        return new $class($image);
+    }
+
 	public function bdPhotos_dropFramesLeavingThree()
 	{
 		// gd doesn't support frames

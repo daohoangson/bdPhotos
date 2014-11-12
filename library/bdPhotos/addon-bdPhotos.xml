@@ -440,7 +440,7 @@ step=1024</edit_format_params>
     </group>
   </style_properties>
   <templates>
-    <template title="bdphotos.css" version_id="4" version_string="0.9.1b"><![CDATA[.bdPhotos_AlbumList
+    <template title="bdphotos.css" version_id="5" version_string="0.9.2"><![CDATA[.bdPhotos_AlbumList
 {
 	margin: 0 -10px;
 }
@@ -801,6 +801,11 @@ step=1024</edit_format_params>
 	{
 		display: none;
 	}
+
+.NoJs img.js-unveil
+{
+	display: none;
+}
 
 <xen:include template="bdphotos_responsive.css" />
 ]]></template>
@@ -1310,6 +1315,21 @@ step=1024</edit_format_params>
 	</div>
 
 </li>]]></template>
+    <template title="bdphotos_common_photo" version_id="5" version_string="0.9.2"><![CDATA[<xen:set var="$img"><img src="{$url}" width="{$width}" height="{$height}" class="bdPhotos_ViewPublic_Helper_Photo" {xen:raw $attributes} /></xen:set>
+
+<xen:if is="{$url2x}">
+	<xen:require css="bdphotos.css" />
+	<xen:require js="js/bdPhotos/main.js" />
+	<xen:require js="js/bdPhotos/jquery.unveil.min.js" />
+	<img data-src="{$url}" data-src-retina="{$url2x}" width="{$width}" height="{$height}" class="bdPhotos_ViewPublic_Helper_Photo js-unveil" {xen:raw $attributes} />
+
+	<noscript>
+		{xen:raw $img}
+	</noscript>
+<xen:else />
+	{xen:raw $img}
+</xen:if>]]></template>
+    <template title="bdphotos_common_photo_url" version_id="5" version_string="0.9.2"><![CDATA[{$url}]]></template>
     <template title="bdphotos_device_photos" version_id="3" version_string="0.9.1"><![CDATA[<xen:title>{xen:phrase bdphotos_photos_taken_with_x, 'device_name={$device.device_name}'}{xen:helper pagenumber, $page}</xen:title>
 <xen:h1>{$device.device_name}</xen:h1>
 
@@ -1501,7 +1521,7 @@ step=1024</edit_format_params>
 	</div>
 
 </li>]]></template>
-    <template title="bdphotos_photo_view" version_id="4" version_string="0.9.1b"><![CDATA[<xen:set var="$title">{xen:helper bdPhotos_snippetOrDefault, $photo.photo_caption, {xen:phrase bdphotos_photo}, 50} {xen:phrase by_x, 'name={$uploader.username}'}</xen:set>
+    <template title="bdphotos_photo_view" version_id="5" version_string="0.9.2"><![CDATA[<xen:set var="$title">{xen:helper bdPhotos_snippetOrDefault, $photo.photo_caption, {xen:phrase bdphotos_photo}, 50} {xen:phrase by_x, 'name={$uploader.username}'}</xen:set>
 
 <xen:title>{xen:raw $title}</xen:title>
 <xen:h1></xen:h1>
@@ -1560,9 +1580,9 @@ step=1024</edit_format_params>
 				</xen:if>
 			</div>
 
-			<table cellspacing="0" cellpadding="0">
+			<table cellspacing="0" cellpadding="0" class="bdPhotos_PhotoWrapper">
 				<tr>
-					<td class="bdPhotos_PhotoWrapper">{xen:raw $photo.photoObj}</td>
+					<td>{xen:raw $photo.photoObj}</td>
 				</tr>
 			</table>
 		</div>

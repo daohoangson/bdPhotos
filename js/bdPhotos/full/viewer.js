@@ -94,8 +94,7 @@ function($, window, document, _undefined)
 		$navigation.empty().remove();
 		$newNavigation.xfInsert('prependTo', $navigationParent, 'show');
 
-		$wrapper.html('');
-		$newWrapper.children().xfInsert('appendTo', $wrapper, 'show');
+        $newWrapper.xfInsert('replaceAll', $wrapper, 'show');
 
 		$newComents.xfInsert('insertBefore', $comments, 'show');
 		$comments.empty().remove();
