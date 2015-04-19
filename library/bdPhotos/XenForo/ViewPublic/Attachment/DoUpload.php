@@ -49,7 +49,14 @@ class bdPhotos_XenForo_ViewPublic_Attachment_DoUpload extends XFCP_bdPhotos_XenF
 				}
 			}
 
-			bdPhotos_ViewPublic_Helper_Photo::preparePhotoForDisplay($this, $attachment, array('size_preset' => bdPhotos_ViewPublic_Helper_Photo::SIZE_PRESET_EDITOR));
+			bdPhotos_ViewPublic_Helper_Photo::preparePhotoForDisplay(
+                $this,
+                $attachment,
+                array(
+                    'template' => 'bdphotos_common_photo_img',
+                    'size_preset' => bdPhotos_ViewPublic_Helper_Photo::SIZE_PRESET_EDITOR,
+                )
+            );
 		}
 
 		return parent::_prepareAttachmentForJson($attachment);

@@ -1315,7 +1315,7 @@ step=1024</edit_format_params>
 	</div>
 
 </li>]]></template>
-    <template title="bdphotos_common_photo" version_id="5" version_string="0.9.2"><![CDATA[<xen:set var="$img"><img src="{$url}" width="{$width}" height="{$height}" class="bdPhotos_ViewPublic_Helper_Photo" {xen:raw $attributes} /></xen:set>
+    <template title="bdphotos_common_photo" version_id="5" version_string="0.9.2"><![CDATA[<xen:set var="$img"><xen:include template="bdphotos_common_photo_img" /></xen:set>
 
 <xen:if is="{$url2x}">
 	<xen:require css="bdphotos.css" />
@@ -1329,6 +1329,7 @@ step=1024</edit_format_params>
 <xen:else />
 	{xen:raw $img}
 </xen:if>]]></template>
+    <template title="bdphotos_common_photo_img" version_id="5" version_string="0.9.2"><![CDATA[<img src="{$url}" width="{$width}" height="{$height}" class="bdPhotos_ViewPublic_Helper_Photo" {xen:raw $attributes} />]]></template>
     <template title="bdphotos_common_photo_url" version_id="5" version_string="0.9.2"><![CDATA[{$url}]]></template>
     <template title="bdphotos_device_photos" version_id="3" version_string="0.9.1"><![CDATA[<xen:title>{xen:phrase bdphotos_photos_taken_with_x, 'device_name={$device.device_name}'}{xen:helper pagenumber, $page}</xen:title>
 <xen:h1>{$device.device_name}</xen:h1>
