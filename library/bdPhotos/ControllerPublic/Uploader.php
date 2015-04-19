@@ -2,128 +2,127 @@
 
 class bdPhotos_ControllerPublic_Uploader extends bdPhotos_ControllerPublic_Abstract
 {
-	public function actionAlbums()
-	{
-		$userId = $this->_input->filterSingle('user_id', XenForo_Input::UINT);
-		$uploader = $this->getHelper('UserProfile')->assertUserProfileValidAndViewable($userId);
+    public function actionAlbums()
+    {
+        $userId = $this->_input->filterSingle('user_id', XenForo_Input::UINT);
 
-		$page = $this->_input->filterSingle('page', XenForo_Input::UINT);
+        /** @var XenForo_ControllerHelper_UserProfile $helper */
+        $helper = $this->getHelper('UserProfile');
+        $uploader = $helper->assertUserProfileValidAndViewable($userId);
 
-		$this->canonicalizeRequestUrl(XenForo_Link::buildPublicLink('members/albums', $uploader, array('page' => $page)));
+        $page = $this->_input->filterSingle('page', XenForo_Input::UINT);
 
-		$conditions = array('album_user_id' => $uploader['user_id']);
-		$fetchOptions = array(
-			'order' => 'position',
+        $this->canonicalizeRequestUrl(XenForo_Link::buildPublicLink('members/albums', $uploader, array('page' => $page)));
 
-			'page' => $page,
-			'perPage' => bdPhotos_Option::get('albumsPerPage'),
-		);
+        $conditions = array('album_user_id' => $uploader['user_id']);
+        $fetchOptions = array(
+            'order' => 'position',
 
-		if ($uploader['user_id'] == XenForo_Visitor::getUserId())
-		{
-			// show all albums
+            'page' => $page,
+            'perPage' => bdPhotos_Option::get('albumsPerPage'),
+        );
 
-			// let user upload if has permission
-			$canUpload = $this->_getUploaderModel()->canUpload();
-		}
-		else
-		{
-			// show published album only
-			$conditions['album_is_published'] = true;
+        if ($uploader['user_id'] == XenForo_Visitor::getUserId()) {
+            // show all albums
 
-			// no upload in different user's page
-			$canUpload = false;
-		}
+            // let user upload if has permission
+            $canUpload = $this->_getUploaderModel()->canUpload();
+        } else {
+            // show published album only
+            $conditions['album_is_published'] = true;
 
-		$totalAlbums = $this->_getAlbumModel()->countAlbums($conditions, $fetchOptions);
-		$this->canonicalizePageNumber($page, bdPhotos_Option::get('albumsPerPage'), $totalAlbums, 'members/albums', $uploader);
+            // no upload in different user's page
+            $canUpload = false;
+        }
 
-		$albums = $this->_getAlbumModel()->getAlbums($conditions, $fetchOptions);
+        $totalAlbums = $this->_getAlbumModel()->countAlbums($conditions, $fetchOptions);
+        $this->canonicalizePageNumber($page, bdPhotos_Option::get('albumsPerPage'), $totalAlbums, 'members/albums', $uploader);
 
-		$viewParams = array(
-			'uploader' => $uploader,
-			'albums' => $albums,
+        $albums = $this->_getAlbumModel()->getAlbums($conditions, $fetchOptions);
 
-			'canUpload' => $canUpload,
+        $viewParams = array(
+            'uploader' => $uploader,
+            'albums' => $albums,
 
-			'pageNavLink' => 'members/albums',
-			'pageNavData' => $uploader,
-			'page' => $page,
-			'totalAlbums' => $totalAlbums,
-		);
+            'canUpload' => $canUpload,
 
-		return $this->responseView('bdPhotos_ViewPublic_Uploader_Albums', 'bdphotos_uploader_albums', $viewParams);
-	}
+            'pageNavLink' => 'members/albums',
+            'pageNavData' => $uploader,
+            'page' => $page,
+            'totalAlbums' => $totalAlbums,
+        );
 
-	public function actionPhotos()
-	{
-		$userId = $this->_input->filterSingle('user_id', XenForo_Input::UINT);
-		$uploader = $this->getHelper('UserProfile')->assertUserProfileValidAndViewable($userId);
+        return $this->responseView('bdPhotos_ViewPublic_Uploader_Albums', 'bdphotos_uploader_albums', $viewParams);
+    }
 
-		$page = $this->_input->filterSingle('page', XenForo_Input::UINT);
+    public function actionPhotos()
+    {
+        $userId = $this->_input->filterSingle('user_id', XenForo_Input::UINT);
 
-		$this->canonicalizeRequestUrl(XenForo_Link::buildPublicLink('members/photos', $uploader, array('page' => $page)));
+        /** @var XenForo_ControllerHelper_UserProfile $helper */
+        $helper = $this->getHelper('UserProfile');
+        $uploader = $helper->assertUserProfileValidAndViewable($userId);
 
-		$conditions = array('user_id' => $uploader['user_id']);
-		$fetchOptions = array(
-			'join' => bdPhotos_Model_Photo::FETCH_UPLOADER + bdPhotos_Model_Photo::FETCH_ALBUM,
-			'order' => 'publish_date',
-			'direction' => 'desc',
+        $page = $this->_input->filterSingle('page', XenForo_Input::UINT);
 
-			'likeUserId' => XenForo_Visitor::getUserId(),
+        $this->canonicalizeRequestUrl(XenForo_Link::buildPublicLink('members/photos', $uploader, array('page' => $page)));
 
-			'page' => $page,
-			'perPage' => bdPhotos_Option::get('photosPerPage'),
-		);
+        $conditions = array('user_id' => $uploader['user_id']);
+        $fetchOptions = array(
+            'join' => bdPhotos_Model_Photo::FETCH_UPLOADER + bdPhotos_Model_Photo::FETCH_ALBUM,
+            'order' => 'publish_date',
+            'direction' => 'desc',
 
-		if ($uploader['user_id'] == XenForo_Visitor::getUserId())
-		{
-			// show all photos
+            'likeUserId' => XenForo_Visitor::getUserId(),
 
-			// let user upload if has permission
-			$canUpload = $this->_getUploaderModel()->canUpload();
-		}
-		else
-		{
-			// show published photos only
-			$conditions['is_published'] = true;
+            'page' => $page,
+            'perPage' => bdPhotos_Option::get('photosPerPage'),
+        );
 
-			// no upload in different user's page
-			$canUpload = false;
-		}
+        if ($uploader['user_id'] == XenForo_Visitor::getUserId()) {
+            // show all photos
 
-		$totalPhotos = $this->_getPhotoModel()->countPhotos($conditions, $fetchOptions);
-		$this->canonicalizePageNumber($page, bdPhotos_Option::get('photosPerPage'), $totalPhotos, 'members/photos', $uploader);
+            // let user upload if has permission
+            $canUpload = $this->_getUploaderModel()->canUpload();
+        } else {
+            // show published photos only
+            $conditions['is_published'] = true;
 
-		$photos = $this->_getPhotoModel()->getPhotos($conditions, $fetchOptions);
+            // no upload in different user's page
+            $canUpload = false;
+        }
 
-		foreach ($photos as &$photo)
-		{
-			$photo = $this->_getPhotoModel()->preparePhoto($photo, $photo);
-		}
+        $totalPhotos = $this->_getPhotoModel()->countPhotos($conditions, $fetchOptions);
+        $this->canonicalizePageNumber($page, bdPhotos_Option::get('photosPerPage'), $totalPhotos, 'members/photos', $uploader);
 
-		$viewParams = array(
-			'uploader' => $uploader,
-			'photos' => $photos,
+        $photos = $this->_getPhotoModel()->getPhotos($conditions, $fetchOptions);
 
-			'canUpload' => $canUpload,
+        foreach ($photos as &$photo) {
+            $photo = $this->_getPhotoModel()->preparePhoto($photo, $photo);
+        }
 
-			'pageNavLink' => 'members/photos',
-			'pageNavData' => $uploader,
-			'page' => $page,
-			'totalPhotos' => $totalPhotos,
-		);
+        $viewParams = array(
+            'uploader' => $uploader,
+            'photos' => $photos,
 
-		$viewParams = array_merge($viewParams, $this->_getSetHelper()->getViewParamsForPhotoList($conditions, $fetchOptions));
+            'canUpload' => $canUpload,
 
-		return $this->responseView('bdPhotos_ViewPublic_Uploader_Photos', 'bdphotos_uploader_photos', $viewParams);
-	}
+            'pageNavLink' => 'members/photos',
+            'pageNavData' => $uploader,
+            'page' => $page,
+            'totalPhotos' => $totalPhotos,
+        );
 
-	protected function _postDispatch($controllerResponse, $controllerName, $action)
-	{
-		$this->_routeMatch->setSections(bdPhotos_Option::get('navTabId'));
+        $viewParams = array_merge($viewParams, $this->_getSetHelper()->getViewParamsForPhotoList($conditions, $fetchOptions));
 
-		return parent::_postDispatch($controllerResponse, $controllerName, $action);
-	}
+        return $this->responseView('bdPhotos_ViewPublic_Uploader_Photos', 'bdphotos_uploader_photos', $viewParams);
+    }
+
+    protected function _postDispatch($controllerResponse, $controllerName, $action)
+    {
+        $this->_routeMatch->setSections(bdPhotos_Option::get('navTabId'));
+
+        parent::_postDispatch($controllerResponse, $controllerName, $action);
+    }
 
 }

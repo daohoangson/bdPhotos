@@ -16,6 +16,7 @@ class bdPhotos_Helper_Image
             return false;
         }
 
+        /** @var bdPhotos_XenForo_Image_Gd $image */
         $image = XenForo_Image_Abstract::createFromFile($path, $inputType);
         if (empty($image)) {
             return false;
@@ -155,6 +156,7 @@ class bdPhotos_Helper_Image
             return true;
         }
 
+        /** @var bdPhotos_XenForo_Image_Gd $image */
         $image = XenForo_Image_Abstract::createFromFile($inPath, $inputType);
         if (empty($image)) {
             return false;
@@ -203,6 +205,7 @@ class bdPhotos_Helper_Image
 
     public static function resizeAndCropImage(&$image, &$width, &$height, $generate = true, array $options = array())
     {
+        /** @var bdPhotos_XenForo_Image_Gd $image */
         $generated = false;
         $options = array_merge(array(
             'crop' => false,
@@ -342,6 +345,7 @@ class bdPhotos_Helper_Image
 
     public static function renameOrCopyImage(&$image, $inPath, $inputType, $outPath, $generate, $changed)
     {
+        /** @var bdPhotos_XenForo_Image_Gd $image */
         if ($changed) {
             XenForo_Helper_File::createDirectory(dirname($outPath), true);
 
@@ -360,6 +364,7 @@ class bdPhotos_Helper_Image
     {
         $tempFile = tempnam(XenForo_Helper_File::getTempDir(), 'xf');
 
+        /** @var bdPhotos_XenForo_Image_Gd $image */
         $image = XenForo_Image_Abstract::createFromFile($path, IMAGETYPE_JPEG);
         if (empty($image)) {
             return false;
@@ -380,6 +385,7 @@ class bdPhotos_Helper_Image
 
     protected static function _configureImageFromOptions(XenForo_Image_Abstract $image, array $options)
     {
+        /** @var bdPhotos_XenForo_Image_Gd $image */
         if (!empty($options[self::OPTION_MANUAL_ORIENTATION])) {
             // TODO: check for method availability?
             $image->bdPhotos_setManualOrientation($options[self::OPTION_MANUAL_ORIENTATION]);

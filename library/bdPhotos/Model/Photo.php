@@ -2,160 +2,148 @@
 
 class bdPhotos_Model_Photo extends XenForo_Model
 {
-	const FETCH_ATTACHMENT = 0x01;
-	const FETCH_ALBUM = 0x02;
-	const FETCH_DEVICE = 0x04;
-	const FETCH_LOCATION = 0x08;
-	const FETCH_UPLOADER = 0x10;
+    const FETCH_ATTACHMENT = 0x01;
+    const FETCH_ALBUM = 0x02;
+    const FETCH_DEVICE = 0x04;
+    const FETCH_LOCATION = 0x08;
+    const FETCH_UPLOADER = 0x10;
 
-	public function canViewPhoto(array $album, array $photo, &$errorPhraseKey = '', array $viewingUser = null)
-	{
-		$this->standardizeViewingUserReference($viewingUser);
+    public function canViewPhoto(array $album, array $photo, &$errorPhraseKey = '', array $viewingUser = null)
+    {
+        $this->standardizeViewingUserReference($viewingUser);
 
-		if (!$this->_getAlbumModel()->canViewAlbum($album, $errorPhraseKey, $viewingUser))
-		{
-			return false;
-		}
+        if (!$this->_getAlbumModel()->canViewAlbum($album, $errorPhraseKey, $viewingUser)) {
+            return false;
+        }
 
-		if ($photo['publish_date'] == 0 OR $photo['publish_date'] > XenForo_Application::$time)
-		{
-			if ($photo['user_id'] == $viewingUser['user_id'])
-			{
-				// uploader can view his/her photo
-			}
-			elseif ($this->_getUploaderModel()->canViewAll($errorPhraseKey, $viewingUser))
-			{
-				// moderator can view all photos
-			}
-			else
-			{
-				return false;
-			}
-		}
+        if ($photo['publish_date'] == 0 OR $photo['publish_date'] > XenForo_Application::$time) {
+            if ($photo['user_id'] == $viewingUser['user_id']) {
+                // uploader can view his/her photo
+            } else {
+                /** @var bdPhotos_Model_Uploader $uploaderModel */
+                $uploaderModel = $this->getModelFromCache('bdPhotos_Model_Uploader');
+                if ($uploaderModel->canViewAll($errorPhraseKey, $viewingUser)) {
+                    // moderator can view all photos
+                } else {
+                    return false;
+                }
+            }
+        }
 
-		return true;
-	}
+        return true;
+    }
 
-	public function canEditPhoto(array $album, array $photo, &$errorPhraseKey = '', array $viewingUser = null)
-	{
-		$this->standardizeViewingUserReference($viewingUser);
+    public function canEditPhoto(array $album, array $photo, &$errorPhraseKey = '', array $viewingUser = null)
+    {
+        $this->standardizeViewingUserReference($viewingUser);
 
-		if ($viewingUser['user_id'] > 0 AND $photo['user_id'] == $viewingUser['user_id'])
-		{
-			return true;
-		}
+        if ($viewingUser['user_id'] > 0 AND $photo['user_id'] == $viewingUser['user_id']) {
+            return true;
+        }
 
-		if ($this->canViewPhoto($album, $photo, $errorPhraseKey, $viewingUser) AND $this->_getAlbumModel()->canEditAlbum($album, $errorPhraseKey, $viewingUser))
-		{
-			return true;
-		}
+        if ($this->canViewPhoto($album, $photo, $errorPhraseKey, $viewingUser) AND $this->_getAlbumModel()->canEditAlbum($album, $errorPhraseKey, $viewingUser)) {
+            return true;
+        }
 
-		return false;
-	}
+        return false;
+    }
 
-	public function canDeletePhoto(array $album, array $photo, &$errorPhraseKey = '', array $viewingUser = null)
-	{
-		return $this->canEditPhoto($album, $photo, $errorPhraseKey, $viewingUser);
-	}
+    public function canDeletePhoto(array $album, array $photo, &$errorPhraseKey = '', array $viewingUser = null)
+    {
+        return $this->canEditPhoto($album, $photo, $errorPhraseKey, $viewingUser);
+    }
 
-	public function canLikePhoto(array $album, array $photo, &$errorPhraseKey = '', array $viewingUser = null)
-	{
-		$this->standardizeViewingUserReference($viewingUser);
+    public function canLikePhoto(array $album, array $photo, &$errorPhraseKey = '', array $viewingUser = null)
+    {
+        $this->standardizeViewingUserReference($viewingUser);
 
-		if (empty($viewingUser['user_id']) OR $photo['user_id'] == $viewingUser['user_id'])
-		{
-			return false;
-		}
+        if (empty($viewingUser['user_id']) OR $photo['user_id'] == $viewingUser['user_id']) {
+            return false;
+        }
 
-		if (!$this->canViewPhoto($album, $photo, $errorPhraseKey, $viewingUser))
-		{
-			return false;
-		}
+        if (!$this->canViewPhoto($album, $photo, $errorPhraseKey, $viewingUser)) {
+            return false;
+        }
 
-		return XenForo_Permission::hasPermission($viewingUser['permissions'], 'general', 'bdPhotos_photoLike');
-	}
+        return XenForo_Permission::hasPermission($viewingUser['permissions'], 'general', 'bdPhotos_photoLike');
+    }
 
-	public function canCommentPhoto(array $album, array $photo, &$errorPhraseKey = '', array $viewingUser = null)
-	{
-		$this->standardizeViewingUserReference($viewingUser);
+    public function canCommentPhoto(array $album, array $photo, &$errorPhraseKey = '', array $viewingUser = null)
+    {
+        $this->standardizeViewingUserReference($viewingUser);
 
-		if (empty($viewingUser['user_id']))
-		{
-			return false;
-		}
+        if (empty($viewingUser['user_id'])) {
+            return false;
+        }
 
-		if (!$this->canViewPhoto($album, $photo, $errorPhraseKey, $viewingUser))
-		{
-			return false;
-		}
+        if (!$this->canViewPhoto($album, $photo, $errorPhraseKey, $viewingUser)) {
+            return false;
+        }
 
-		return XenForo_Permission::hasPermission($viewingUser['permissions'], 'general', 'bdPhotos_photoComment');
-	}
+        return XenForo_Permission::hasPermission($viewingUser['permissions'], 'general', 'bdPhotos_photoComment');
+    }
 
-	public function canDownloadFullPhoto(array $album, array $photo, &$errorPhraseKey = '', array $viewingUser = null)
-	{
-		$this->standardizeViewingUserReference($viewingUser);
+    public function canDownloadFullPhoto(array $album, array $photo, &$errorPhraseKey = '', array $viewingUser = null)
+    {
+        $this->standardizeViewingUserReference($viewingUser);
 
-		if ($viewingUser['user_id'] > 0 AND $photo['user_id'] == $viewingUser['user_id'])
-		{
-			return true;
-		}
+        if ($viewingUser['user_id'] > 0 AND $photo['user_id'] == $viewingUser['user_id']) {
+            return true;
+        }
 
-		if (!$this->canViewPhoto($album, $photo, $errorPhraseKey, $viewingUser))
-		{
-			return false;
-		}
+        if (!$this->canViewPhoto($album, $photo, $errorPhraseKey, $viewingUser)) {
+            return false;
+        }
 
-		return XenForo_Permission::hasPermission($viewingUser['permissions'], 'general', 'bdPhotos_downloadFull');
-	}
+        return XenForo_Permission::hasPermission($viewingUser['permissions'], 'general', 'bdPhotos_downloadFull');
+    }
 
-	public function logPhotoView($photoId)
-	{
-		$this->_getDb()->query('
+    public function logPhotoView($photoId)
+    {
+        $this->_getDb()->query('
 			INSERT ' . (XenForo_Application::get('options')->enableInsertDelayed ? 'DELAYED' : '') . ' INTO xf_bdphotos_photo_view
 				(photo_id)
 			VALUES
 				(?)
 		', $photoId);
-	}
+    }
 
-	public function preparePhoto(array $album, array $photo, array $viewingUser = null)
-	{
-		if (isset($photo['attachment_id']))
-		{
-			$photo = $this->getModelFromCache('XenForo_Model_Attachment')->prepareAttachment($photo);
-		}
+    public function preparePhoto(array $album, array $photo, array $viewingUser = null)
+    {
+        if (isset($photo['attachment_id'])) {
+            /** @var XenForo_Model_Attachment $attachmentModel */
+            $attachmentModel = $this->getModelFromCache('XenForo_Model_Attachment');
+            $photo = $attachmentModel->prepareAttachment($photo);
+        }
 
-		if (!empty($photo['photo_like_users']))
-		{
-			$photo['photoLikeUsers'] = unserialize($photo['photo_like_users']);
-		}
+        if (!empty($photo['photo_like_users'])) {
+            $photo['photoLikeUsers'] = unserialize($photo['photo_like_users']);
+        }
 
-		$photo['photo_view_count'] = max($photo['photo_view_count'], $photo['photo_comment_count'] + $photo['photo_like_count']);
+        $photo['photo_view_count'] = max($photo['photo_view_count'], $photo['photo_comment_count'] + $photo['photo_like_count']);
 
-		$photo['canEdit'] = $this->canEditPhoto($album, $photo, $null, $viewingUser);
-		$photo['canDelete'] = $this->canDeletePhoto($album, $photo, $null, $viewingUser);
-		$photo['canLike'] = $this->canLikePhoto($album, $photo, $null, $viewingUser);
-		$photo['canComment'] = $this->canCommentPhoto($album, $photo, $null, $viewingUser);
-		$photo['canDownloadFull'] = $this->canDownloadFullPhoto($album, $photo, $null, $viewingUser);
+        $photo['canEdit'] = $this->canEditPhoto($album, $photo, $null, $viewingUser);
+        $photo['canDelete'] = $this->canDeletePhoto($album, $photo, $null, $viewingUser);
+        $photo['canLike'] = $this->canLikePhoto($album, $photo, $null, $viewingUser);
+        $photo['canComment'] = $this->canCommentPhoto($album, $photo, $null, $viewingUser);
+        $photo['canDownloadFull'] = $this->canDownloadFullPhoto($album, $photo, $null, $viewingUser);
 
-		return $photo;
-	}
+        return $photo;
+    }
 
-	public function preparePhotos(array $album, array $photos, array $viewingUser = null)
-	{
-		foreach ($photos as &$photo)
-		{
-			$photo = $this->preparePhoto($album, $photo, $viewingUser);
-		}
+    public function preparePhotos(array $album, array $photos, array $viewingUser = null)
+    {
+        foreach ($photos as &$photo) {
+            $photo = $this->preparePhoto($album, $photo, $viewingUser);
+        }
 
-		return $photos;
-	}
+        return $photos;
+    }
 
-	public function preparePhotoExif(array $photo)
-	{
+    public function preparePhotoExif(array $photo)
+    {
         $raw = array();
-		$exif = array();
+        $exif = array();
 
         if (!empty($photo['metadataArray']['manualExif'])) {
             foreach ($photo['metadataArray']['manualExif'] as $key => $value) {
@@ -167,104 +155,87 @@ class bdPhotos_Model_Photo extends XenForo_Model
             }
 
             $exif[bdPhotos_Helper_Metadata::EXIF_MANUAL_EDIT] = true;
-        }
-		elseif (!empty($photo['metadataArray']['exif'])) {
+        } elseif (!empty($photo['metadataArray']['exif'])) {
             $raw = $photo['metadataArray']['exif'];
         }
 
         if (!empty($raw)) {
-			foreach (array(
-			bdPhotos_Helper_Metadata::EXIF_EXPOSURE_TIME,
-			bdPhotos_Helper_Metadata::EXIF_DATETIME,
-			bdPhotos_Helper_Metadata::EXIF_F_STOP,
-			bdPhotos_Helper_Metadata::EXIF_FLASH,
-			bdPhotos_Helper_Metadata::EXIF_ISO,
-			bdPhotos_Helper_Metadata::EXIF_FOCAL_LENGTH,
-			bdPhotos_Helper_Metadata::EXIF_SOFTWARE,
-			bdPhotos_Helper_Metadata::EXIF_WHITE_BALANCE,
-			) as $key)
-			{
-				if (!isset($raw[$key]))
-				{
-					continue;
-				}
-				$value = $raw[$key];
+            foreach (array(
+                         bdPhotos_Helper_Metadata::EXIF_EXPOSURE_TIME,
+                         bdPhotos_Helper_Metadata::EXIF_DATETIME,
+                         bdPhotos_Helper_Metadata::EXIF_F_STOP,
+                         bdPhotos_Helper_Metadata::EXIF_FLASH,
+                         bdPhotos_Helper_Metadata::EXIF_ISO,
+                         bdPhotos_Helper_Metadata::EXIF_FOCAL_LENGTH,
+                         bdPhotos_Helper_Metadata::EXIF_SOFTWARE,
+                         bdPhotos_Helper_Metadata::EXIF_WHITE_BALANCE,
+                     ) as $key) {
+                if (!isset($raw[$key])) {
+                    continue;
+                }
+                $value = $raw[$key];
 
-				switch ($key)
-				{
-					case bdPhotos_Helper_Metadata::EXIF_EXPOSURE_TIME:
-					case bdPhotos_Helper_Metadata::EXIF_F_STOP:
-					case bdPhotos_Helper_Metadata::EXIF_FOCAL_LENGTH:
-						$parts = explode('/', $value);
-						if (count($parts) == 2 AND $parts[1] > 0)
-						{
-							$value = bdPhotos_Helper_String::formatFloat($parts[0] / $parts[1]);
-						}
-                        elseif (is_numeric($value))
-                        {
+                switch ($key) {
+                    case bdPhotos_Helper_Metadata::EXIF_EXPOSURE_TIME:
+                    case bdPhotos_Helper_Metadata::EXIF_F_STOP:
+                    case bdPhotos_Helper_Metadata::EXIF_FOCAL_LENGTH:
+                        $parts = explode('/', $value);
+                        if (count($parts) == 2 AND $parts[1] > 0) {
+                            $value = bdPhotos_Helper_String::formatFloat($parts[0] / $parts[1]);
+                        } elseif (is_numeric($value)) {
                             $value = bdPhotos_Helper_String::formatFloat(floatval($value));
+                        } else {
+                            $value = false;
                         }
-						else
-						{
-							$value = false;
-						}
-						break;
-					case bdPhotos_Helper_Metadata::EXIF_FLASH:
-						if (!empty($value))
-						{
-							$value = 1;
-						}
-						else
-						{
-							$value = 0;
-						}
-						break;
-					case bdPhotos_Helper_Metadata::EXIF_ISO:
-						if (is_array($value) AND count($value) == 2 AND $value[0] == $value[1])
-						{
-							$value = $value[0];
-						}
-						break;
-					case bdPhotos_Helper_Metadata::EXIF_WHITE_BALANCE:
-						$value = intval($value);
-						switch ($value)
-						{
-							case 1:
-							case 0:
-								// keep
-								break;
-							default:
-								// unrecognized, reset
-								$value = false;
-						}
-						break;
-				}
+                        break;
+                    case bdPhotos_Helper_Metadata::EXIF_FLASH:
+                        if (!empty($value)) {
+                            $value = 1;
+                        } else {
+                            $value = 0;
+                        }
+                        break;
+                    case bdPhotos_Helper_Metadata::EXIF_ISO:
+                        if (is_array($value) AND count($value) == 2 AND $value[0] == $value[1]) {
+                            $value = $value[0];
+                        }
+                        break;
+                    case bdPhotos_Helper_Metadata::EXIF_WHITE_BALANCE:
+                        $value = intval($value);
+                        switch ($value) {
+                            case 1:
+                            case 0:
+                                // keep
+                                break;
+                            default:
+                                // unrecognized, reset
+                                $value = false;
+                        }
+                        break;
+                }
 
-				if ($value !== false)
-				{
-					$exif[$key] = $value;
-				}
-				elseif (XenForo_Application::debugMode())
-				{
-					throw new XenForo_Exception(call_user_func_array('sprintf', array(
-						'Unable to parse %s: %s (version %s)',
-						$key,
-						var_export($raw[$key], true),
-						isset($raw['ExifVersion']) ? $raw['ExifVersion'] : 'N/A',
-					)));
-				}
+                if ($value !== false) {
+                    $exif[$key] = $value;
+                } elseif (XenForo_Application::debugMode()) {
+                    throw new XenForo_Exception(call_user_func_array('sprintf', array(
+                        'Unable to parse %s: %s (version %s)',
+                        $key,
+                        var_export($raw[$key], true),
+                        isset($raw['ExifVersion']) ? $raw['ExifVersion'] : 'N/A',
+                    )));
+                }
 
-			}
-		}
+            }
+        }
 
-		return $exif;
-	}
+        return $exif;
+    }
 
-	public function updatePhotoViews()
-	{
-		$db = $this->_getDb();
+    public function updatePhotoViews()
+    {
+        $db = $this->_getDb();
 
-		$db->query('
+        $db->query('
 			UPDATE xf_bdphotos_photo
 			INNER JOIN (
 				SELECT photo_id, COUNT(*) AS total
@@ -274,48 +245,47 @@ class bdPhotos_Model_Photo extends XenForo_Model
 			SET xf_bdphotos_photo.photo_view_count = xf_bdphotos_photo.photo_view_count + xf_pv.total
 		');
 
-		$db->query('TRUNCATE TABLE xf_bdphotos_photo_view');
-	}
+        $db->query('TRUNCATE TABLE xf_bdphotos_photo_view');
+    }
 
-	/**
-	 * @return bdPhotos_Model_Album
-	 */
-	protected function _getAlbumModel()
-	{
-		return $this->getModelFromCache('bdPhotos_Model_Album');
-	}
+    /**
+     * @return bdPhotos_Model_Album
+     */
+    protected function _getAlbumModel()
+    {
+        return $this->getModelFromCache('bdPhotos_Model_Album');
+    }
 
-	/* Start auto-generated lines of code. Change made will be overwriten... */
+    /* Start auto-generated lines of code. Change made will be overwriten... */
 
-	public function getList(array $conditions = array(), array $fetchOptions = array())
-	{
-		$photos = $this->getPhotos($conditions, $fetchOptions);
-		$list = array();
+    public function getList(array $conditions = array(), array $fetchOptions = array())
+    {
+        $photos = $this->getPhotos($conditions, $fetchOptions);
+        $list = array();
 
-		foreach ($photos as $id => $photo)
-		{
-			$list[$id] = $photo['photo_caption'];
-		}
+        foreach ($photos as $id => $photo) {
+            $list[$id] = $photo['photo_caption'];
+        }
 
-		return $list;
-	}
+        return $list;
+    }
 
-	public function getPhotoById($id, array $fetchOptions = array())
-	{
-		$photos = $this->getPhotos(array('photo_id' => $id), $fetchOptions);
+    public function getPhotoById($id, array $fetchOptions = array())
+    {
+        $photos = $this->getPhotos(array('photo_id' => $id), $fetchOptions);
 
-		return reset($photos);
-	}
+        return reset($photos);
+    }
 
-	public function getPhotos(array $conditions = array(), array $fetchOptions = array())
-	{
-		$whereConditions = $this->preparePhotoConditions($conditions, $fetchOptions);
+    public function getPhotos(array $conditions = array(), array $fetchOptions = array())
+    {
+        $whereConditions = $this->preparePhotoConditions($conditions, $fetchOptions);
 
-		$orderClause = $this->preparePhotoOrderOptions($fetchOptions);
-		$joinOptions = $this->preparePhotoFetchOptions($fetchOptions);
-		$limitOptions = $this->prepareLimitFetchOptions($fetchOptions);
+        $orderClause = $this->preparePhotoOrderOptions($fetchOptions);
+        $joinOptions = $this->preparePhotoFetchOptions($fetchOptions);
+        $limitOptions = $this->prepareLimitFetchOptions($fetchOptions);
 
-		$photos = $this->fetchAllKeyed($this->limitQueryResults("
+        $photos = $this->fetchAllKeyed($this->limitQueryResults("
 			SELECT photo.*
 				$joinOptions[selectFields]
 			FROM `xf_bdphotos_photo` AS photo
@@ -324,366 +294,293 @@ class bdPhotos_Model_Photo extends XenForo_Model
 				$orderClause
 			", $limitOptions['limit'], $limitOptions['offset']), 'photo_id');
 
-		$this->_getPhotosCustomized($photos, $fetchOptions);
+        $this->_getPhotosCustomized($photos, $fetchOptions);
 
-		return $photos;
-	}
+        return $photos;
+    }
 
-	public function countPhotos(array $conditions = array(), array $fetchOptions = array())
-	{
-		$whereConditions = $this->preparePhotoConditions($conditions, $fetchOptions);
+    public function countPhotos(array $conditions = array(), array $fetchOptions = array())
+    {
+        $whereConditions = $this->preparePhotoConditions($conditions, $fetchOptions);
 
-		$orderClause = $this->preparePhotoOrderOptions($fetchOptions);
-		$joinOptions = $this->preparePhotoFetchOptions($fetchOptions);
-		$limitOptions = $this->prepareLimitFetchOptions($fetchOptions);
+        $orderClause = $this->preparePhotoOrderOptions($fetchOptions);
+        $joinOptions = $this->preparePhotoFetchOptions($fetchOptions);
+        $limitOptions = $this->prepareLimitFetchOptions($fetchOptions);
 
-		return $this->_getDb()->fetchOne("
+        return $this->_getDb()->fetchOne("
 			SELECT COUNT(*)
 			FROM `xf_bdphotos_photo` AS photo
 				$joinOptions[joinTables]
 			WHERE $whereConditions
 		");
-	}
+    }
 
-	public function preparePhotoConditions(array $conditions = array(), array $fetchOptions = array())
-	{
-		$sqlConditions = array();
-		$db = $this->_getDb();
+    public function preparePhotoConditions(array $conditions = array(), array $fetchOptions = array())
+    {
+        $sqlConditions = array();
+        $db = $this->_getDb();
 
-		if (isset($conditions['photo_id']))
-		{
-			if (is_array($conditions['photo_id']))
-			{
-				if (!empty($conditions['photo_id']))
-				{
-					// only use IN condition if the array is not empty (nasty!)
-					$sqlConditions[] = "photo.photo_id IN (" . $db->quote($conditions['photo_id']) . ")";
-				}
-			}
-			else
-			{
-				$sqlConditions[] = "photo.photo_id = " . $db->quote($conditions['photo_id']);
-			}
-		}
+        if (isset($conditions['photo_id'])) {
+            if (is_array($conditions['photo_id'])) {
+                if (!empty($conditions['photo_id'])) {
+                    // only use IN condition if the array is not empty (nasty!)
+                    $sqlConditions[] = "photo.photo_id IN (" . $db->quote($conditions['photo_id']) . ")";
+                }
+            } else {
+                $sqlConditions[] = "photo.photo_id = " . $db->quote($conditions['photo_id']);
+            }
+        }
 
-		if (isset($conditions['user_id']))
-		{
-			if (is_array($conditions['user_id']))
-			{
-				if (!empty($conditions['user_id']))
-				{
-					// only use IN condition if the array is not empty (nasty!)
-					$sqlConditions[] = "photo.user_id IN (" . $db->quote($conditions['user_id']) . ")";
-				}
-			}
-			else
-			{
-				$sqlConditions[] = "photo.user_id = " . $db->quote($conditions['user_id']);
-			}
-		}
+        if (isset($conditions['user_id'])) {
+            if (is_array($conditions['user_id'])) {
+                if (!empty($conditions['user_id'])) {
+                    // only use IN condition if the array is not empty (nasty!)
+                    $sqlConditions[] = "photo.user_id IN (" . $db->quote($conditions['user_id']) . ")";
+                }
+            } else {
+                $sqlConditions[] = "photo.user_id = " . $db->quote($conditions['user_id']);
+            }
+        }
 
-		if (isset($conditions['username']))
-		{
-			if (is_array($conditions['username']))
-			{
-				if (!empty($conditions['username']))
-				{
-					// only use IN condition if the array is not empty (nasty!)
-					$sqlConditions[] = "photo.username IN (" . $db->quote($conditions['username']) . ")";
-				}
-			}
-			else
-			{
-				$sqlConditions[] = "photo.username = " . $db->quote($conditions['username']);
-			}
-		}
+        if (isset($conditions['username'])) {
+            if (is_array($conditions['username'])) {
+                if (!empty($conditions['username'])) {
+                    // only use IN condition if the array is not empty (nasty!)
+                    $sqlConditions[] = "photo.username IN (" . $db->quote($conditions['username']) . ")";
+                }
+            } else {
+                $sqlConditions[] = "photo.username = " . $db->quote($conditions['username']);
+            }
+        }
 
-		if (isset($conditions['album_id']))
-		{
-			if (is_array($conditions['album_id']))
-			{
-				if (!empty($conditions['album_id']))
-				{
-					// only use IN condition if the array is not empty (nasty!)
-					$sqlConditions[] = "photo.album_id IN (" . $db->quote($conditions['album_id']) . ")";
-				}
-			}
-			else
-			{
-				$sqlConditions[] = "photo.album_id = " . $db->quote($conditions['album_id']);
-			}
-		}
+        if (isset($conditions['album_id'])) {
+            if (is_array($conditions['album_id'])) {
+                if (!empty($conditions['album_id'])) {
+                    // only use IN condition if the array is not empty (nasty!)
+                    $sqlConditions[] = "photo.album_id IN (" . $db->quote($conditions['album_id']) . ")";
+                }
+            } else {
+                $sqlConditions[] = "photo.album_id = " . $db->quote($conditions['album_id']);
+            }
+        }
 
-		if (isset($conditions['photo_position']))
-		{
-			if (is_array($conditions['photo_position']))
-			{
-				if (!empty($conditions['photo_position']))
-				{
-					// only use IN condition if the array is not empty (nasty!)
-					$sqlConditions[] = "photo.photo_position IN (" . $db->quote($conditions['photo_position']) . ")";
-				}
-			}
-			else
-			{
-				$sqlConditions[] = "photo.photo_position = " . $db->quote($conditions['photo_position']);
-			}
-		}
+        if (isset($conditions['photo_position'])) {
+            if (is_array($conditions['photo_position'])) {
+                if (!empty($conditions['photo_position'])) {
+                    // only use IN condition if the array is not empty (nasty!)
+                    $sqlConditions[] = "photo.photo_position IN (" . $db->quote($conditions['photo_position']) . ")";
+                }
+            } else {
+                $sqlConditions[] = "photo.photo_position = " . $db->quote($conditions['photo_position']);
+            }
+        }
 
-		if (isset($conditions['publish_date']))
-		{
-			if (is_array($conditions['publish_date']))
-			{
-				if (!empty($conditions['publish_date']))
-				{
-					// only use IN condition if the array is not empty (nasty!)
-					$sqlConditions[] = "photo.publish_date IN (" . $db->quote($conditions['publish_date']) . ")";
-				}
-			}
-			else
-			{
-				$sqlConditions[] = "photo.publish_date = " . $db->quote($conditions['publish_date']);
-			}
-		}
+        if (isset($conditions['publish_date'])) {
+            if (is_array($conditions['publish_date'])) {
+                if (!empty($conditions['publish_date'])) {
+                    // only use IN condition if the array is not empty (nasty!)
+                    $sqlConditions[] = "photo.publish_date IN (" . $db->quote($conditions['publish_date']) . ")";
+                }
+            } else {
+                $sqlConditions[] = "photo.publish_date = " . $db->quote($conditions['publish_date']);
+            }
+        }
 
-		if (isset($conditions['photo_view_count']))
-		{
-			if (is_array($conditions['photo_view_count']))
-			{
-				if (!empty($conditions['photo_view_count']))
-				{
-					// only use IN condition if the array is not empty (nasty!)
-					$sqlConditions[] = "photo.photo_view_count IN (" . $db->quote($conditions['photo_view_count']) . ")";
-				}
-			}
-			else
-			{
-				$sqlConditions[] = "photo.photo_view_count = " . $db->quote($conditions['photo_view_count']);
-			}
-		}
+        if (isset($conditions['photo_view_count'])) {
+            if (is_array($conditions['photo_view_count'])) {
+                if (!empty($conditions['photo_view_count'])) {
+                    // only use IN condition if the array is not empty (nasty!)
+                    $sqlConditions[] = "photo.photo_view_count IN (" . $db->quote($conditions['photo_view_count']) . ")";
+                }
+            } else {
+                $sqlConditions[] = "photo.photo_view_count = " . $db->quote($conditions['photo_view_count']);
+            }
+        }
 
-		if (isset($conditions['photo_comment_count']))
-		{
-			if (is_array($conditions['photo_comment_count']))
-			{
-				if (!empty($conditions['photo_comment_count']))
-				{
-					// only use IN condition if the array is not empty (nasty!)
-					$sqlConditions[] = "photo.photo_comment_count IN (" . $db->quote($conditions['photo_comment_count']) . ")";
-				}
-			}
-			else
-			{
-				$sqlConditions[] = "photo.photo_comment_count = " . $db->quote($conditions['photo_comment_count']);
-			}
-		}
+        if (isset($conditions['photo_comment_count'])) {
+            if (is_array($conditions['photo_comment_count'])) {
+                if (!empty($conditions['photo_comment_count'])) {
+                    // only use IN condition if the array is not empty (nasty!)
+                    $sqlConditions[] = "photo.photo_comment_count IN (" . $db->quote($conditions['photo_comment_count']) . ")";
+                }
+            } else {
+                $sqlConditions[] = "photo.photo_comment_count = " . $db->quote($conditions['photo_comment_count']);
+            }
+        }
 
-		if (isset($conditions['photo_like_count']))
-		{
-			if (is_array($conditions['photo_like_count']))
-			{
-				if (!empty($conditions['photo_like_count']))
-				{
-					// only use IN condition if the array is not empty (nasty!)
-					$sqlConditions[] = "photo.photo_like_count IN (" . $db->quote($conditions['photo_like_count']) . ")";
-				}
-			}
-			else
-			{
-				$sqlConditions[] = "photo.photo_like_count = " . $db->quote($conditions['photo_like_count']);
-			}
-		}
+        if (isset($conditions['photo_like_count'])) {
+            if (is_array($conditions['photo_like_count'])) {
+                if (!empty($conditions['photo_like_count'])) {
+                    // only use IN condition if the array is not empty (nasty!)
+                    $sqlConditions[] = "photo.photo_like_count IN (" . $db->quote($conditions['photo_like_count']) . ")";
+                }
+            } else {
+                $sqlConditions[] = "photo.photo_like_count = " . $db->quote($conditions['photo_like_count']);
+            }
+        }
 
-		if (isset($conditions['device_id']))
-		{
-			if (is_array($conditions['device_id']))
-			{
-				if (!empty($conditions['device_id']))
-				{
-					// only use IN condition if the array is not empty (nasty!)
-					$sqlConditions[] = "photo.device_id IN (" . $db->quote($conditions['device_id']) . ")";
-				}
-			}
-			else
-			{
-				$sqlConditions[] = "photo.device_id = " . $db->quote($conditions['device_id']);
-			}
-		}
+        if (isset($conditions['device_id'])) {
+            if (is_array($conditions['device_id'])) {
+                if (!empty($conditions['device_id'])) {
+                    // only use IN condition if the array is not empty (nasty!)
+                    $sqlConditions[] = "photo.device_id IN (" . $db->quote($conditions['device_id']) . ")";
+                }
+            } else {
+                $sqlConditions[] = "photo.device_id = " . $db->quote($conditions['device_id']);
+            }
+        }
 
-		if (isset($conditions['location_id']))
-		{
-			if (is_array($conditions['location_id']))
-			{
-				if (!empty($conditions['location_id']))
-				{
-					// only use IN condition if the array is not empty (nasty!)
-					$sqlConditions[] = "photo.location_id IN (" . $db->quote($conditions['location_id']) . ")";
-				}
-			}
-			else
-			{
-				$sqlConditions[] = "photo.location_id = " . $db->quote($conditions['location_id']);
-			}
-		}
+        if (isset($conditions['location_id'])) {
+            if (is_array($conditions['location_id'])) {
+                if (!empty($conditions['location_id'])) {
+                    // only use IN condition if the array is not empty (nasty!)
+                    $sqlConditions[] = "photo.location_id IN (" . $db->quote($conditions['location_id']) . ")";
+                }
+            } else {
+                $sqlConditions[] = "photo.location_id = " . $db->quote($conditions['location_id']);
+            }
+        }
 
-		$this->_preparePhotoConditionsCustomized($sqlConditions, $conditions, $fetchOptions);
+        $this->_preparePhotoConditionsCustomized($sqlConditions, $conditions, $fetchOptions);
 
-		return $this->getConditionsForClause($sqlConditions);
-	}
+        return $this->getConditionsForClause($sqlConditions);
+    }
 
-	public function preparePhotoFetchOptions(array $fetchOptions = array())
-	{
-		$selectFields = '';
-		$joinTables = '';
+    public function preparePhotoFetchOptions(array $fetchOptions = array())
+    {
+        $selectFields = '';
+        $joinTables = '';
 
-		$this->_preparePhotoFetchOptionsCustomized($selectFields, $joinTables, $fetchOptions);
+        $this->_preparePhotoFetchOptionsCustomized($selectFields, $joinTables, $fetchOptions);
 
-		return array(
-			'selectFields' => $selectFields,
-			'joinTables' => $joinTables
-		);
-	}
+        return array(
+            'selectFields' => $selectFields,
+            'joinTables' => $joinTables
+        );
+    }
 
-	public function preparePhotoOrderOptions(array $fetchOptions = array(), $defaultOrderSql = '')
-	{
-		$choices = array();
+    public function preparePhotoOrderOptions(array $fetchOptions = array(), $defaultOrderSql = '')
+    {
+        $choices = array();
 
-		$this->_preparePhotoOrderOptionsCustomized($choices, $fetchOptions);
+        $this->_preparePhotoOrderOptionsCustomized($choices, $fetchOptions);
 
-		return $this->getOrderByClause($choices, $fetchOptions, $defaultOrderSql);
-	}
+        return $this->getOrderByClause($choices, $fetchOptions, $defaultOrderSql);
+    }
 
-	/* End auto-generated lines of code. Feel free to make changes below */
+    /* End auto-generated lines of code. Feel free to make changes below */
 
-	protected function _getPhotosCustomized(array &$data, array $fetchOptions)
-	{
-		foreach ($data as &$photo)
-		{
-			if (!empty($photo['metadata']))
-			{
-				$photo['metadataArray'] = unserialize($photo['metadata']);
-			}
+    protected function _getPhotosCustomized(array &$data, array $fetchOptions)
+    {
+        foreach ($data as &$photo) {
+            if (!empty($photo['metadata'])) {
+                $photo['metadataArray'] = unserialize($photo['metadata']);
+            }
 
-			if (!empty($photo['device_info']))
-			{
-				$photo['deviceInfo'] = unserialize($photo['device_info']);
-			}
+            if (!empty($photo['device_info'])) {
+                $photo['deviceInfo'] = unserialize($photo['device_info']);
+            }
 
-			if (!empty($photo['location_info']))
-			{
-				$photo['locationInfo'] = unserialize($photo['location_info']);
-			}
-		}
-	}
+            if (!empty($photo['location_info'])) {
+                $photo['locationInfo'] = unserialize($photo['location_info']);
+            }
+        }
+    }
 
-	protected function _preparePhotoConditionsCustomized(array &$sqlConditions, array $conditions, array $fetchOptions)
-	{
-		if (isset($conditions['photo_is_published']))
-		{
-			if (empty($conditions['photo_is_published']))
-			{
-				$sqlConditions[] = 'photo.publish_date = 0';
-			}
-			else
-			{
-				$sqlConditions[] = '(photo.publish_date > 0 AND photo.publish_date < ' . $this->_db->quote(XenForo_Application::$time) . ')';
-			}
-		}
-	}
+    protected function _preparePhotoConditionsCustomized(array &$sqlConditions, array $conditions, array $fetchOptions)
+    {
+        if (isset($conditions['photo_is_published'])) {
+            if (empty($conditions['photo_is_published'])) {
+                $sqlConditions[] = 'photo.publish_date = 0';
+            } else {
+                $sqlConditions[] = '(photo.publish_date > 0 AND photo.publish_date < ' . $this->_db->quote(XenForo_Application::$time) . ')';
+            }
+        }
+    }
 
-	protected function _preparePhotoFetchOptionsCustomized(&$selectFields, &$joinTables, array $fetchOptions)
-	{
-		if (!empty($fetchOptions['join']))
-		{
-			if ($fetchOptions['join'] & self::FETCH_ATTACHMENT)
-			{
-				$this->getModelFromCache('XenForo_Model_Attachment');
+    protected function _preparePhotoFetchOptionsCustomized(&$selectFields, &$joinTables, array $fetchOptions)
+    {
+        if (!empty($fetchOptions['join'])) {
+            if ($fetchOptions['join'] & self::FETCH_ATTACHMENT) {
+                $this->getModelFromCache('XenForo_Model_Attachment');
 
-				$selectFields .= '
+                $selectFields .= '
 					,attachment.*
 					,' . XenForo_Model_Attachment::$dataColumns . '
 				';
 
-				$joinTables .= '
+                $joinTables .= '
 					LEFT JOIN `xf_attachment` AS attachment
 						ON (attachment.attachment_id = photo.photo_id)
 					LEFT JOIN `xf_attachment_data` AS data
 						ON (data.data_id = attachment.data_id)
 				';
-			}
+            }
 
-			if ($fetchOptions['join'] & self::FETCH_ALBUM)
-			{
-				$selectFields .= '
+            if ($fetchOptions['join'] & self::FETCH_ALBUM) {
+                $selectFields .= '
 					,album.album_id, album.album_user_id,
 					album.album_name, album.album_description,
 					album.album_publish_date
 				';
-				$joinTables .= '
+                $joinTables .= '
 					LEFT JOIN `xf_bdphotos_album` AS album
 						ON (album.album_id = photo.album_id)
 				';
-			}
+            }
 
-			if ($fetchOptions['join'] & self::FETCH_DEVICE)
-			{
-				$selectFields .= '
+            if ($fetchOptions['join'] & self::FETCH_DEVICE) {
+                $selectFields .= '
 					,device.*
 				';
-				$joinTables .= '
+                $joinTables .= '
 					LEFT JOIN `xf_bdphotos_device` AS device
 						ON (device.device_id = photo.device_id)
 				';
-			}
+            }
 
-			if ($fetchOptions['join'] & self::FETCH_LOCATION)
-			{
-				$selectFields .= '
+            if ($fetchOptions['join'] & self::FETCH_LOCATION) {
+                $selectFields .= '
 					,location.*
 				';
-				$joinTables .= '
+                $joinTables .= '
 					LEFT JOIN `xf_bdphotos_location` AS location
 						ON (location.location_id = photo.location_id)
 				';
-			}
+            }
 
-			if ($fetchOptions['join'] & self::FETCH_UPLOADER)
-			{
-				$selectFields .= '
+            if ($fetchOptions['join'] & self::FETCH_UPLOADER) {
+                $selectFields .= '
 					,user.*
 				';
 
-				$joinTables .= '
+                $joinTables .= '
 					LEFT JOIN `xf_user` AS user
 						ON (user.user_id = photo.user_id)
 				';
-			}
-		}
+            }
+        }
 
-		if (isset($fetchOptions['likeUserId']))
-		{
-			if (empty($fetchOptions['likeUserId']))
-			{
-				$selectFields .= ',
+        if (isset($fetchOptions['likeUserId'])) {
+            if (empty($fetchOptions['likeUserId'])) {
+                $selectFields .= ',
 					0 AS photo_like_date';
-			}
-			else
-			{
-				$selectFields .= ',
+            } else {
+                $selectFields .= ',
 					liked_content.like_date AS photo_like_date';
-				$joinTables .= '
+                $joinTables .= '
 					LEFT JOIN xf_liked_content AS liked_content
 						ON (liked_content.content_type = \'bdphotos_photo\'
 							AND liked_content.content_id = photo.photo_id
 							AND liked_content.like_user_id = ' . $this->_getDb()->quote($fetchOptions['likeUserId']) . ')';
-			}
-		}
-	}
+            }
+        }
+    }
 
-	protected function _preparePhotoOrderOptionsCustomized(array &$choices, array &$fetchOptions)
-	{
-		$choices['position'] = 'photo.photo_position %s, photo.photo_id';
-		$choices['publish_date'] = 'photo.publish_date %s, photo.photo_id';
-	}
+    protected function _preparePhotoOrderOptionsCustomized(array &$choices, array &$fetchOptions)
+    {
+        $choices['position'] = 'photo.photo_position %s, photo.photo_id';
+        $choices['publish_date'] = 'photo.publish_date %s, photo.photo_id';
+    }
 
 }

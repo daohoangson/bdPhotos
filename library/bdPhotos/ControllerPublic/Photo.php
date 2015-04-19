@@ -2,222 +2,207 @@
 
 class bdPhotos_ControllerPublic_Photo extends bdPhotos_ControllerPublic_Abstract
 {
-	public function actionIndex()
-	{
-		$photoId = $this->_input->filterSingle('photo_id', XenForo_Input::UINT);
-		if (!empty($photoId))
-		{
-			return $this->responseReroute(__CLASS__, 'view');
-		}
+    public function actionIndex()
+    {
+        $photoId = $this->_input->filterSingle('photo_id', XenForo_Input::UINT);
+        if (!empty($photoId)) {
+            return $this->responseReroute(__CLASS__, 'view');
+        }
 
-		$page = $this->_input->filterSingle('page', XenForo_Input::UINT);
+        $page = $this->_input->filterSingle('page', XenForo_Input::UINT);
 
-		$this->canonicalizeRequestUrl(XenForo_Link::buildPublicLink('photos', '', array('page' => $page)));
+        $this->canonicalizeRequestUrl(XenForo_Link::buildPublicLink('photos', '', array('page' => $page)));
 
-		$conditions = array('photo_is_published' => 1);
-		$fetchOptions = array(
-			'join' => bdPhotos_Model_Photo::FETCH_UPLOADER + bdPhotos_Model_Photo::FETCH_ALBUM,
-			'order' => 'publish_date',
-			'direction' => 'desc',
+        $conditions = array('photo_is_published' => 1);
+        $fetchOptions = array(
+            'join' => bdPhotos_Model_Photo::FETCH_UPLOADER + bdPhotos_Model_Photo::FETCH_ALBUM,
+            'order' => 'publish_date',
+            'direction' => 'desc',
 
-			'likeUserId' => XenForo_Visitor::getUserId(),
+            'likeUserId' => XenForo_Visitor::getUserId(),
 
-			'page' => $page,
-			'perPage' => bdPhotos_Option::get('photosPerPage'),
-		);
+            'page' => $page,
+            'perPage' => bdPhotos_Option::get('photosPerPage'),
+        );
 
-		$totalPhotos = $this->_getPhotoModel()->countPhotos($conditions, $fetchOptions);
-		$this->canonicalizePageNumber($page, bdPhotos_Option::get('photosPerPage'), $totalPhotos, 'photos');
+        $totalPhotos = $this->_getPhotoModel()->countPhotos($conditions, $fetchOptions);
+        $this->canonicalizePageNumber($page, bdPhotos_Option::get('photosPerPage'), $totalPhotos, 'photos');
 
-		$photos = $this->_getPhotoModel()->getPhotos($conditions, $fetchOptions);
+        $photos = $this->_getPhotoModel()->getPhotos($conditions, $fetchOptions);
 
-		foreach ($photos as &$photo)
-		{
-			$photo = $this->_getPhotoModel()->preparePhoto($photo, $photo);
-		}
+        foreach ($photos as &$photo) {
+            $photo = $this->_getPhotoModel()->preparePhoto($photo, $photo);
+        }
 
-		$viewParams = array(
-			'photos' => $photos,
+        $viewParams = array(
+            'photos' => $photos,
 
-			'canUpload' => $this->_getUploaderModel()->canUpload(),
+            'canUpload' => $this->_getUploaderModel()->canUpload(),
 
-			'pageNavLink' => 'photos',
-			'page' => $page,
-			'totalPhotos' => $totalPhotos,
-		);
-		
-		$viewParams = array_merge($viewParams, $this->_getSetHelper()->getViewParamsForPhotoList($conditions, $fetchOptions));
+            'pageNavLink' => 'photos',
+            'page' => $page,
+            'totalPhotos' => $totalPhotos,
+        );
 
-		return $this->responseView('bdPhotos_ViewPublic_Photo_Index', 'bdphotos_photo_index', $viewParams);
-	}
+        $viewParams = array_merge($viewParams, $this->_getSetHelper()->getViewParamsForPhotoList($conditions, $fetchOptions));
 
-	public function actionView()
-	{
-		$photoId = $this->_input->filterSingle('photo_id', XenForo_Input::UINT);
-		$photo = $this->_getPhotoOrError($photoId, array(
-			'join' => bdPhotos_Model_Photo::FETCH_ATTACHMENT + bdPhotos_Model_Photo::FETCH_DEVICE + bdPhotos_Model_Photo::FETCH_LOCATION,
+        return $this->responseView('bdPhotos_ViewPublic_Photo_Index', 'bdphotos_photo_index', $viewParams);
+    }
 
-			'likeUserId' => XenForo_Visitor::getUserId(),
-		));
-		$album = $this->_getAlbumOrError($photo['album_id']);
-		$uploader = $this->_getUserModel()->getUserById($photo['user_id']);
+    public function actionView()
+    {
+        $photoId = $this->_input->filterSingle('photo_id', XenForo_Input::UINT);
+        $photo = $this->_getPhotoOrError($photoId, array(
+            'join' => bdPhotos_Model_Photo::FETCH_ATTACHMENT + bdPhotos_Model_Photo::FETCH_DEVICE + bdPhotos_Model_Photo::FETCH_LOCATION,
 
-		$this->_assertCanViewPhoto($album, $photo);
+            'likeUserId' => XenForo_Visitor::getUserId(),
+        ));
+        $album = $this->_getAlbumOrError($photo['album_id']);
+        $uploader = $this->_getUserModel()->getUserById($photo['user_id']);
 
-		$canonicalUrl = XenForo_Link::buildPublicLink('photos', $photo);
-		$this->canonicalizeRequestUrl($canonicalUrl);
+        $this->_assertCanViewPhoto($album, $photo);
 
-		$comments = $this->_getPhotoCommentModel()->getPhotoComments(array('photo_id' => $photo['photo_id']), array(
-			'join' => bdPhotos_Model_PhotoComment::FETCH_COMMENT_USER,
-			'order' => 'comment_date',
-			'direction' => 'desc',
-			'limit' => bdPhotos_Option::get('commentsPerPage'),
-		));
+        $canonicalUrl = XenForo_Link::buildPublicLink('photos', $photo);
+        $this->canonicalizeRequestUrl($canonicalUrl);
 
-		$photo = $this->_getPhotoModel()->preparePhoto($album, $photo);
-		$photo['preparedExif'] = $this->_getPhotoModel()->preparePhotoExif($photo);
+        $comments = $this->_getPhotoCommentModel()->getPhotoComments(array('photo_id' => $photo['photo_id']), array(
+            'join' => bdPhotos_Model_PhotoComment::FETCH_COMMENT_USER,
+            'order' => 'comment_date',
+            'direction' => 'desc',
+            'limit' => bdPhotos_Option::get('commentsPerPage'),
+        ));
 
-		$this->_getPhotoModel()->logPhotoView($photo['photo_id']);
+        $photo = $this->_getPhotoModel()->preparePhoto($album, $photo);
+        $photo['preparedExif'] = $this->_getPhotoModel()->preparePhotoExif($photo);
 
-		$viewParams = array(
-			'album' => $album,
-			'uploader' => $uploader,
-			'photo' => $photo,
-			'comments' => $comments,
+        $this->_getPhotoModel()->logPhotoView($photo['photo_id']);
 
-			'breadcrumbs' => $this->_getAlbumModel()->getBreadcrumbs($album, $uploader, true),
-			'canonicalUrl' => $canonicalUrl,
-			'_noRedirect' => $this->_noRedirect(),
-		);
+        $viewParams = array(
+            'album' => $album,
+            'uploader' => $uploader,
+            'photo' => $photo,
+            'comments' => $comments,
 
-		$viewParams = array_merge($viewParams, $this->_getSetHelper()->getViewParamsForPhotoView($album, $photo));
+            'breadcrumbs' => $this->_getAlbumModel()->getBreadcrumbs($album, $uploader, true),
+            'canonicalUrl' => $canonicalUrl,
+            '_noRedirect' => $this->_noRedirect(),
+        );
 
-		return $this->responseView('bdPhotos_ViewPublic_Photo_View', 'bdphotos_photo_view', $viewParams);
-	}
+        $viewParams = array_merge($viewParams, $this->_getSetHelper()->getViewParamsForPhotoView($album, $photo));
 
-	public function actionDownloadFull()
-	{
-		$photoId = $this->_input->filterSingle('photo_id', XenForo_Input::UINT);
-		$this->_request->setParam('attachment_id', $photoId);
+        return $this->responseView('bdPhotos_ViewPublic_Photo_View', 'bdphotos_photo_view', $viewParams);
+    }
 
-		return $this->responseReroute('XenForo_ControllerPublic_Attachment', 'index');
-	}
+    public function actionDownloadFull()
+    {
+        $photoId = $this->_input->filterSingle('photo_id', XenForo_Input::UINT);
+        $this->_request->setParam('attachment_id', $photoId);
 
-	public function actionLike()
-	{
-		$photoId = $this->_input->filterSingle('photo_id', XenForo_Input::UINT);
-		$photo = $this->_getPhotoOrError($photoId, array('join' => bdPhotos_Model_Photo::FETCH_ATTACHMENT));
-		$album = $this->_getAlbumOrError($photo['album_id']);
-		$uploader = $this->_getUserModel()->getUserById($photo['user_id']);
+        return $this->responseReroute('XenForo_ControllerPublic_Attachment', 'index');
+    }
 
-		$this->_assertCanLikePhoto($album, $photo);
+    public function actionLike()
+    {
+        $photoId = $this->_input->filterSingle('photo_id', XenForo_Input::UINT);
+        $photo = $this->_getPhotoOrError($photoId, array('join' => bdPhotos_Model_Photo::FETCH_ATTACHMENT));
+        $album = $this->_getAlbumOrError($photo['album_id']);
+        $uploader = $this->_getUserModel()->getUserById($photo['user_id']);
 
-		$likeModel = $this->_getLikeModel();
+        $this->_assertCanLikePhoto($album, $photo);
 
-		$existingLike = $likeModel->getContentLikeByLikeUser('bdphotos_photo', $photo['photo_id'], XenForo_Visitor::getUserId());
+        $likeModel = $this->_getLikeModel();
 
-		if ($this->_request->isPost())
-		{
-			if ($existingLike)
-			{
-				$latestUsers = $likeModel->unlikeContent($existingLike);
-			}
-			else
-			{
-				$latestUsers = $likeModel->likeContent('bdphotos_photo', $photo['photo_id'], $uploader['user_id']);
-			}
+        $existingLike = $likeModel->getContentLikeByLikeUser('bdphotos_photo', $photo['photo_id'], XenForo_Visitor::getUserId());
 
-			$liked = ($existingLike ? false : true);
+        if ($this->_request->isPost()) {
+            if ($existingLike) {
+                $latestUsers = $likeModel->unlikeContent($existingLike);
+            } else {
+                $latestUsers = $likeModel->likeContent('bdphotos_photo', $photo['photo_id'], $uploader['user_id']);
+            }
 
-			if ($this->_noRedirect() && $latestUsers !== false)
-			{
-				$photo['photoLikeUsers'] = $latestUsers;
-				$photo['photo_like_count'] += ($liked ? 1 : -1);
-				$photo['photo_like_date'] = ($liked ? XenForo_Application::$time : 0);
+            $liked = ($existingLike ? false : true);
 
-				$viewParams = array(
-					'album' => $album,
-					'photo' => $photo,
+            if ($this->_noRedirect() && $latestUsers !== false) {
+                $photo['photoLikeUsers'] = $latestUsers;
+                $photo['photo_like_count'] += ($liked ? 1 : -1);
+                $photo['photo_like_date'] = ($liked ? XenForo_Application::$time : 0);
 
-					'liked' => $liked,
-					'_list' => $this->_input->filterSingle('_list', XenForo_Input::UINT),
-				);
+                $viewParams = array(
+                    'album' => $album,
+                    'photo' => $photo,
 
-				return $this->responseView('bdPhotos_ViewPublic_Photo_LikeConfirmed', '', $viewParams);
-			}
-			else
-			{
-				return $this->responseRedirect(XenForo_ControllerResponse_Redirect::RESOURCE_UPDATED, XenForo_Link::buildPublicLink('photos', $photo));
-			}
-		}
-		else
-		{
-			$this->canonicalizeRequestUrl(XenForo_Link::buildPublicLink('photos/like', $photo));
+                    'liked' => $liked,
+                    '_list' => $this->_input->filterSingle('_list', XenForo_Input::UINT),
+                );
 
-			$viewParams = array(
-				'album' => $album,
-				'uploader' => $uploader,
-				'photo' => $photo,
+                return $this->responseView('bdPhotos_ViewPublic_Photo_LikeConfirmed', '', $viewParams);
+            } else {
+                return $this->responseRedirect(XenForo_ControllerResponse_Redirect::RESOURCE_UPDATED, XenForo_Link::buildPublicLink('photos', $photo));
+            }
+        } else {
+            $this->canonicalizeRequestUrl(XenForo_Link::buildPublicLink('photos/like', $photo));
 
-				'existingLike' => $existingLike,
-				'breadcrumbs' => $this->_getAlbumModel()->getBreadcrumbs($album, $uploader, true),
-			);
+            $viewParams = array(
+                'album' => $album,
+                'uploader' => $uploader,
+                'photo' => $photo,
 
-			return $this->responseView('bdPhotos_ViewPublic_Photo_Like', 'bdphotos_photo_like', $viewParams);
-		}
-	}
+                'existingLike' => $existingLike,
+                'breadcrumbs' => $this->_getAlbumModel()->getBreadcrumbs($album, $uploader, true),
+            );
 
-	public function actionComment()
-	{
-		$this->_assertPostOnly();
+            return $this->responseView('bdPhotos_ViewPublic_Photo_Like', 'bdphotos_photo_like', $viewParams);
+        }
+    }
 
-		$photoId = $this->_input->filterSingle('photo_id', XenForo_Input::UINT);
-		$photo = $this->_getPhotoOrError($photoId, array('join' => bdPhotos_Model_Photo::FETCH_ATTACHMENT));
-		$album = $this->_getAlbumOrError($photo['album_id']);
-		$uploader = $this->_getUserModel()->getUserById($photo['user_id']);
+    public function actionComment()
+    {
+        $this->_assertPostOnly();
 
-		$this->_assertCanCommentPhoto($album, $photo);
+        $photoId = $this->_input->filterSingle('photo_id', XenForo_Input::UINT);
+        $photo = $this->_getPhotoOrError($photoId, array('join' => bdPhotos_Model_Photo::FETCH_ATTACHMENT));
+        $album = $this->_getAlbumOrError($photo['album_id']);
+        $uploader = $this->_getUserModel()->getUserById($photo['user_id']);
 
-		$message = $this->_input->filterSingle('message', XenForo_Input::STRING);
-		$visitor = XenForo_Visitor::getInstance();
+        $this->_assertCanCommentPhoto($album, $photo);
 
-		$dw = XenForo_DataWriter::create('bdPhotos_DataWriter_PhotoComment');
-		$dw->bulkSet(array(
-			'photo_id' => $photo['photo_id'],
-			'user_id' => $visitor['user_id'],
-			'username' => $visitor['username'],
-			'message' => $message,
-			'comment_date' => XenForo_Application::$time,
-			'ip_id' => 0,
-		));
-		$dw->preSave();
+        $message = $this->_input->filterSingle('message', XenForo_Input::STRING);
+        $visitor = XenForo_Visitor::getInstance();
 
-		if (!$dw->hasErrors())
-		{
-			$this->assertNotFlooding('post');
-		}
+        $dw = XenForo_DataWriter::create('bdPhotos_DataWriter_PhotoComment');
+        $dw->bulkSet(array(
+            'photo_id' => $photo['photo_id'],
+            'user_id' => $visitor['user_id'],
+            'username' => $visitor['username'],
+            'message' => $message,
+            'comment_date' => XenForo_Application::$time,
+            'ip_id' => 0,
+        ));
+        $dw->preSave();
 
-		$dw->save();
+        if (!$dw->hasErrors()) {
+            $this->assertNotFlooding('post');
+        }
 
-		if ($this->_noRedirect())
-		{
-			$comment = $this->_getPhotoCommentModel()->getPhotoCommentById($dw->get('photo_comment_id'), array('join' => bdPhotos_Model_PhotoComment::FETCH_COMMENT_USER));
+        $dw->save();
 
-			$viewParams = array(
-				'album' => $album,
-				'uploader' => $uploader,
-				'photo' => $photo,
+        if ($this->_noRedirect()) {
+            $comment = $this->_getPhotoCommentModel()->getPhotoCommentById($dw->get('photo_comment_id'), array('join' => bdPhotos_Model_PhotoComment::FETCH_COMMENT_USER));
 
-				'comment' => $comment,
-			);
+            $viewParams = array(
+                'album' => $album,
+                'uploader' => $uploader,
+                'photo' => $photo,
 
-			return $this->responseView('bdPhotos_ViewPublic_Photo_Comment', '', $viewParams);
-		}
-		else
-		{
-			return $this->responseRedirect(XenForo_ControllerResponse_Redirect::RESOURCE_UPDATED, XenForo_Link::buildPublicLink('photos', $photo));
-		}
-	}
+                'comment' => $comment,
+            );
+
+            return $this->responseView('bdPhotos_ViewPublic_Photo_Comment', '', $viewParams);
+        } else {
+            return $this->responseRedirect(XenForo_ControllerResponse_Redirect::RESOURCE_UPDATED, XenForo_Link::buildPublicLink('photos', $photo));
+        }
+    }
 
     public function actionEdit()
     {

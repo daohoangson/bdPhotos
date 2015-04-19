@@ -307,6 +307,7 @@ class bdPhotos_ViewPublic_Helper_Photo
 
         if (!empty($photoId)) {
             $class = XenForo_Application::resolveDynamicClass(__CLASS__);
+            /** @var bdPhotos_ViewPublic_Helper_Photo $photoObj */
             $photoObj = new $class($view, $photoId, $options);
 
             if (!empty($photo['attachment_id']) AND !empty($photo['thumbnailUrl'])) {

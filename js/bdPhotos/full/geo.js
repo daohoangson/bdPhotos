@@ -1,56 +1,50 @@
-/** @param {jQuery} $ jQuery Object */
-!function($, window, document, _undefined)
-{
-	XenForo.bdPhotos_GeoDecoder = function($element) { this.__construct($element); };
-	XenForo.bdPhotos_GeoDecoder.prototype =
-	{
-		__construct: function($element)
-		{
-			var $input = $element.find('input[type=text]');
-			
-			if ($input.val().length == 0)
-			{
-				var lat = $element.data('lat'),
-					lng = $element.data('lng'),
-					_10e6 = Math.pow(10, 6),
-					fLat = lat/_10e6,
-					fLng = lng/_10e6,
-					latlng = new google.maps.LatLng(fLat, fLng),
-	    			geocoder = new google.maps.Geocoder();
+!function ($, window, document, _undefined) {
+    XenForo.bdPhotos_GeoDecoder = function ($element) {
+        this.__construct($element);
+    };
+    XenForo.bdPhotos_GeoDecoder.prototype =
+    {
+        __construct: function ($element) {
+            var $input = $element.find('input[type=text]');
 
-	    		geocoder.geocode({ 'latLng': latlng }, function (results, status)
-	    		{console.log(results);
-	    			for (var i in results)
-	    			{
-	    				var types = results[i]['types'];
-	    				var ignore = false;
+            if ($input.val().length == 0) {
+                var lat = $element.data('lat'),
+                    lng = $element.data('lng'),
+                    _10e6 = Math.pow(10, 6),
+                    fLat = lat / _10e6,
+                    fLng = lng / _10e6,
+                    latlng = new google.maps.LatLng(fLat, fLng),
+                    geocoder = new google.maps.Geocoder();
 
-	    				for (var j in types)
-	    				{
-	    					switch (types[j])
-	    					{
-	    						case 'street_address':
-	    						case 'neighborhood':
-	    						case 'sublocality':
-	    							ignore = true;
-	    							break;
-	    					}
-	    				}
-	    				
-	    				if (!ignore)
-	    				{
-	    					$input.val(results[i]['formatted_address']);
-	    					break;
-	    				}
-	    			}
-	    		});
-	    	}
-		}
-	};
+                geocoder.geocode({'latLng': latlng}, function (results, status) {
+                    console.log(results);
+                    for (var i in results) {
+                        var types = results[i]['types'];
+                        var ignore = false;
 
-	// *********************************************************************
+                        for (var j in types) {
+                            switch (types[j]) {
+                                case 'street_address':
+                                case 'neighborhood':
+                                case 'sublocality':
+                                    ignore = true;
+                                    break;
+                            }
+                        }
 
-	XenForo.register('.bdPhotos_GeoDecoder', 'XenForo.bdPhotos_GeoDecoder');
+                        if (!ignore) {
+                            $input.val(results[i]['formatted_address']);
+                            break;
+                        }
+                    }
+                });
+            }
+        }
+    };
+
+    // *********************************************************************
+
+    XenForo.register('.bdPhotos_GeoDecoder', 'XenForo.bdPhotos_GeoDecoder');
 
 }
 (jQuery, this, document);

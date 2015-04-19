@@ -2,56 +2,55 @@
 
 class bdPhotos_ControllerPublic_Device extends bdPhotos_ControllerPublic_Abstract
 {
-	public function actionIndex()
-	{
-		return $this->responseReroute(__CLASS__, 'photos');
-	}
+    public function actionIndex()
+    {
+        return $this->responseReroute(__CLASS__, 'photos');
+    }
 
-	public function actionPhotos()
-	{
-		$deviceId = $this->_input->filterSingle('device_id', XenForo_Input::UINT);
-		$device = $this->_getDeviceOrError($deviceId);
+    public function actionPhotos()
+    {
+        $deviceId = $this->_input->filterSingle('device_id', XenForo_Input::UINT);
+        $device = $this->_getDeviceOrError($deviceId);
 
-		$page = $this->_input->filterSingle('page', XenForo_Input::UINT);
+        $page = $this->_input->filterSingle('page', XenForo_Input::UINT);
 
-		$this->canonicalizeRequestUrl(XenForo_Link::buildPublicLink('photos/devices', $device, array('page' => $page)));
+        $this->canonicalizeRequestUrl(XenForo_Link::buildPublicLink('photos/devices', $device, array('page' => $page)));
 
-		$conditions = array(
-			'device_id' => $device['device_id'],
-			'is_published' => true,
-		);
-		$fetchOptions = array(
-			'join' => bdPhotos_Model_Photo::FETCH_UPLOADER + bdPhotos_Model_Photo::FETCH_ALBUM,
-			'order' => 'publish_date',
-			'direction' => 'desc',
+        $conditions = array(
+            'device_id' => $device['device_id'],
+            'is_published' => true,
+        );
+        $fetchOptions = array(
+            'join' => bdPhotos_Model_Photo::FETCH_UPLOADER + bdPhotos_Model_Photo::FETCH_ALBUM,
+            'order' => 'publish_date',
+            'direction' => 'desc',
 
-			'likeUserId' => XenForo_Visitor::getUserId(),
+            'likeUserId' => XenForo_Visitor::getUserId(),
 
-			'page' => $page,
-			'perPage' => bdPhotos_Option::get('photosPerPage'),
-		);
+            'page' => $page,
+            'perPage' => bdPhotos_Option::get('photosPerPage'),
+        );
 
-		$totalPhotos = $this->_getPhotoModel()->countPhotos($conditions, $fetchOptions);
-		$this->canonicalizePageNumber($page, bdPhotos_Option::get('photosPerPage'), $totalPhotos, 'photos/devices', $device);
+        $totalPhotos = $this->_getPhotoModel()->countPhotos($conditions, $fetchOptions);
+        $this->canonicalizePageNumber($page, bdPhotos_Option::get('photosPerPage'), $totalPhotos, 'photos/devices', $device);
 
-		$photos = $this->_getPhotoModel()->getPhotos($conditions, $fetchOptions);
+        $photos = $this->_getPhotoModel()->getPhotos($conditions, $fetchOptions);
 
-		foreach ($photos as &$photo)
-		{
-			$photo = $this->_getPhotoModel()->preparePhoto($photo, $photo);
-		}
+        foreach ($photos as &$photo) {
+            $photo = $this->_getPhotoModel()->preparePhoto($photo, $photo);
+        }
 
-		$viewParams = array(
-			'device' => $device,
-			'photos' => $photos,
+        $viewParams = array(
+            'device' => $device,
+            'photos' => $photos,
 
-			'pageNavLink' => 'photos/devices',
-			'pageNavData' => $device,
-			'page' => $page,
-			'totalPhotos' => $totalPhotos,
-		);
+            'pageNavLink' => 'photos/devices',
+            'pageNavData' => $device,
+            'page' => $page,
+            'totalPhotos' => $totalPhotos,
+        );
 
-		return $this->responseView('bdPhotos_ViewPublic_Device_Photos', 'bdphotos_device_photos', $viewParams);
-	}
+        return $this->responseView('bdPhotos_ViewPublic_Device_Photos', 'bdphotos_device_photos', $viewParams);
+    }
 
 }
