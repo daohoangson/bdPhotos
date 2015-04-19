@@ -1395,7 +1395,9 @@ step=1024</edit_format_params>
 	<dl class="ctrlUnit">
 		<dt><label for="device_ctrl">{xen:phrase bdphotos_device}:</label></dt>
 		<dd>
-			<input id="device_ctrl" name="device" class="textCtrl" value="{xen:if $photo.device_id, $photo.device_name}" />
+			<input id="device_ctrl" name="device" class="textCtrl AutoComplete AcSingle"
+				   data-acurl="{xen:link photos/devices/find}"
+				   value="{xen:if $photo.device_id, $photo.device_name}" />
 		</dd>
 	</dl>
 

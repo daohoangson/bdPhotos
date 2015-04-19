@@ -39,7 +39,7 @@ class bdPhotos_XenForo_ViewPublic_Attachment_DoUpload extends XFCP_bdPhotos_XenF
                 if (!empty($attachment['metadataArray']['manufacture']) AND !empty($attachment['metadataArray']['code'])) {
                     /** @var bdPhotos_Model_Device $deviceModel */
                     $deviceModel = $attachmentModel->getModelFromCache('bdPhotos_Model_Device');
-                    $device = $deviceModel->getDeviceByCode($attachment['metadataArray']['manufacture'], $attachment['metadataArray']['code']);
+                    $device = $deviceModel->getDeviceByCodeOrCreate($attachment['metadataArray']['manufacture'], $attachment['metadataArray']['code']);
                     if (!empty($device)) {
                         $attachment = array_merge($attachment, $device);
                     }

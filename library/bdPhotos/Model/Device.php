@@ -4,7 +4,7 @@ class bdPhotos_Model_Device extends XenForo_Model
 {
     const FETCH_CODE = 0x01;
 
-    public function getDeviceByCode($manufacture, $code, array $fetchOptions = array())
+    public function getDeviceByCodeOrCreate($manufacture, $code)
     {
         /** @var bdPhotos_Model_DeviceCode $deviceCodeModel */
         $deviceCodeModel = $this->getModelFromCache('bdPhotos_Model_DeviceCode');
@@ -17,7 +17,7 @@ class bdPhotos_Model_Device extends XenForo_Model
 
         if (!empty($deviceCodes)) {
             $deviceCode = reset($deviceCodes);
-            $device = $this->getDeviceById($deviceCode['device_id'], $fetchOptions);
+            $device = $this->getDeviceById($deviceCode['device_id']);
         }
 
         if (empty($device)) {
@@ -46,6 +46,27 @@ class bdPhotos_Model_Device extends XenForo_Model
         }
 
         return array_merge($device, $deviceCode);
+    }
+
+    public function getDeviceByNameOrCreate($name)
+    {
+        $devices = $this->getDevices(array('device_name' => $name));
+        if (!empty($devices)) {
+            return reset($devices);
+        }
+
+        $deviceDw = XenForo_DataWriter::create('bdPhotos_DataWriter_Device');
+        $deviceDw->set('device_name', $name);
+        $deviceDw->save();
+        $device = $deviceDw->getMergedData();
+
+        XenForo_Helper_File::log('bdPhotos_device', call_user_func_array('sprintf', array(
+            'created fake device #%d (%s)',
+            $device['device_id'],
+            $name,
+        )));
+
+        return $device;
     }
 
     public function getDeviceIdsInRange($start, $limit)

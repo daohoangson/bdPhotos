@@ -53,4 +53,32 @@ class bdPhotos_ControllerPublic_Device extends bdPhotos_ControllerPublic_Abstrac
         return $this->responseView('bdPhotos_ViewPublic_Device_Photos', 'bdphotos_device_photos', $viewParams);
     }
 
+    public function actionFind()
+    {
+        $q = ltrim($this->_input->filterSingle('q', XenForo_Input::STRING, array('noTrim' => true)));
+
+        if ($q !== '' && utf8_strlen($q) >= 2)
+        {
+            $devices = $this->_getDeviceModel()->getDevices(
+                array(
+                    'device_name_like' => array($q , 'r'),
+                ),
+                array('limit' => 10)
+            );
+        }
+        else
+        {
+            $devices = array();
+        }
+
+        $viewParams = array(
+            'devices' => $devices
+        );
+
+        return $this->responseView(
+            'bdPhotos_ViewPublic_Device_Find',
+            '',
+            $viewParams
+        );
+    }
 }
