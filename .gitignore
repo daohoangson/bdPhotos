@@ -8,3 +8,4 @@ library/bdPhotos/FileSums.php
 js/bdPhotos/device_edit.js
 js/bdPhotos/viewer.js
 library/bdPhotos/DevHelper/XFCP
+js/bdPhotos/*.js

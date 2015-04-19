@@ -1048,7 +1048,7 @@ step=1024</edit_format_params>
 		</div>
 	</div>
 </li>]]></template>
-    <template title="bdphotos_album_view" version_id="4" version_string="0.9.1b"><![CDATA[<xen:set var="$title">{$album.album_name} {xen:phrase by_x, 'name={$uploader.username}'}</xen:set>
+    <template title="bdphotos_album_view" version_id="5" version_string="0.9.2"><![CDATA[<xen:set var="$title">{$album.album_name} {xen:phrase by_x, 'name={$uploader.username}'}</xen:set>
 
 <xen:title>{xen:raw $title}{xen:helper pagenumber, $page}</xen:title>
 <xen:h1></xen:h1>
@@ -1093,8 +1093,7 @@ step=1024</edit_format_params>
 <xen:require css="message.css" />
 <xen:require css="message_simple.css" />
 
-<xen:require js="js/xenforo/comments_simple.js" />
-<xen:require js="js/bdPhotos/comments_simple.js" />
+<xen:require js="js/bdPhotos/comments.js" />
 
 <div class="bdPhotos_Album" id="album-view-{$album.album_id}" itemscope="itemscope" itemtype="http://schema.org/ImageGallery">
 	<div class="bdPhotos_AlbumHead">
@@ -1145,7 +1144,7 @@ step=1024</edit_format_params>
 								<a href="{xen:link photos/albums/like, $album}" class="LikeLink item control {xen:if $album.album_like_date, unlike, like}" data-container="#likes-album-{$album.album_id}"><span></span><span class="LikeLabel">{xen:if $album.album_like_date, {xen:phrase unlike}, {xen:phrase like}}</span></a>
 							</xen:if>
 							<xen:if is="{$album.canComment}">
-								<a href="{xen:link photos/albums/comment, $album}" class="CommentPoster item control postComment" data-commentArea="#commentSubmit-album-{$album.album_id}" style="display: none"><span></span>{xen:phrase comment_verb}</a>
+								<a href="{xen:link photos/albums/comment, $album}" class="bdPhotos_CommentPoster item control postComment" data-commentArea="#commentSubmit-album-{$album.album_id}" style="display: none"><span></span>{xen:phrase comment_verb}</a>
 							</xen:if>
 						</div>
 				</div>
@@ -1320,7 +1319,6 @@ step=1024</edit_format_params>
 <xen:if is="{$url2x}">
 	<xen:require css="bdphotos.css" />
 	<xen:require js="js/bdPhotos/main.js" />
-	<xen:require js="js/bdPhotos/jquery.unveil.min.js" />
 	<img data-src="{$url}" data-src-retina="{$url2x}" width="{$width}" height="{$height}" class="bdPhotos_ViewPublic_Helper_Photo js-unveil" {xen:raw $attributes} />
 
 	<noscript>
@@ -1554,9 +1552,7 @@ step=1024</edit_format_params>
 <xen:require css="message.css" />
 <xen:require css="message_simple.css" />
 
-<xen:require js="js/xenforo/comments_simple.js" />
-<xen:require js="js/bdPhotos/comments_simple.js" />
-
+<xen:require js="js/bdPhotos/comments.js" />
 <xen:require js="js/bdPhotos/viewer.js" />
 
 <xen:set var="$sidebarContents"><xen:include template="bdphotos_sidebar_photo_info" /></xen:set>
@@ -1613,7 +1609,7 @@ step=1024</edit_format_params>
 								<a href="{xen:link 'photos/like', $photo}" class="LikeLink item control {xen:if $photo.photo_like_date, unlike, like}" data-container="#likes-photo-{$photo.photo_id}"><span></span><span class="LikeLabel">{xen:if $photo.photo_like_date, {xen:phrase unlike}, {xen:phrase like}}</span></a>
 							</xen:if>
 							<xen:if is="{$photo.canComment}">
-								<a href="{xen:link 'photos/comment', $photo}" class="CommentPoster item control postComment" data-commentArea="#commentSubmit-photo-{$photo.photo_id}" style="display: none"><span></span>{xen:phrase comment_verb}</a>
+								<a href="{xen:link 'photos/comment', $photo}" class="bdPhotos_CommentPoster item control postComment" data-commentArea="#commentSubmit-photo-{$photo.photo_id}" style="display: none"><span></span>{xen:phrase comment_verb}</a>
 							</xen:if>
 						</div>
 				</div>
