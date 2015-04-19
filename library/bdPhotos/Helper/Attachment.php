@@ -21,7 +21,7 @@ class bdPhotos_Helper_Attachment
 		)))
 		{
 			// supports [bd] Attachment Store
-			$attachmentModel->bdAttachmentStore_useTempFile(false);
+			call_user_func(array($attachmentModel, 'bdAttachmentStore_useTempFile'), false);
 		}
 
 		return $filePath;

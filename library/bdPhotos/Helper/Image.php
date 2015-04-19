@@ -146,6 +146,13 @@ class bdPhotos_Helper_Image
             if (file_exists($outPath2x)) {
                 $_generateThumbnail2x = false;
             }
+        } else {
+            $_generateThumbnail2x = false;
+        }
+
+        if (!$_generateThumbnail && !$_generateThumbnail2x) {
+            // nothing to do
+            return true;
         }
 
         $image = XenForo_Image_Abstract::createFromFile($inPath, $inputType);
