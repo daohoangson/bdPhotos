@@ -360,6 +360,8 @@ step=1024</edit_format_params>
     <phrase title="bdphotos_previous" version_id="1" version_string="0.9-dev"><![CDATA[Previous]]></phrase>
     <phrase title="bdphotos_publish_album" version_id="1" version_string="0.9-dev"><![CDATA[Publish Album]]></phrase>
     <phrase title="bdphotos_rebuild_photo_counters" version_id="1" version_string="0.9-dev"><![CDATA[[bd] Photos: Rebuild Photo Counters]]></phrase>
+    <phrase title="bdphotos_reset_exif_data" version_id="5" version_string="0.9.2"><![CDATA[Reset EXIF data]]></phrase>
+    <phrase title="bdphotos_reset_exif_data_explain" version_id="5" version_string="0.9.2"><![CDATA[Check this box to reset EXIF data to values from the photo itself. All manual edits will be discarded and cannot be restored.]]></phrase>
     <phrase title="bdphotos_software" version_id="4" version_string="0.9.1b"><![CDATA[Software]]></phrase>
     <phrase title="bdphotos_sw_lat" version_id="1" version_string="0.9-dev"><![CDATA[South West Latitude]]></phrase>
     <phrase title="bdphotos_sw_lng" version_id="1" version_string="0.9-dev"><![CDATA[South West Longitude]]></phrase>
@@ -1366,6 +1368,146 @@ step=1024</edit_format_params>
 		<xen:if is="{$visitor.user_id}"><li><a href="{xen:link 'members/photos', $visitor}">{xen:phrase bdphotos_your_photos}</a></li></xen:if>
 	</xen:hook>
 </ul>]]></template>
+    <template title="bdphotos_photo_edit" version_id="5" version_string="0.9.2"><![CDATA[<xen:title>{xen:helper bdPhotos_snippetOrDefault, $photo.photo_caption, {xen:phrase bdphotos_photo}, 50} {xen:phrase by_x, 'name={$uploader.username}'} - {xen:phrase edit}</xen:title>
+<xen:h1>{xen:phrase edit}</xen:h1>
+
+<xen:navigation>
+	<xen:breadcrumb source="$breadcrumbs" />
+	<xen:breadcrumb href="{xen:link full:photos, $photo}">{xen:helper bdPhotos_snippetOrDefault, $photo.photo_caption, {xen:phrase bdphotos_photo}, 50}</xen:breadcrumb>
+</xen:navigation>
+
+<form action="{xen:link 'photos/edit', $photo}" method="post" class="xenForm AutoValidator" data-redirect="yes">
+
+	<dl class="ctrlUnit">
+		<dt><label for="photo_caption_ctrl">{xen:phrase bdphotos_photo_caption}:</label></dt>
+		<dd>
+			<textarea id="photo_caption_ctrl" name="photo_caption" class="textCtrl Elastic" rows="3">{$photo.photo_caption}</textarea>
+		</dd>
+	</dl>
+
+	<dl class="ctrlUnit">
+		<dt><label for="location_ctrl">{xen:phrase bdphotos_location}:</label></dt>
+		<dd>
+			<input id="location_ctrl" name="location" class="textCtrl" value="{xen:if $photo.location_id, {xen:helper bdPhotos_formatLocationName, $photo}}" />
+		</dd>
+	</dl>
+
+	<dl class="ctrlUnit">
+		<dt><label for="device_ctrl">{xen:phrase bdphotos_device}:</label></dt>
+		<dd>
+			<input id="device_ctrl" name="device" class="textCtrl" value="{xen:if $photo.device_id, $photo.device_name}" />
+		</dd>
+	</dl>
+
+	<fieldset>
+		<dl class="ctrlUnit">
+			<dt><label for="exif_exposure_time_ctrl">{xen:phrase bdphotos_exposure_time} (s):</label></dt>
+			<dd>
+				<input id="exif_exposure_time_ctrl" name="exif[ExposureTime]" class="textCtrl" value="{$photo.preparedExif.ExposureTime}" />
+			</dd>
+		</dl>
+
+		<dl class="ctrlUnit">
+			<dt><label for="exif_f_stop_ctrl">{xen:phrase bdphotos_f_stop}:</label></dt>
+			<dd>
+				<input id="exif_f_stop_ctrl" name="exif[FNumber]" class="textCtrl" value="{$photo.preparedExif.FNumber}" />
+			</dd>
+		</dl>
+
+		<dl class="ctrlUnit">
+			<dt>{xen:phrase bdphotos_flash}:</dt>
+			<dd>
+				<ul>
+					<li>
+						<label>
+							<input type="radio" name="exif[Flash]" value="1" {xen:checked 'isset({$photo.preparedExif.Flash}) && {$photo.preparedExif.Flash}'} />
+							{xen:phrase yes}
+						</label>
+					</li>
+					<li>
+						<label>
+							<input type="radio" name="exif[Flash]" value="0" {xen:checked 'isset({$photo.preparedExif.Flash}) && !{$photo.preparedExif.Flash}'} />
+							{xen:phrase no}
+						</label>
+					</li>
+					<li>
+						<label>
+							<input type="radio" name="exif[Flash]" value="" {xen:checked '!isset({$photo.preparedExif.Flash})'} />
+							N/A
+						</label>
+					</li>
+				</ul>
+			</dd>
+		</dl>
+
+		<dl class="ctrlUnit">
+			<dt><label for="exif_iso_ctrl">{xen:phrase bdphotos_iso}:</label></dt>
+			<dd>
+				<input id="exif_iso_ctrl" name="exif[ISOSpeedRatings]" class="textCtrl" value="{$photo.preparedExif.ISOSpeedRatings}" />
+			</dd>
+		</dl>
+
+		<dl class="ctrlUnit">
+			<dt><label for="exif_focal_length_ctrl">{xen:phrase bdphotos_focal_length} (mm):</label></dt>
+			<dd>
+				<input id="exif_focal_length_ctrl" name="exif[FocalLength]" class="textCtrl" value="{$photo.preparedExif.FocalLength}" />
+			</dd>
+		</dl>
+
+		<dl class="ctrlUnit">
+			<dt><label for="exif_software_ctrl">{xen:phrase bdphotos_software}:</label></dt>
+			<dd>
+				<input id="exif_software_ctrl" name="exif[Software]" class="textCtrl" value="{$photo.preparedExif.Software}" />
+			</dd>
+		</dl>
+
+		<dl class="ctrlUnit">
+			<dt>{xen:phrase bdphotos_white_balance}:</dt>
+			<dd>
+				<ul>
+					<li>
+						<label>
+							<input type="radio" name="exif[WhiteBalance]" value="1" {xen:checked 'isset({$photo.preparedExif.WhiteBalance}) && {$photo.preparedExif.WhiteBalance}'} />
+							{xen:phrase bdphotos_white_balance_manual}
+						</label>
+					</li>
+					<li>
+						<label>
+							<input type="radio" name="exif[WhiteBalance]" value="0" {xen:checked 'isset({$photo.preparedExif.WhiteBalance}) && !{$photo.preparedExif.WhiteBalance}'} />
+							{xen:phrase bdphotos_white_balance_auto}
+						</label>
+					</li>
+					<li>
+						<label>
+							<input type="radio" name="exif[WhiteBalance]" value="" {xen:checked '!isset({$photo.preparedExif.WhiteBalance})'} />
+							N/A
+						</label>
+					</li>
+				</ul>
+			</dd>
+		</dl>
+
+		<xen:if is="{$photo.preparedExif._ManualEdit}">
+		<dl class="ctrlUnit">
+			<dt></dt>
+			<dd>
+				<label>
+					<input type="checkbox" name="exifReset" value="1" />
+					{xen:phrase bdphotos_reset_exif_data}
+				</label>
+				<p class="explain">{xen:phrase bdphotos_reset_exif_data_explain}</p>
+			</dd>
+		</dl>
+		</xen:if>
+	</fieldset>
+
+	<dl class="ctrlUnit submitUnit">
+		<dt></dt>
+		<dd><input type="submit" value="{xen:phrase save}" accesskey="s" class="button primary" autofocus="true" /></dd>
+	</dl>
+
+	<input type="hidden" name="_xfToken" value="{$visitor.csrf_token_page}" />
+</form>]]></template>
     <template title="bdphotos_photo_index" version_id="4" version_string="0.9.1b"><![CDATA[<xen:title>{xen:phrase bdphotos_photos}{xen:helper pagenumber, $page}</xen:title>
 <xen:h1>{xen:phrase bdphotos_photos}</xen:h1>
 <xen:set var="$setTitle">{xen:phrase bdphotos_photos}</xen:set>
@@ -1447,7 +1589,7 @@ step=1024</edit_format_params>
 		</div>
 	</xen:if>
 </xen:if>]]></template>
-    <template title="bdphotos_photo_list_photo" version_id="4" version_string="0.9.1b"><![CDATA[<xen:require css="bdphotos.css" />
+    <template title="bdphotos_photo_list_photo" version_id="5" version_string="0.9.2"><![CDATA[<xen:require css="bdphotos.css" />
 <xen:require js="js/bdPhotos/viewer.js" />
 
 <li class="bdPhotos_PhotoList_Photo {xen:if '!{$photo.publish_date}', 'not-published'}" id="photo-{$photo.photo_id}" {xen:if '{$parentItemType} == "ImageGallery" AND {$coverPhotoId} == {$photo.photo_id}', 'itemprop="primaryImageOfPage"'} itemscope="itemscope" itemtype="http://schema.org/ImageObject">
@@ -1505,7 +1647,7 @@ step=1024</edit_format_params>
 				</xen:if>
 
 				<xen:if is="{$photo.canComment}">
-					<a href="{xen:link photos/comments, $photo}" class="CommentLink comments">
+					<a href="{xen:link photos, $photo}" class="bdPhotos_OverlayTrigger comments">
 						<span class="icon">{xen:number $photo.photo_comment_count, 0}</span>
 					</a>
 				<xen:else />
@@ -1605,6 +1747,9 @@ step=1024</edit_format_params>
 								</xen:if>
 							</a>
 
+							<xen:if is="{$photo.canEdit}">
+								<a href="{xen:link 'photos/edit', $photo}" class="item control edit"><span></span>{xen:phrase edit}</a>
+							</xen:if>
 							<xen:if is="{$photo.canLike}">
 								<a href="{xen:link 'photos/like', $photo}" class="LikeLink item control {xen:if $photo.photo_like_date, unlike, like}" data-container="#likes-photo-{$photo.photo_id}"><span></span><span class="LikeLabel">{xen:if $photo.photo_like_date, {xen:phrase unlike}, {xen:phrase like}}</span></a>
 							</xen:if>

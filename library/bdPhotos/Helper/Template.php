@@ -21,7 +21,11 @@ class bdPhotos_Helper_Template
 	{
 		if (empty($location['location_info']))
 		{
-			return $location['location_name'];
+            if (!empty($location['location_name'])) {
+                return $location['location_name'];
+            } else {
+                return '';
+            }
 		}
 
 		$info = @unserialize($location['location_info']);

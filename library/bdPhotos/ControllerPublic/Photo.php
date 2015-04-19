@@ -219,4 +219,65 @@ class bdPhotos_ControllerPublic_Photo extends bdPhotos_ControllerPublic_Abstract
 		}
 	}
 
+    public function actionEdit()
+    {
+        $photoId = $this->_input->filterSingle('photo_id', XenForo_Input::UINT);
+        $photo = $this->_getPhotoOrError($photoId, array(
+            'join' => bdPhotos_Model_Photo::FETCH_ATTACHMENT
+                | bdPhotos_Model_Photo::FETCH_DEVICE
+                | bdPhotos_Model_Photo::FETCH_LOCATION,
+        ));
+        $album = $this->_getAlbumOrError($photo['album_id']);
+        $uploader = $this->_getUserModel()->getUserById($photo['user_id']);
+
+        $this->_assertCanEditPhoto($album, $photo);
+
+        $photo = $this->_getPhotoModel()->preparePhoto($album, $photo);
+        $photo['preparedExif'] = $this->_getPhotoModel()->preparePhotoExif($photo);
+
+        if ($this->_request->isPost()) {
+            $newMetadata = $photo['metadataArray'];
+
+            if ($this->_input->filterSingle('exifReset', XenForo_Input::BOOLEAN)) {
+                if (isset($newMetadata['manualExif'])) {
+                    unset($newMetadata['manualExif']);
+                }
+            } else {
+                $manualExifInput = new XenForo_Input($this->_input->filterSingle('exif', XenForo_Input::ARRAY_SIMPLE));
+                $newMetadata['manualExif'] = $manualExifInput->filter(array(
+                    'ExposureTime' => XenForo_Input::STRING,
+                    'FNumber' => XenForo_Input::STRING,
+                    'Flash' => XenForo_Input::STRING,
+                    'ISOSpeedRatings' => XenForo_Input::STRING,
+                    'FocalLength' => XenForo_Input::STRING,
+                    'Software' => XenForo_Input::STRING,
+                    'WhiteBalance' => XenForo_Input::STRING,
+                ));
+            }
+
+            /** @var bdPhotos_DataWriter_Photo $dw */
+            $dw = XenForo_DataWriter::create('bdPhotos_DataWriter_Photo');
+            $dw->setExistingData($photo);
+            $dw->set('photo_caption', $this->_input->filterSingle('photo_caption', XenForo_Input::STRING));
+            $dw->set('metadata', $newMetadata);
+            $dw->save();
+
+            return $this->responseRedirect(
+                XenForo_ControllerResponse_Redirect::RESOURCE_UPDATED,
+                XenForo_Link::buildPublicLink('photos', $photo)
+            );
+        } else {
+            $this->canonicalizeRequestUrl(XenForo_Link::buildPublicLink('photos/edit', $photo));
+
+            $viewParams = array(
+                'album' => $album,
+                'uploader' => $uploader,
+                'photo' => $photo,
+
+                'breadcrumbs' => $this->_getAlbumModel()->getBreadcrumbs($album, $uploader, true),
+            );
+
+            return $this->responseView('bdPhotos_ViewPublic_Photo_Edit', 'bdphotos_photo_edit', $viewParams);
+        }
+    }
 }

@@ -154,12 +154,25 @@ class bdPhotos_Model_Photo extends XenForo_Model
 
 	public function preparePhotoExif(array $photo)
 	{
+        $raw = array();
 		$exif = array();
 
-		if (!empty($photo['metadataArray']['exif']))
-		{
-			$raw = &$photo['metadataArray']['exif'];
+        if (!empty($photo['metadataArray']['manualExif'])) {
+            foreach ($photo['metadataArray']['manualExif'] as $key => $value) {
+                if ($value === '') {
+                    continue;
+                }
 
+                $raw[$key] = $value;
+            }
+
+            $exif[bdPhotos_Helper_Metadata::EXIF_MANUAL_EDIT] = true;
+        }
+		elseif (!empty($photo['metadataArray']['exif'])) {
+            $raw = $photo['metadataArray']['exif'];
+        }
+
+        if (!empty($raw)) {
 			foreach (array(
 			bdPhotos_Helper_Metadata::EXIF_EXPOSURE_TIME,
 			bdPhotos_Helper_Metadata::EXIF_DATETIME,
@@ -168,10 +181,10 @@ class bdPhotos_Model_Photo extends XenForo_Model
 			bdPhotos_Helper_Metadata::EXIF_ISO,
 			bdPhotos_Helper_Metadata::EXIF_FOCAL_LENGTH,
 			bdPhotos_Helper_Metadata::EXIF_SOFTWARE,
-			//bdPhotos_Helper_Metadata::EXIF_WHITE_BALANCE,
+			bdPhotos_Helper_Metadata::EXIF_WHITE_BALANCE,
 			) as $key)
 			{
-				if (empty($raw[$key]))
+				if (!isset($raw[$key]))
 				{
 					continue;
 				}
@@ -187,6 +200,10 @@ class bdPhotos_Model_Photo extends XenForo_Model
 						{
 							$value = bdPhotos_Helper_String::formatFloat($parts[0] / $parts[1]);
 						}
+                        elseif (is_numeric($value))
+                        {
+                            $value = bdPhotos_Helper_String::formatFloat(floatval($value));
+                        }
 						else
 						{
 							$value = false;

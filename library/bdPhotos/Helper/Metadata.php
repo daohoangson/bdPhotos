@@ -5,6 +5,7 @@ class bdPhotos_Helper_Metadata
 	// references:
 	// http://electronics.howstuffworks.com/cameras-photography/tips/10-important-photography-terms.htm
 	// http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/EXIF.html
+    const EXIF_MANUAL_EDIT = '_ManualEdit';
 	const EXIF_EXPOSURE_TIME = 'ExposureTime';
 	const EXIF_DATETIME = 'DateTime';
 	const EXIF_F_STOP = 'FNumber';
