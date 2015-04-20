@@ -300,6 +300,7 @@ step=1024</edit_format_params>
     <phrase title="bdphotos_album_description" version_id="1" version_string="0.9-dev"><![CDATA[Description]]></phrase>
     <phrase title="bdphotos_album_name" version_id="1" version_string="0.9-dev"><![CDATA[Album Name]]></phrase>
     <phrase title="bdphotos_album_not_found" version_id="1" version_string="0.9-dev"><![CDATA[The requested album could not be found]]></phrase>
+    <phrase title="bdphotos_all_albums" version_id="5" version_string="0.9.2"><![CDATA[All Albums]]></phrase>
     <phrase title="bdphotos_are_you_sure_delete_album_x" version_id="1" version_string="0.9-dev"><![CDATA[Are you sure that you want to delete the album {album}?]]></phrase>
     <phrase title="bdphotos_care_to_add_some_photo_question" version_id="1" version_string="0.9-dev"><![CDATA[Care to <a href="{link}">add some photos</a>?]]></phrase>
     <phrase title="bdphotos_code" version_id="1" version_string="0.9-dev"><![CDATA[Code]]></phrase>
@@ -1379,10 +1380,13 @@ step=1024</edit_format_params>
 		<p>{xen:phrase bdphotos_there_is_no_photos_here}</p>
 	</div>
 </xen:if>]]></template>
-    <template title="bdphotos_navigation_tab_links" version_id="1" version_string="0.9-dev"><![CDATA[<ul class="secondaryContent blockLinksList">
+    <template title="bdphotos_navigation_tab_links" version_id="5" version_string="0.9.2"><![CDATA[<ul class="secondaryContent blockLinksList">
 	<xen:hook name="bdphotos_navigation_tab_links">
-		<li><a href="{xen:link 'photos/albums'}">{xen:phrase bdphotos_albums}</a></li>
-		<xen:if is="{$visitor.user_id}"><li><a href="{xen:link 'members/photos', $visitor}">{xen:phrase bdphotos_your_photos}</a></li></xen:if>
+		<li><a href="{xen:link 'photos/albums'}">{xen:phrase bdphotos_all_albums}</a></li>
+		<xen:if is="{$visitor.user_id}">
+		<li><a href="{xen:link 'members/albums', $visitor}">{xen:phrase bdphotos_your_albums}</a></li>
+		<li><a href="{xen:link 'members/photos', $visitor}">{xen:phrase bdphotos_your_photos}</a></li>
+		</xen:if>
 	</xen:hook>
 </ul>]]></template>
     <template title="bdphotos_photo_delete" version_id="5" version_string="0.9.2"><![CDATA[<xen:title>{xen:helper bdPhotos_snippetOrDefault, $photo.photo_caption, {xen:phrase bdphotos_photo}, 50} {xen:phrase by_x, 'name={$uploader.username}'} - {xen:phrase delete}</xen:title>
