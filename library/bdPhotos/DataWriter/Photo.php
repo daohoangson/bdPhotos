@@ -167,6 +167,7 @@ class bdPhotos_DataWriter_Photo extends XenForo_DataWriter
         if ($this->getOption(self::OPTION_DELETE_ATTACHMENT)) {
             $attachmentDw = XenForo_DataWriter::create('XenForo_DataWriter_Attachment');
             $attachmentDw->setExistingData($this->get('photo_id'));
+            $attachmentDw->set('content_id', 0);
             $attachmentDw->delete();
         }
     }

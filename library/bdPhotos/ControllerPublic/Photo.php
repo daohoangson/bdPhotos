@@ -280,4 +280,38 @@ class bdPhotos_ControllerPublic_Photo extends bdPhotos_ControllerPublic_Abstract
             return $this->responseView('bdPhotos_ViewPublic_Photo_Edit', 'bdphotos_photo_edit', $viewParams);
         }
     }
+
+    public function actionDelete()
+    {
+        $photoId = $this->_input->filterSingle('photo_id', XenForo_Input::UINT);
+        $photo = $this->_getPhotoOrError($photoId);
+        $album = $this->_getAlbumOrError($photo['album_id']);
+        $uploader = $this->_getUserModel()->getUserById($photo['user_id']);
+
+        $this->_assertCanDeletePhoto($album, $photo);
+
+        if ($this->_request->isPost()) {
+            /** @var bdPhotos_DataWriter_Photo $dw */
+            $dw = XenForo_DataWriter::create('bdPhotos_DataWriter_Photo');
+            $dw->setExistingData($photo);
+            $dw->delete();
+
+            return $this->responseRedirect(
+                XenForo_ControllerResponse_Redirect::RESOURCE_UPDATED,
+                XenForo_Link::buildPublicLink('photos/albums', $album)
+            );
+        } else {
+            $this->canonicalizeRequestUrl(XenForo_Link::buildPublicLink('photos/delete', $photo));
+
+            $viewParams = array(
+                'album' => $album,
+                'uploader' => $uploader,
+                'photo' => $photo,
+
+                'breadcrumbs' => $this->_getAlbumModel()->getBreadcrumbs($album, $uploader, true),
+            );
+
+            return $this->responseView('bdPhotos_ViewPublic_Photo_Delete', 'bdphotos_photo_delete', $viewParams);
+        }
+    }
 }
