@@ -240,6 +240,10 @@ class bdPhotos_ControllerPublic_Photo extends bdPhotos_ControllerPublic_Abstract
                 ));
             }
 
+            /** @var bdPhotos_ControllerHelper_Location $locationHelper */
+            $locationHelper = $this->getHelper('bdPhotos_ControllerHelper_Location');
+            $locationId = $locationHelper->getLocationId('location');
+
             $deviceId = 0;
             $deviceName = $this->_input->filterSingle('device', XenForo_Input::STRING);
             if (!empty($deviceName)) {
@@ -253,6 +257,7 @@ class bdPhotos_ControllerPublic_Photo extends bdPhotos_ControllerPublic_Abstract
             $dw = XenForo_DataWriter::create('bdPhotos_DataWriter_Photo');
             $dw->setExistingData($photo);
             $dw->set('photo_caption', $this->_input->filterSingle('photo_caption', XenForo_Input::STRING));
+            $dw->set('location_id', $locationId);
             $dw->set('device_id', $deviceId);
             $dw->set('metadata', $newMetadata);
             $dw->save();

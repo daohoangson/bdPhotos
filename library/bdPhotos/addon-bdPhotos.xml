@@ -1316,6 +1316,22 @@ step=1024</edit_format_params>
 	</div>
 
 </li>]]></template>
+    <template title="bdphotos_common_location_input" version_id="5" version_string="0.9.2"><![CDATA[<xen:require js="http://maps.googleapis.com/maps/api/js?sensor=false&amp;libraries=places" />
+<xen:require js="js/bdPhotos/jquery.geocomplete.js" />
+<xen:require js="js/bdPhotos/geo.js" />
+
+<input id="{$locationInputId}"
+	   name="{$locationInputName}"
+	   class="textCtrl bdPhotos_LocationInput"
+	   data-details="#{$locationInputId}_details"
+	   value="{$locationInputValue}" />
+
+<input type="hidden" name="{$locationInputName}_existing" value="{$locationInputValue}" />
+<input type="hidden" name="{$locationInputName}_existingId" value="{$locationInputValueId}" />
+<div id="{$locationInputId}_details">
+	<input data-geo="lat" type="hidden" name="{$locationInputName}_lat" value="" />
+	<input data-geo="lng" type="hidden" name="{$locationInputName}_lng" value="" />
+</div>]]></template>
     <template title="bdphotos_common_photo" version_id="5" version_string="0.9.2"><![CDATA[<xen:set var="$img"><xen:include template="bdphotos_common_photo_img" /></xen:set>
 
 <xen:if is="{$url2x}">
@@ -1388,7 +1404,12 @@ step=1024</edit_format_params>
 	<dl class="ctrlUnit">
 		<dt><label for="location_ctrl">{xen:phrase bdphotos_location}:</label></dt>
 		<dd>
-			<input id="location_ctrl" name="location" class="textCtrl" value="{xen:if $photo.location_id, {xen:helper bdPhotos_formatLocationName, $photo}}" />
+			<xen:include template="bdphotos_common_location_input">
+				<xen:set var="$locationInputId">location_ctrl</xen:set>
+				<xen:set var="$locationInputName">location</xen:set>
+				<xen:set var="$locationInputValueId">{$photo.location_id}</xen:set>
+				<xen:set var="$locationInputValue">{xen:if $photo.location_id, {xen:helper bdPhotos_formatLocationName, $photo}}</xen:set>
+			</xen:include>
 		</dd>
 	</dl>
 

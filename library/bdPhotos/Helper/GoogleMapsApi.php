@@ -35,6 +35,21 @@ class bdPhotos_Helper_GoogleMapsApi
                             '_requestedLng' => $lng,
                         )),
                     );
+                } elseif (!empty($result['geometry']['viewport'])) {
+                    return array(
+                        'location_name' => $result['formatted_address'],
+                        'ne_lat' => floor($result['geometry']['viewport']['northeast']['lat'] * $_10e6),
+                        'ne_lng' => floor($result['geometry']['viewport']['northeast']['lng'] * $_10e6),
+                        'sw_lat' => floor($result['geometry']['viewport']['southwest']['lat'] * $_10e6),
+                        'sw_lng' => floor($result['geometry']['viewport']['southwest']['lng'] * $_10e6),
+                        'location_info' => array_merge($result, array(
+                            '_source' => 'maps.googleapis.com',
+                            '_timestamp' => XenForo_Application::$time,
+                            '_requestedLat' => $lat,
+                            '_requestedLng' => $lng,
+                            '_geometry' => 'viewport',
+                        )),
+                    );
                 }
             }
         }

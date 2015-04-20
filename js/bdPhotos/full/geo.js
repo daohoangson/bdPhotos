@@ -44,7 +44,17 @@
 
     // *********************************************************************
 
+    XenForo.bdPhotos_LocationInput = function($input) {
+        $input.geocomplete({
+            details: $input.data('details'),
+            detailsAttribute: 'data-geo'
+        });
+    };
+
+    // *********************************************************************
+
     XenForo.register('.bdPhotos_GeoDecoder', 'XenForo.bdPhotos_GeoDecoder');
+    XenForo.register('.bdPhotos_LocationInput', 'XenForo.bdPhotos_LocationInput');
 
 }
 (jQuery, this, document);
