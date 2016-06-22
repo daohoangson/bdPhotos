@@ -458,6 +458,11 @@ class bdPhotos_Model_Album extends XenForo_Model
                 $sqlConditions[] = '(album.album_publish_date > 0 AND album.album_publish_date < ' . $this->_db->quote(XenForo_Application::$time) . ')';
             }
         }
+
+        if (!empty($conditions['photo_count_cutoff']) && is_array($conditions['photo_count_cutoff']))
+        {
+            $sqlConditions[] = $this->getCutOffCondition('album.photo_count', $conditions['photo_count_cutoff']);
+        }
     }
 
     protected function _prepareAlbumFetchOptionsCustomized(&$selectFields, &$joinTables, array $fetchOptions)

@@ -15,7 +15,10 @@ class bdPhotos_ControllerPublic_Album extends bdPhotos_ControllerPublic_Abstract
 
         $this->canonicalizeRequestUrl(XenForo_Link::buildPublicLink('photos/albums', '', array('page' => $page)));
 
-        $conditions = array('album_is_published' => 1);
+        $conditions = array(
+            'album_is_published' => 1,
+            'photo_count_cutoff' => array('>', 0),
+        );
         $fetchOptions = array(
             'join' => bdPhotos_Model_Album::FETCH_UPLOADER,
             'order' => 'update_date',
