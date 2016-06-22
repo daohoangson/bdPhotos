@@ -437,6 +437,9 @@ step=1024</edit_format_params>
       <prefix original_prefix="photo-locations" class="bdPhotos_Route_PrefixAdmin_Location" build_link="data_only"/>
     </route_type>
     <route_type type="public">
+      <prefix original_prefix="photo-albums" class="bdPhotos_Route_Prefix_Albums" build_link="all"/>
+      <prefix original_prefix="photo-devices" class="bdPhotos_Route_Prefix_Devices" build_link="all"/>
+      <prefix original_prefix="photo-locations" class="bdPhotos_Route_Prefix_Locations" build_link="all"/>
       <prefix original_prefix="photos" class="bdPhotos_Route_Prefix_Photos" build_link="all"/>
       <prefix original_prefix="photos-meta" class="bdPhotos_Route_Prefix_Metadata" build_link="all"/>
     </route_type>
@@ -838,7 +841,7 @@ step=1024</edit_format_params>
 
 <xen:include template="bdphotos_responsive.css" />
 ]]></template>
-    <template title="bdphotos_album_add_photo" version_id="1" version_string="0.9-dev"><![CDATA[<xen:title>{xen:phrase bdphotos_add_photo}: {$album.album_name}</xen:title>
+    <template title="bdphotos_album_add_photo" version_id="1000001" version_string="1.0.0"><![CDATA[<xen:title>{xen:phrase bdphotos_add_photo}: {$album.album_name}</xen:title>
 <xen:h1>{xen:phrase bdphotos_add_photo}</xen:h1>
 
 <xen:if is="{$breadcrumbs}">
@@ -847,7 +850,7 @@ step=1024</edit_format_params>
 	</xen:navigation>
 </xen:if>
 
-<form action="{xen:link 'photos/albums/save', $album}" method="post"
+<form action="{xen:link photo-albums/save, $album}" method="post"
 	class="AutoValidator bdPhotos_albumAddPhoto"
 	data-redirect="on">
 
@@ -869,7 +872,7 @@ step=1024</edit_format_params>
 
 	<input type="hidden" name="_xfToken" value="{$visitor.csrf_token_page}" />
 </form>]]></template>
-    <template title="bdphotos_album_delete" version_id="1" version_string="0.9-dev"><![CDATA[<xen:title>{xen:phrase bdphotos_delete_album}: {$album.album_name}</xen:title>
+    <template title="bdphotos_album_delete" version_id="1000001" version_string="1.0.0"><![CDATA[<xen:title>{xen:phrase bdphotos_delete_album}: {$album.album_name}</xen:title>
 <xen:h1>{xen:phrase bdphotos_delete_album}</xen:h1>
 
 <xen:if is="{$breadcrumbs}">
@@ -878,7 +881,7 @@ step=1024</edit_format_params>
 	</xen:navigation>
 </xen:if>
 
-<form action="{xen:link 'photos/albums/delete', $album}" method="post"
+<form action="{xen:link photo-albums/delete, $album}" method="post"
 	class="xenForm formOverlay AutoValidator"
 	data-redirect="on">
 
@@ -897,7 +900,7 @@ step=1024</edit_format_params>
 	<input type="hidden" name="_xfToken" value="{$visitor.csrf_token_page}" />
 	<input type="hidden" name="_xfConfirm" value="1" />
 </form>]]></template>
-    <template title="bdphotos_album_edit" version_id="1" version_string="0.9-dev"><![CDATA[<xen:title>
+    <template title="bdphotos_album_edit" version_id="1000001" version_string="1.0.0"><![CDATA[<xen:title>
 	{xen:if '{$album.album_id}',
 		'{xen:phrase bdphotos_edit_album}: {$album.album_name}',
 		'{xen:phrase bdphotos_create_new_album}'
@@ -916,7 +919,7 @@ step=1024</edit_format_params>
 	</xen:navigation>
 </xen:if>
 
-<form action="{xen:link 'photos/albums/save', $album}" method="post"
+<form action="{xen:link photo-albums/save, $album}" method="post"
 	class="AutoValidator bdPhotos_albumEdit"
 	data-redirect="on">
 	  
@@ -974,12 +977,12 @@ step=1024</edit_format_params>
 	<input type="hidden" name="_xfToken" value="{$visitor.csrf_token_page}" />
 	<input type="hidden" name="is_album_edit" value="1" />
 </form>]]></template>
-    <template title="bdphotos_album_index" version_id="3" version_string="0.9.1"><![CDATA[<xen:title>{xen:phrase bdphotos_albums}{xen:helper pagenumber, $page}</xen:title>
+    <template title="bdphotos_album_index" version_id="1000001" version_string="1.0.0"><![CDATA[<xen:title>{xen:phrase bdphotos_albums}{xen:helper pagenumber, $page}</xen:title>
 <xen:h1>{xen:phrase bdphotos_albums}</xen:h1>
 
 <xen:if is="{$canUpload}">
 	<xen:topctrl>
-		<a href="{xen:link 'photos/albums/new'}" class="callToAction"><span>{xen:phrase bdphotos_create_new_album}</span></a>
+		<a href="{xen:link photo-albums/new}" class="callToAction"><span>{xen:phrase bdphotos_create_new_album}</span></a>
 	</xen:topctrl>
 </xen:if>
 
@@ -994,15 +997,15 @@ step=1024</edit_format_params>
 		<p>{xen:phrase bdphotos_there_is_no_albums_here}</p>
 
 		<xen:if is="{$canUpload}">
-			<p>{xen:phrase bdphotos_care_to_add_some_photo_question, 'link={xen:link photos/albums/new}'}</p>
+			<p>{xen:phrase bdphotos_care_to_add_some_photo_question, 'link={xen:link photo-albums/new}'}</p>
 		</xen:if>
 	</div>
 </xen:if>]]></template>
-    <template title="bdphotos_album_likes_summary" version_id="1" version_string="0.9-dev"><![CDATA[<xen:if is="{$album.album_like_count}">
+    <template title="bdphotos_album_likes_summary" version_id="1000001" version_string="1.0.0"><![CDATA[<xen:if is="{$album.album_like_count}">
 	<xen:require css="likes_summary.css" />
 	<div class="likesSummary secondaryContent">
 		<span class="LikeText">
-			<xen:set var="$url">{xen:link photos/albums/likes, $photo}</xen:set>
+			<xen:set var="$url">{xen:link photo-albums/likes, $photo}</xen:set>
 			<xen:likes number="$album.album_like_count" users="$album.albumLikeUsers" url="$url" liked="$album.album_like_date" />
 		</span>
 	</div>
@@ -1024,14 +1027,14 @@ step=1024</edit_format_params>
 		</div>
 	</xen:if>
 </xen:if>]]></template>
-    <template title="bdphotos_album_list_album" version_id="3" version_string="0.9.1"><![CDATA[<xen:require css="bdphotos.css" />
+    <template title="bdphotos_album_list_album" version_id="1000001" version_string="1.0.0"><![CDATA[<xen:require css="bdphotos.css" />
 
 <li class="bdPhotos_AlbumList_Album {xen:if '!{$album.album_publish_date}', 'not-published'}" id="album-{$album.album_id}">
 	
 	<div class="container">
 
 		<xen:if is="{$album.coverObj}">
-			<div class="cover"><a href="{xen:link photos/albums, $album}">{xen:raw $album.coverObj}</a></div>
+			<div class="cover"><a href="{xen:link photo-albums, $album}">{xen:raw $album.coverObj}</a></div>
 		<xen:else />
 			<div class="cover nocvoer">&nbsp;</div>
 		</xen:if>
@@ -1039,7 +1042,7 @@ step=1024</edit_format_params>
 		<div class="controls">
 			<div class="controls-container">
 				<div class="name">
-					<a href="{xen:link photos/albums, $album}">{$album.album_name}</a>
+					<a href="{xen:link photo-albums, $album}">{$album.album_name}</a>
 					<xen:if is="!{$album.album_publish_date}">
 						<span class="not-published-notice muted">({xen:phrase bdphotos_not_published})</span>
 					</xen:if>
@@ -1077,7 +1080,7 @@ step=1024</edit_format_params>
 		</div>
 	</div>
 </li>]]></template>
-    <template title="bdphotos_album_view" version_id="5" version_string="0.9.2"><![CDATA[<xen:set var="$title">{$album.album_name} {xen:phrase by_x, 'name={$uploader.username}'}</xen:set>
+    <template title="bdphotos_album_view" version_id="1000001" version_string="1.0.0"><![CDATA[<xen:set var="$title">{$album.album_name} {xen:phrase by_x, 'name={$uploader.username}'}</xen:set>
 
 <xen:title>{xen:raw $title}{xen:helper pagenumber, $page}</xen:title>
 <xen:h1></xen:h1>
@@ -1089,12 +1092,12 @@ step=1024</edit_format_params>
 </xen:if>
 
 <xen:container var="$head.canonical">
-	<link rel="canonical" href="{xen:link 'canonical:photos/albums', $album}" />
+	<link rel="canonical" href="{xen:link 'canonical:photo-albums', $album}" />
 </xen:container>
 
 <xen:container var="$head.openGraph">
 	<xen:include template="open_graph_meta">
-		<xen:set var="$url">{xen:link 'canonical:photos/albums', $album}</xen:set>
+		<xen:set var="$url">{xen:link 'canonical:photo-albums', $album}</xen:set>
 		<xen:set var="$title">{xen:raw $title}</xen:set>
 		<xen:set var="$avatar">{$album.ogObj}</xen:set>
 	</xen:include>
@@ -1114,7 +1117,7 @@ step=1024</edit_format_params>
 
 <xen:if is="{$canEditAlbum}">
 	<xen:topctrl>
-		<a href="{xen:link 'photos/albums/add-photo', $album}" class="callToAction"><span>{xen:phrase bdphotos_add_photo}</span></a>
+		<a href="{xen:link 'photo-albums/add-photo', $album}" class="callToAction"><span>{xen:phrase bdphotos_add_photo}</span></a>
 	</xen:topctrl>
 </xen:if>
 
@@ -1154,7 +1157,7 @@ step=1024</edit_format_params>
 
 				<div class="messageMeta">
 						<div class="privateControls">
-							<a href="{xen:link photos/albums, $album}" title="{xen:phrase permalink}" class="item muted">
+							<a href="{xen:link photo-albums, $album}" title="{xen:phrase permalink}" class="item muted">
 								<xen:if is="{$album.album_publish_date}">
 									<xen:datetime time="$album.album_publish_date" />
 								<xen:else />
@@ -1163,17 +1166,17 @@ step=1024</edit_format_params>
 							</a>
 	
 							<xen:if is="{$album.canEdit}">
-								<a href="{xen:link photos/albums/edit, $album}" class="item control edit"><span></span>{xen:phrase edit}</a>
+								<a href="{xen:link photo-albums/edit, $album}" class="item control edit"><span></span>{xen:phrase edit}</a>
 							</xen:if>
 							<xen:if is="{$album.canDelete}">
-								<a href="{xen:link photos/albums/delete, $album}" class="item control delete OverlayTrigger"><span></span>{xen:phrase delete}</a>
+								<a href="{xen:link photo-albums/delete, $album}" class="item control delete OverlayTrigger"><span></span>{xen:phrase delete}</a>
 							</xen:if>
 
 							<xen:if is="{$album.canLike}">
-								<a href="{xen:link photos/albums/like, $album}" class="LikeLink item control {xen:if $album.album_like_date, unlike, like}" data-container="#likes-album-{$album.album_id}"><span></span><span class="LikeLabel">{xen:if $album.album_like_date, {xen:phrase unlike}, {xen:phrase like}}</span></a>
+								<a href="{xen:link photo-albums/like, $album}" class="LikeLink item control {xen:if $album.album_like_date, unlike, like}" data-container="#likes-album-{$album.album_id}"><span></span><span class="LikeLabel">{xen:if $album.album_like_date, {xen:phrase unlike}, {xen:phrase like}}</span></a>
 							</xen:if>
 							<xen:if is="{$album.canComment}">
-								<a href="{xen:link photos/albums/comment, $album}" class="bdPhotos_CommentPoster item control postComment" data-commentArea="#commentSubmit-album-{$album.album_id}" style="display: none"><span></span>{xen:phrase comment_verb}</a>
+								<a href="{xen:link photo-albums/comment, $album}" class="bdPhotos_CommentPoster item control postComment" data-commentArea="#commentSubmit-album-{$album.album_id}" style="display: none"><span></span>{xen:phrase comment_verb}</a>
 							</xen:if>
 						</div>
 				</div>
@@ -1198,13 +1201,13 @@ step=1024</edit_format_params>
 
 						<xen:foreach loop="$comments" value="$comment">
 							<xen:include template="bdphotos_album_or_photo_comment">
-								<xen:set var="$deleteLink">{xen:link photos/albums/comment-delete, $album, 'comment={$comment.album_comment_id}'}</xen:set>
+								<xen:set var="$deleteLink">{xen:link photo-albums/comment-delete, $album, 'comment={$comment.album_comment_id}'}</xen:set>
 							</xen:include>
 						</xen:foreach>
 
 						<xen:if is="{$album.album_comment_count} > {xen:helper bdPhotos_getOption, commentsPerPage}">
 							<li class="commentMore secondaryContent">
-								<a href="{xen:link photos/albums/comments, $album}"
+								<a href="{xen:link photo-albums/comments, $album}"
 									class="CommentLoader"
 									data-loadParams="{xen:escape {xen:helper json, {xen:array 'before={$firstComment.comment_date}'}}}">{xen:phrase view_previous_comments}...</a>
 							</li>
@@ -1218,12 +1221,12 @@ step=1024</edit_format_params>
 		</xen:include>
 	</ol>
 </div>]]></template>
-    <template title="bdphotos_alert_album_comment_your_album" version_id="1" version_string="0.9-dev"><![CDATA[{xen:phrase bdphotos_x_commented_on_your_album_y,
+    <template title="bdphotos_alert_album_comment_your_album" version_id="1000001" version_string="1.0.0"><![CDATA[{xen:phrase bdphotos_x_commented_on_your_album_y,
 	'name={xen:helper username, $user, 'subject'}',
-	'album_name=<a href="{xen:link photos/albums, $content}" class="PopupItemLink">{$content.album_name}</a>'}]]></template>
-    <template title="bdphotos_alert_album_like" version_id="1" version_string="0.9-dev"><![CDATA[{xen:phrase bdphotos_x_liked_your_album_y,
+	'album_name=<a href="{xen:link photo-albums, $content}" class="PopupItemLink">{$content.album_name}</a>'}]]></template>
+    <template title="bdphotos_alert_album_like" version_id="1000001" version_string="1.0.0"><![CDATA[{xen:phrase bdphotos_x_liked_your_album_y,
 	'name={xen:helper username, $user, 'subject'}',
-	'album_name=<a href="{xen:link photos/albums, $content}" class="PopupItemLink">{$content.album_name}</a>'}]]></template>
+	'album_name=<a href="{xen:link photo-albums, $content}" class="PopupItemLink">{$content.album_name}</a>'}]]></template>
     <template title="bdphotos_alert_photo_comment_your_photo" version_id="1" version_string="0.9-dev"><![CDATA[{xen:phrase bdphotos_x_commented_on_your_photo_in_the_album_y,
 	'name={xen:helper username, $user, 'subject'}',
 	'album_name=<a href="{xen:link photos, $content}" class="PopupItemLink">{$content.album_name}</a>'}]]></template>
@@ -1263,7 +1266,7 @@ step=1024</edit_format_params>
 	</div>
 
 </xen:if>]]></template>
-    <template title="bdphotos_attachment_editor_attachment" version_id="3" version_string="0.9.1"><![CDATA[<xen:require css="bdphotos.css" />
+    <template title="bdphotos_attachment_editor_attachment" version_id="1000001" version_string="1.0.0"><![CDATA[<xen:require css="bdphotos.css" />
 
 <li id="{xen:if $isTemplate, 'AttachedFileTemplate', 'attachment{$attachment.attachment_id}'}"
 	class="AttachedFile AttachedImage bdPhotos_PhotoList_Photo">
@@ -1277,7 +1280,7 @@ step=1024</edit_format_params>
 		
 		<div class="controls top" {xen:if $isTemplate, 'style="display: none"'}>
 			<div class="controls-container">
-				<input type="button" value="{xen:phrase delete}" class="button smallButton AttachmentDeleter" data-href="{xen:link 'attachments/delete', $attachment}" />
+				<input type="button" value="{xen:phrase delete}" class="button smallButton AttachmentDeleter" data-href="{xen:link attachments/delete, $attachment}" />
 
 				<label class="cover">
 					<input type="radio" name="cover_photo_id" value="{$attachment.attachment_id}" {xen:checked '{$album} AND {$album.cover_photo_id} == {$attachment.photo_id}'}/>
@@ -1408,16 +1411,16 @@ step=1024</edit_format_params>
 		<p>{xen:phrase bdphotos_there_is_no_photos_here}</p>
 	</div>
 </xen:if>]]></template>
-    <template title="bdphotos_navigation_tab_links" version_id="5" version_string="0.9.2"><![CDATA[<ul class="secondaryContent blockLinksList">
+    <template title="bdphotos_navigation_tab_links" version_id="1000001" version_string="1.0.0"><![CDATA[<ul class="secondaryContent blockLinksList">
 	<xen:hook name="bdphotos_navigation_tab_links">
-		<li><a href="{xen:link 'photos/albums'}">{xen:phrase bdphotos_all_albums}</a></li>
+		<li><a href="{xen:link photo-albums}">{xen:phrase bdphotos_all_albums}</a></li>
 		<xen:if is="{$visitor.user_id}">
-		<li><a href="{xen:link 'members/albums', $visitor}">{xen:phrase bdphotos_your_albums}</a></li>
-		<li><a href="{xen:link 'members/photos', $visitor}">{xen:phrase bdphotos_your_photos}</a></li>
+		<li><a href="{xen:link members/albums, $visitor}">{xen:phrase bdphotos_your_albums}</a></li>
+		<li><a href="{xen:link members/photos, $visitor}">{xen:phrase bdphotos_your_photos}</a></li>
 		</xen:if>
 	</xen:hook>
 </ul>]]></template>
-    <template title="bdphotos_photo_delete" version_id="5" version_string="0.9.2"><![CDATA[<xen:title>{xen:helper bdPhotos_snippetOrDefault, $photo.photo_caption, {xen:phrase bdphotos_photo}, 50} {xen:phrase by_x, 'name={$uploader.username}'} - {xen:phrase delete}</xen:title>
+    <template title="bdphotos_photo_delete" version_id="1000001" version_string="1.0.0"><![CDATA[<xen:title>{xen:helper bdPhotos_snippetOrDefault, $photo.photo_caption, {xen:phrase bdphotos_photo}, 50} {xen:phrase by_x, 'name={$uploader.username}'} - {xen:phrase delete}</xen:title>
 <xen:h1>{xen:phrase delete}</xen:h1>
 
 <xen:navigation>
@@ -1425,7 +1428,7 @@ step=1024</edit_format_params>
 	<xen:breadcrumb href="{xen:link full:photos, $photo}">{xen:helper bdPhotos_snippetOrDefault, $photo.photo_caption, {xen:phrase bdphotos_photo}, 50}</xen:breadcrumb>
 </xen:navigation>
 
-<form action="{xen:link 'photos/delete', $photo}" method="post" class="xenForm formOverlay">
+<form action="{xen:link photos/delete, $photo}" method="post" class="xenForm formOverlay">
 
 	<dl class="ctrlUnit fullWidth surplusLabel">
 		<dt></dt>
@@ -1441,7 +1444,7 @@ step=1024</edit_format_params>
 
 	<input type="hidden" name="_xfToken" value="{$visitor.csrf_token_page}" />
 </form>]]></template>
-    <template title="bdphotos_photo_edit" version_id="5" version_string="0.9.2"><![CDATA[<xen:title>{xen:helper bdPhotos_snippetOrDefault, $photo.photo_caption, {xen:phrase bdphotos_photo}, 50} {xen:phrase by_x, 'name={$uploader.username}'} - {xen:phrase edit}</xen:title>
+    <template title="bdphotos_photo_edit" version_id="1000001" version_string="1.0.0"><![CDATA[<xen:title>{xen:helper bdPhotos_snippetOrDefault, $photo.photo_caption, {xen:phrase bdphotos_photo}, 50} {xen:phrase by_x, 'name={$uploader.username}'} - {xen:phrase edit}</xen:title>
 <xen:h1>{xen:phrase edit}</xen:h1>
 
 <xen:navigation>
@@ -1449,7 +1452,7 @@ step=1024</edit_format_params>
 	<xen:breadcrumb href="{xen:link full:photos, $photo}">{xen:helper bdPhotos_snippetOrDefault, $photo.photo_caption, {xen:phrase bdphotos_photo}, 50}</xen:breadcrumb>
 </xen:navigation>
 
-<form action="{xen:link 'photos/edit', $photo}" method="post" class="xenForm AutoValidator" data-redirect="yes">
+<form action="{xen:link photos/edit, $photo}" method="post" class="xenForm AutoValidator" data-redirect="yes">
 
 	<dl class="ctrlUnit">
 		<dt><label for="photo_caption_ctrl">{xen:phrase bdphotos_photo_caption}:</label></dt>
@@ -1474,7 +1477,7 @@ step=1024</edit_format_params>
 		<dt><label for="device_ctrl">{xen:phrase bdphotos_device}:</label></dt>
 		<dd>
 			<input id="device_ctrl" name="device" class="textCtrl AutoComplete AcSingle"
-				   data-acurl="{xen:link photos/devices/find}"
+				   data-acurl="{xen:link photo-devices/find}"
 				   value="{xen:if $photo.device_id, $photo.device_name}" />
 		</dd>
 	</dl>
@@ -1588,13 +1591,13 @@ step=1024</edit_format_params>
 
 	<input type="hidden" name="_xfToken" value="{$visitor.csrf_token_page}" />
 </form>]]></template>
-    <template title="bdphotos_photo_index" version_id="4" version_string="0.9.1b"><![CDATA[<xen:title>{xen:phrase bdphotos_photos}{xen:helper pagenumber, $page}</xen:title>
+    <template title="bdphotos_photo_index" version_id="1000001" version_string="1.0.0"><![CDATA[<xen:title>{xen:phrase bdphotos_photos}{xen:helper pagenumber, $page}</xen:title>
 <xen:h1>{xen:phrase bdphotos_photos}</xen:h1>
 <xen:set var="$setTitle">{xen:phrase bdphotos_photos}</xen:set>
 
 <xen:if is="{$canUpload}">
 	<xen:topctrl>
-		<a href="{xen:link 'photos/albums/new'}" class="callToAction"><span>{xen:phrase bdphotos_create_new_album}</span></a>
+		<a href="{xen:link photo-albums/new}" class="callToAction"><span>{xen:phrase bdphotos_create_new_album}</span></a>
 	</xen:topctrl>
 </xen:if>
 
@@ -1611,11 +1614,11 @@ step=1024</edit_format_params>
 		<p>{xen:phrase bdphotos_there_is_no_photos_here}</p>
 
 		<xen:if is="{$canUpload}">
-			<p>{xen:phrase bdphotos_care_to_add_some_photo_question, 'link={xen:link photos/albums/new}'}</p>
+			<p>{xen:phrase bdphotos_care_to_add_some_photo_question, 'link={xen:link photo-albums/new}'}</p>
 		</xen:if>
 	</div>
 </xen:if>]]></template>
-    <template title="bdphotos_photo_like" version_id="1" version_string="0.9-dev"><![CDATA[<xen:title>{xen:helper bdPhotos_snippetOrDefault, $photo.photo_caption, {xen:phrase bdphotos_photo}, 50} {xen:phrase by_x, 'name={$uploader.username}'} - {xen:if $existingLike, '{xen:phrase unlike}', '{xen:phrase like}'}</xen:title>
+    <template title="bdphotos_photo_like" version_id="1000001" version_string="1.0.0"><![CDATA[<xen:title>{xen:helper bdPhotos_snippetOrDefault, $photo.photo_caption, {xen:phrase bdphotos_photo}, 50} {xen:phrase by_x, 'name={$uploader.username}'} - {xen:if $existingLike, '{xen:phrase unlike}', '{xen:phrase like}'}</xen:title>
 <xen:h1>{xen:if $existingLike, '{xen:phrase unlike}', '{xen:phrase like}'}</xen:h1>
 
 <xen:navigation>
@@ -1623,7 +1626,7 @@ step=1024</edit_format_params>
 	<xen:breadcrumb href="{xen:link full:photos, $photo}">{xen:helper bdPhotos_snippetOrDefault, $photo.photo_caption, {xen:phrase bdphotos_photo}, 50}</xen:breadcrumb>
 </xen:navigation>
 
-<form action="{xen:link 'photos/like', $photo}" method="post" class="xenForm">
+<form action="{xen:link photos/like, $photo}" method="post" class="xenForm">
 
 	<dl class="ctrlUnit fullWidth surplusLabel">
 		<dt></dt>
@@ -1669,7 +1672,7 @@ step=1024</edit_format_params>
 		</div>
 	</xen:if>
 </xen:if>]]></template>
-    <template title="bdphotos_photo_list_photo" version_id="5" version_string="0.9.2"><![CDATA[<xen:require css="bdphotos.css" />
+    <template title="bdphotos_photo_list_photo" version_id="1000001" version_string="1.0.0"><![CDATA[<xen:require css="bdphotos.css" />
 <xen:require js="js/bdPhotos/viewer.js" />
 
 <li class="bdPhotos_PhotoList_Photo {xen:if '!{$photo.publish_date}', 'not-published'}" id="photo-{$photo.photo_id}" {xen:if '{$parentItemType} == "ImageGallery" AND {$coverPhotoId} == {$photo.photo_id}', 'itemprop="primaryImageOfPage"'} itemscope="itemscope" itemtype="http://schema.org/ImageObject">
@@ -1699,7 +1702,7 @@ step=1024</edit_format_params>
 			<div class="caption">
 				<xen:if is="{$showAlbum}">
 					<span class="from-album faint">{xen:phrase bdphotos_from_album}:</span>
-					<a href="{xen:link photos/albums, $photo}">{$photo.album_name}</a>
+					<a href="{xen:link photo-albums, $photo}">{$photo.album_name}</a>
 				<xen:else />
 					<a
 					   href="{xen:link photos, $photo}"
@@ -1742,7 +1745,7 @@ step=1024</edit_format_params>
 	</div>
 
 </li>]]></template>
-    <template title="bdphotos_photo_view" version_id="1000000" version_string="1.0.0"><![CDATA[<xen:set var="$title">{xen:helper bdPhotos_snippetOrDefault, $photo.photo_caption, {xen:phrase bdphotos_photo}, 50} {xen:phrase by_x, 'name={$uploader.username}'}</xen:set>
+    <template title="bdphotos_photo_view" version_id="1000001" version_string="1.0.0"><![CDATA[<xen:set var="$title">{xen:helper bdPhotos_snippetOrDefault, $photo.photo_caption, {xen:phrase bdphotos_photo}, 50} {xen:phrase by_x, 'name={$uploader.username}'}</xen:set>
 
 <xen:title>{xen:raw $title}</xen:title>
 <xen:h1></xen:h1>
@@ -1752,12 +1755,12 @@ step=1024</edit_format_params>
 </xen:navigation>
 
 <xen:container var="$head.canonical">
-	<link rel="canonical" href="{xen:link 'canonical:photos', $photo}" />
+	<link rel="canonical" href="{xen:link canonical:photos, $photo}" />
 </xen:container>
 
 <xen:container var="$head.openGraph">
 	<xen:include template="open_graph_meta">
-		<xen:set var="$url">{xen:link 'canonical:photos', $photo}</xen:set>
+		<xen:set var="$url">{xen:link canonical:photos, $photo}</xen:set>
 		<xen:set var="$title">{xen:raw $title}</xen:set>
 		<xen:set var="$avatar">{$photo.ogObj}</xen:set>
 	</xen:include>
@@ -1825,7 +1828,7 @@ step=1024</edit_format_params>
 
 				<div class="messageMeta">
 						<div class="privateControls">
-							<a href="{xen:link 'photos', $photo}" title="{xen:phrase permalink}" class="item muted">
+							<a href="{xen:link photos, $photo}" title="{xen:phrase permalink}" class="item muted">
 								<xen:if is="{$photo.publish_date}">
 									<xen:datetime time="$photo.publish_date" />
 								<xen:else />
@@ -1834,16 +1837,16 @@ step=1024</edit_format_params>
 							</a>
 
 							<xen:if is="{$photo.canEdit}">
-								<a href="{xen:link 'photos/edit', $photo}" class="item control edit"><span></span>{xen:phrase edit}</a>
+								<a href="{xen:link photos/edit, $photo}" class="item control edit"><span></span>{xen:phrase edit}</a>
 							</xen:if>
 							<xen:if is="{$photo.canDelete}">
-								<a href="{xen:link 'photos/delete', $photo}" class="OverlayTrigger item control delete"><span></span>{xen:phrase delete}</a>
+								<a href="{xen:link photos/delete, $photo}" class="OverlayTrigger item control delete"><span></span>{xen:phrase delete}</a>
 							</xen:if>
 							<xen:if is="{$photo.canLike}">
-								<a href="{xen:link 'photos/like', $photo}" class="LikeLink item control {xen:if $photo.photo_like_date, unlike, like}" data-container="#likes-photo-{$photo.photo_id}"><span></span><span class="LikeLabel">{xen:if $photo.photo_like_date, {xen:phrase unlike}, {xen:phrase like}}</span></a>
+								<a href="{xen:link photos/like, $photo}" class="LikeLink item control {xen:if $photo.photo_like_date, unlike, like}" data-container="#likes-photo-{$photo.photo_id}"><span></span><span class="LikeLabel">{xen:if $photo.photo_like_date, {xen:phrase unlike}, {xen:phrase like}}</span></a>
 							</xen:if>
 							<xen:if is="{$photo.canComment}">
-								<a href="{xen:link 'photos/comment', $photo}" class="bdPhotos_CommentPoster item control postComment" data-commentArea="#commentSubmit-photo-{$photo.photo_id}" style="display: none"><span></span>{xen:phrase comment_verb}</a>
+								<a href="{xen:link photos/comment, $photo}" class="bdPhotos_CommentPoster item control postComment" data-commentArea="#commentSubmit-photo-{$photo.photo_id}" style="display: none"><span></span>{xen:phrase comment_verb}</a>
 							</xen:if>
 						</div>
 				</div>
@@ -2148,19 +2151,19 @@ step=1024</edit_format_params>
 	</div>
 	</xen:if>
 </xen:if>]]></template>
-    <template title="bdphotos_snippet_device_name" version_id="1" version_string="0.9-dev"><![CDATA[<xen:if is="{$device.manufacture} OR {$device.code}">
+    <template title="bdphotos_snippet_device_name" version_id="1000001" version_string="1.0.0"><![CDATA[<xen:if is="{$device.manufacture} OR {$device.code}">
 	<xen:set var="$title">{$device.manufacture} {$device.code}</xen:set>
 <xen:elseif is="{$device.deviceInfo._source} == 'api.flickr.com'" />
 	<xen:set var="$title">{$device.deviceInfo._nManufacture} {$device.deviceInfo._nCode}</xen:set>
 </xen:if>
 
 <span class="Tooltip" title="{$title}">
-	<a href="{xen:link photos/devices, $device}" {xen:if '{$openInBlank}', 'target="_blank"'} tabindex="-1">
+	<a href="{xen:link photo-devices, $device}" {xen:if '{$openInBlank}', 'target="_blank"'} tabindex="-1">
 		{$device.device_name}
 	</a>
 </span>]]></template>
-    <template title="bdphotos_snippet_location_name" version_id="1" version_string="0.9-dev"><![CDATA[<span>
-	<a href="{xen:link photos/locations, $location}" {xen:if '{$openInBlank}', 'target="_blank"'} tabindex="-1">
+    <template title="bdphotos_snippet_location_name" version_id="1000001" version_string="1.0.0"><![CDATA[<span>
+	<a href="{xen:link photo-locations, $location}" {xen:if '{$openInBlank}', 'target="_blank"'} tabindex="-1">
 		{xen:helper bdPhotos_formatLocationName, $location}
 	</a>
 </span>]]></template>
@@ -2182,7 +2185,7 @@ step=1024</edit_format_params>
 	<xen:foreach loop="$twitterImages" i="$i" value="$twitterImage"><xen:if is="{$i} <= 4"><meta property="twitter:image{xen:calc '{$i} - 1'}" content="{$twitterImage}" /></xen:if></xen:foreach>
 	</xen:if>
 </xen:if>]]></template>
-    <template title="bdphotos_uploader_albums" version_id="3" version_string="0.9.1"><![CDATA[<xen:title>
+    <template title="bdphotos_uploader_albums" version_id="1000001" version_string="1.0.0"><![CDATA[<xen:title>
 	<xen:if is="{$uploader.user_id} == {$visitor.user_id}">
 		{xen:phrase bdphotos_your_albums}{xen:helper pagenumber, $page}
 	<xen:else />
@@ -2202,7 +2205,7 @@ step=1024</edit_format_params>
 
 <xen:if is="{$canUpload}">
 	<xen:topctrl>
-		<a href="{xen:link 'photos/albums/new'}" class="callToAction"><span>{xen:phrase bdphotos_create_new_album}</span></a>
+		<a href="{xen:link photo-albums/new}" class="callToAction"><span>{xen:phrase bdphotos_create_new_album}</span></a>
 	</xen:topctrl>
 </xen:if>
 
@@ -2215,11 +2218,11 @@ step=1024</edit_format_params>
 		<p>{xen:phrase bdphotos_there_is_no_albums_here}</p>
 
 		<xen:if is="{$canUpload} AND {$uploader.user_id} == {$visitor.user_id}">
-			<p>{xen:phrase bdphotos_care_to_add_some_photo_question, 'link={xen:link photos/albums/new}'}</p>
+			<p>{xen:phrase bdphotos_care_to_add_some_photo_question, 'link={xen:link photo-albums/new}'}</p>
 		</xen:if>
 	</div>
 </xen:if>]]></template>
-    <template title="bdphotos_uploader_photos" version_id="3" version_string="0.9.1"><![CDATA[<xen:set var="$setTitle">
+    <template title="bdphotos_uploader_photos" version_id="1000001" version_string="1.0.0"><![CDATA[<xen:set var="$setTitle">
 	<xen:if is="{$uploader.user_id} == {$visitor.user_id}">
 		{xen:phrase bdphotos_your_photos}
 	<xen:else />
@@ -2231,7 +2234,7 @@ step=1024</edit_format_params>
 
 <xen:if is="{$canUpload}">
 	<xen:topctrl>
-		<a href="{xen:link 'photos/albums/new'}" class="callToAction"><span>{xen:phrase bdphotos_create_new_album}</span></a>
+		<a href="{xen:link photo-albums/new}" class="callToAction"><span>{xen:phrase bdphotos_create_new_album}</span></a>
 	</xen:topctrl>
 </xen:if>
 
@@ -2246,7 +2249,7 @@ step=1024</edit_format_params>
 		<p>{xen:phrase bdphotos_there_is_no_photos_here}</p>
 
 		<xen:if is="{$canUpload} AND {$uploader.user_id} == {$visitor.user_id}">
-			<p>{xen:phrase bdphotos_care_to_add_some_photo_question, 'link={xen:link photos/albums/new}'}</p>
+			<p>{xen:phrase bdphotos_care_to_add_some_photo_question, 'link={xen:link photo-albums/new}'}</p>
 		</xen:if>
 	</div>
 </xen:if>]]></template>

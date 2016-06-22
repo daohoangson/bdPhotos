@@ -141,7 +141,7 @@ class bdPhotos_Model_Album extends XenForo_Model
 
         if ($includeSelf) {
             $breadcrumbs[] = array(
-                'href' => XenForo_Link::buildPublicLink('full:photos/albums', $album),
+                'href' => XenForo_Link::buildPublicLink('full:photo-albums', $album),
                 'value' => $album['album_name'],
             );
         }

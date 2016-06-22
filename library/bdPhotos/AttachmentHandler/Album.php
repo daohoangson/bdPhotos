@@ -6,7 +6,7 @@ class bdPhotos_AttachmentHandler_Album extends XenForo_AttachmentHandler_Abstrac
 
     protected $_contentIdKey = 'album_id';
 
-    protected $_contentRoute = 'photos/albums';
+    protected $_contentRoute = 'photo-albums';
 
     protected $_contentTypePhraseKey = 'bdphotos_album';
 

@@ -13,7 +13,7 @@ class bdPhotos_ControllerPublic_Album extends bdPhotos_ControllerPublic_Abstract
 
         $page = $this->_input->filterSingle('page', XenForo_Input::UINT);
 
-        $this->canonicalizeRequestUrl(XenForo_Link::buildPublicLink('photos/albums', '', array('page' => $page)));
+        $this->canonicalizeRequestUrl(XenForo_Link::buildPublicLink('photo-albums', '', array('page' => $page)));
 
         $conditions = array(
             'album_is_published' => 1,
@@ -29,7 +29,7 @@ class bdPhotos_ControllerPublic_Album extends bdPhotos_ControllerPublic_Abstract
         );
 
         $totalAlbums = $this->_getAlbumModel()->countAlbums($conditions, $fetchOptions);
-        $this->canonicalizePageNumber($page, bdPhotos_Option::get('albumsPerPage'), $totalAlbums, 'photos/albums');
+        $this->canonicalizePageNumber($page, bdPhotos_Option::get('albumsPerPage'), $totalAlbums, 'photo-albums');
 
         $albums = $this->_getAlbumModel()->getAlbums($conditions, $fetchOptions);
 
@@ -38,7 +38,7 @@ class bdPhotos_ControllerPublic_Album extends bdPhotos_ControllerPublic_Abstract
 
             'canUpload' => $this->_getUploaderModel()->canUpload(),
 
-            'pageNavLink' => 'photos/albums',
+            'pageNavLink' => 'photo-albums',
             'page' => $page,
             'totalAlbums' => $totalAlbums,
         );
@@ -55,7 +55,7 @@ class bdPhotos_ControllerPublic_Album extends bdPhotos_ControllerPublic_Abstract
 
         $page = $this->_input->filterSingle('page', XenForo_Input::UINT);
 
-        $this->canonicalizeRequestUrl(XenForo_Link::buildPublicLink('photos/albums', $album, array('page' => $page)));
+        $this->canonicalizeRequestUrl(XenForo_Link::buildPublicLink('photo-albums', $album, array('page' => $page)));
 
         $uploader = $this->_getUserModel()->getUserById($album['album_user_id']);
 
@@ -71,7 +71,7 @@ class bdPhotos_ControllerPublic_Album extends bdPhotos_ControllerPublic_Abstract
         );
 
         $totalPhotos = $this->_getPhotoModel()->countPhotos($conditions, $fetchOptions);
-        $this->canonicalizePageNumber($page, bdPhotos_Option::get('photosPerPage'), $totalPhotos, 'photos/albums', $album);
+        $this->canonicalizePageNumber($page, bdPhotos_Option::get('photosPerPage'), $totalPhotos, 'photo-albums', $album);
 
         $photos = $this->_getPhotoModel()->getPhotos($conditions, $fetchOptions);
 
@@ -96,7 +96,7 @@ class bdPhotos_ControllerPublic_Album extends bdPhotos_ControllerPublic_Abstract
             'breadcrumbs' => $this->_getAlbumModel()->getBreadcrumbs($album, $uploader),
             'canEditAlbum' => $this->_getAlbumModel()->canEditAlbum($album),
 
-            'pageNavLink' => 'photos/albums',
+            'pageNavLink' => 'photo-albums',
             'pageNavData' => $album,
             'page' => $page,
             'totalPhotos' => $totalPhotos,
@@ -110,7 +110,7 @@ class bdPhotos_ControllerPublic_Album extends bdPhotos_ControllerPublic_Abstract
         $this->_assertRegistrationRequired();
         $this->_assertCanUpload();
 
-        $this->canonicalizeRequestUrl(XenForo_Link::buildPublicLink('photos/albums/new'));
+        $this->canonicalizeRequestUrl(XenForo_Link::buildPublicLink('photo-albums/new'));
 
         return $this->_actionNewOrEdit(array(
             'album_id' => 0,
@@ -125,7 +125,7 @@ class bdPhotos_ControllerPublic_Album extends bdPhotos_ControllerPublic_Abstract
 
         $this->_assertCanEditAlbum($album);
 
-        $this->canonicalizeRequestUrl(XenForo_Link::buildPublicLink('photos/albums/edit', $album));
+        $this->canonicalizeRequestUrl(XenForo_Link::buildPublicLink('photo-albums/edit', $album));
 
         return $this->_actionNewOrEdit($album, array(
             'get_photos' => true,
@@ -140,7 +140,7 @@ class bdPhotos_ControllerPublic_Album extends bdPhotos_ControllerPublic_Abstract
 
         $this->_assertCanEditAlbum($album);
 
-        $this->canonicalizeRequestUrl(XenForo_Link::buildPublicLink('photos/albums/add-photo', $album));
+        $this->canonicalizeRequestUrl(XenForo_Link::buildPublicLink('photo-albums/add-photo', $album));
 
         return $this->_actionNewOrEdit($album, array(
             'template_name' => 'bdphotos_album_add_photo',
@@ -198,7 +198,7 @@ class bdPhotos_ControllerPublic_Album extends bdPhotos_ControllerPublic_Abstract
 
         $album = $albumDw->getMergedData();
 
-        return $this->responseRedirect(XenForo_ControllerResponse_Redirect::RESOURCE_UPDATED, XenForo_Link::buildPublicLink('photos/albums', $album));
+        return $this->responseRedirect(XenForo_ControllerResponse_Redirect::RESOURCE_UPDATED, XenForo_Link::buildPublicLink('photo-albums', $album));
     }
 
     public function actionDelete()
@@ -208,7 +208,7 @@ class bdPhotos_ControllerPublic_Album extends bdPhotos_ControllerPublic_Abstract
 
         $this->_assertCanDeleteAlbum($album);
 
-        $this->canonicalizeRequestUrl(XenForo_Link::buildPublicLink('photos/albums/delete', $album));
+        $this->canonicalizeRequestUrl(XenForo_Link::buildPublicLink('photo-albums/delete', $album));
 
         if (!empty($album['album_user_id'])) {
             $uploader = $this->_getUserModel()->getUserById($album['album_user_id']);
@@ -275,10 +275,10 @@ class bdPhotos_ControllerPublic_Album extends bdPhotos_ControllerPublic_Abstract
 
                 return $this->responseView('bdPhotos_ViewPublic_Album_LikeConfirmed', '', $viewParams);
             } else {
-                return $this->responseRedirect(XenForo_ControllerResponse_Redirect::RESOURCE_UPDATED, XenForo_Link::buildPublicLink('photos/albums', $album));
+                return $this->responseRedirect(XenForo_ControllerResponse_Redirect::RESOURCE_UPDATED, XenForo_Link::buildPublicLink('photo-albums', $album));
             }
         } else {
-            $this->canonicalizeRequestUrl(XenForo_Link::buildPublicLink('photos/albums/like', $album));
+            $this->canonicalizeRequestUrl(XenForo_Link::buildPublicLink('photo-albums/like', $album));
 
             $viewParams = array(
                 'album' => $album,
@@ -335,7 +335,7 @@ class bdPhotos_ControllerPublic_Album extends bdPhotos_ControllerPublic_Abstract
 
             return $this->responseView('bdPhotos_ViewPublic_Album_Comment', '', $viewParams);
         } else {
-            return $this->responseRedirect(XenForo_ControllerResponse_Redirect::RESOURCE_UPDATED, XenForo_Link::buildPublicLink('photos/albums', $album));
+            return $this->responseRedirect(XenForo_ControllerResponse_Redirect::RESOURCE_UPDATED, XenForo_Link::buildPublicLink('photo-albums', $album));
         }
     }
 

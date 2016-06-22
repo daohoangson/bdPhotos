@@ -298,7 +298,7 @@ class bdPhotos_ControllerPublic_Photo extends bdPhotos_ControllerPublic_Abstract
 
             return $this->responseRedirect(
                 XenForo_ControllerResponse_Redirect::RESOURCE_UPDATED,
-                XenForo_Link::buildPublicLink('photos/albums', $album)
+                XenForo_Link::buildPublicLink('photo-albums', $album)
             );
         } else {
             $this->canonicalizeRequestUrl(XenForo_Link::buildPublicLink('photos/delete', $photo));
