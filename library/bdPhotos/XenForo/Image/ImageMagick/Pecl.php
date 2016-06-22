@@ -75,11 +75,11 @@ class bdPhotos_XenForo_Image_Imagemagick_Pecl extends XFCP_bdPhotos_XenForo_Imag
             /** @var ImagickPixel $pixel */
             foreach ($rowPixels as $pixel) {
                 $color = $pixel->getColor();
-                $grayscale = intval(floor(min(255, max(0, $color['r'] * 0.2989 + $color['g'] * 0.5870 + $color['b'] * 0.1140))));
-                if (empty($histogram[$grayscale])) {
-                    $histogram[$grayscale] = 1;
+                $grayScale = intval(floor(min(255, max(0, $color['r'] * 0.2989 + $color['g'] * 0.5870 + $color['b'] * 0.1140))));
+                if (empty($histogram[$grayScale])) {
+                    $histogram[$grayScale] = 1;
                 } else {
-                    $histogram[$grayscale]++;
+                    $histogram[$grayScale]++;
                 }
                 $histSize++;
             }

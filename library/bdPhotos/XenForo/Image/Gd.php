@@ -117,21 +117,21 @@ class bdPhotos_XenForo_Image_Gd extends XFCP_bdPhotos_XenForo_Image_Gd
         return ceil(abs($i - $i0) * 1.3);
     }
 
-    public function bdPhotos_getEntropy()
+    public function bdPhotos_getEntropy($x, $y, $width, $height)
     {
         $this->_bdPhotos_fixOrientation();
 
         $histSize = 0;
         $histogram = array();
 
-        for ($i = 0; $i < $this->_height; $i++) {
-            for ($j = 0; $j < $this->_width; $j++) {
-                $rgb = imagecolorat($this->_image, $j, $i);
-                $grayscale = intval(floor(min(255, max(0, (($rgb >> 16) & 0xFF) * 0.2989 + (($rgb >> 8) & 0xFF) * 0.5870 + ($rgb & 0xFF) * 0.1140))));
-                if (empty($histogram[$grayscale])) {
-                    $histogram[$grayscale] = 1;
+        for ($i = $x, $iMax = $x + $width; $i < $iMax; $i++) {
+            for ($j = $y, $jMax = $y + $height; $j < $jMax; $j++) {
+                $rgb = imagecolorat($this->_image, $i, $j);
+                $grayScale = intval(floor(min(255, max(0, (($rgb >> 16) & 0xFF) * 0.2989 + (($rgb >> 8) & 0xFF) * 0.5870 + ($rgb & 0xFF) * 0.1140))));
+                if (empty($histogram[$grayScale])) {
+                    $histogram[$grayScale] = 1;
                 } else {
-                    $histogram[$grayscale]++;
+                    $histogram[$grayScale]++;
                 }
                 $histSize++;
             }
