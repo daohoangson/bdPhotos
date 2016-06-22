@@ -4,6 +4,12 @@ class bdPhotos_Helper_Image
 {
     const OPTION_MANUAL_ORIENTATION = 'manualOrientation';
 
+    const OPTION_WIDTH = 'width';
+    const OPTION_HEIGHT = 'height';
+    const OPTION_INPUT_TYPE = 'inputType';
+    const OPTION_CROP = 'crop';
+    const OPTION_THUMBNAIL_FIXED_SHORTER_SIDE = 'thumbnailFixedShorterSide';
+    const OPTION_DROP_FRAMES = 'dropFrames';
     const OPTION_ROI = 'roi';
     const OPTION_GENERATE_2X = 'generate2x';
 
@@ -120,18 +126,14 @@ class bdPhotos_Helper_Image
         if (is_array($width) AND empty($height)) {
             // support setting additional data via an array as $width
             $array = $width;
-            $width = $array['width'];
-            $height = $array['height'];
+            $width = $array[self::OPTION_WIDTH];
+            $height = $array[self::OPTION_HEIGHT];
 
-            if (isset($array['inputType'])) {
-                $inputType = $array['inputType'];
+            if (isset($array[self::OPTION_INPUT_TYPE])) {
+                $inputType = $array[self::OPTION_INPUT_TYPE];
             }
 
-            $options = array_merge($options, array(
-                'crop' => true,
-                'thumbnailFixedShorterSide' => false,
-                'dropFramesLeavingThree' => false,
-            ), $array);
+            $options = array_merge($options, $array);
         }
 
         if (empty($inputType)) {
@@ -177,7 +179,7 @@ class bdPhotos_Helper_Image
         // try to request longer time limit
         @set_time_limit(60);
 
-        if (!empty($options['dropFramesLeavingThree'])) {
+        if (!empty($options[self::OPTION_DROP_FRAMES])) {
             if ($_generateThumbnail) {
                 if ($image->bdPhotos_dropFramesLeavingThree()) {
                     $_imageHasBeenChanged = true;
@@ -208,21 +210,21 @@ class bdPhotos_Helper_Image
         /** @var bdPhotos_XenForo_Image_Gd $image */
         $generated = false;
         $options = array_merge(array(
-            'crop' => false,
-            'roi' => false,
-            'thumbnailFixedShorterSide' => false,
+            self::OPTION_CROP => false,
+            self::OPTION_ROI => false,
+            self::OPTION_THUMBNAIL_FIXED_SHORTER_SIDE => false,
         ), $options);
 
         if ($width > 0 AND $height > 0) {
-            if (!empty($options['crop'])) {
+            if (!empty($options[self::OPTION_CROP])) {
                 $origRatio = round($image->getWidth() / $image->getHeight(), 1);
                 $cropRatio = round($width / $height, 1);
 
                 // crop mode
-                if ($origRatio != $cropRatio AND !empty($options['roi'])) {
+                if ($origRatio != $cropRatio AND !empty($options[self::OPTION_ROI])) {
                     // smart cropping using ROI information
-                    $roiX = floor($image->getWidth() * $options['roi'][0]);
-                    $roiY = floor($image->getHeight() * $options['roi'][1]);
+                    $roiX = floor($image->getWidth() * $options[self::OPTION_ROI][0]);
+                    $roiY = floor($image->getHeight() * $options[self::OPTION_ROI][1]);
 
                     if ($origRatio > $cropRatio) {
                         $cropHeight = $image->getHeight();
@@ -272,7 +274,7 @@ class bdPhotos_Helper_Image
                     }
                 }
             } else {
-                if (!empty($options['thumbnailFixedShorterSide'])) {
+                if (!empty($options[self::OPTION_THUMBNAIL_FIXED_SHORTER_SIDE])) {
                     if ($image->getWidth() > $width OR $image->getHeight() > $height) {
                         if ($width < 10) {
                             $shortSideLength = 10;

@@ -60,10 +60,9 @@ class bdPhotos_Helper_Attachment
         }
 
         $width = array(
-            'width' => 1024,
-            'height' => 1024,
-            'crop' => false,
-            'thumbnailFixedShorterSide' => true,
+            bdPhotos_Helper_Image::OPTION_WIDTH => 1024,
+            bdPhotos_Helper_Image::OPTION_HEIGHT => 1024,
+            bdPhotos_Helper_Image::OPTION_THUMBNAIL_FIXED_SHORTER_SIDE => true,
         );
         $height = 0;
 

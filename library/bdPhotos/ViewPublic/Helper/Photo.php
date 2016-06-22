@@ -150,7 +150,8 @@ class bdPhotos_ViewPublic_Helper_Photo
                         $this->_width = array(
                             'width' => $spThumbnailWidth,
                             'height' => $spThumbnailHeight,
-                            'dropFramesLeavingThree' => true,
+                            bdPhotos_Helper_Image::OPTION_CROP => true,
+                            bdPhotos_Helper_Image::OPTION_DROP_FRAMES => true,
                         );
                         $this->_height = 0;
 
@@ -162,9 +163,8 @@ class bdPhotos_ViewPublic_Helper_Photo
 
                     if (!empty($spViewWidth) AND !empty($spViewHeight)) {
                         $this->_width = array(
-                            'width' => $spViewWidth,
-                            'height' => $spViewHeight,
-                            'crop' => false,
+                            bdPhotos_Helper_Image::OPTION_WIDTH => $spViewWidth,
+                            bdPhotos_Helper_Image::OPTION_HEIGHT => $spViewHeight,
                         );
                         $this->_height = 0;
                     }
@@ -174,11 +174,10 @@ class bdPhotos_ViewPublic_Helper_Photo
                     $spThumbnailHeight = XenForo_Template_Helper_Core::styleProperty('bdPhotos_thumbnailHeight');
 
                     $this->_width = array(
-                        'width' => max($spThumbnailWidth, $spThumbnailHeight),
-                        'height' => max($spThumbnailWidth, $spThumbnailHeight),
-                        'crop' => false,
-                        'thumbnailFixedShorterSide' => true,
-                        'dropFramesLeavingThree' => true,
+                        bdPhotos_Helper_Image::OPTION_WIDTH => max($spThumbnailWidth, $spThumbnailHeight),
+                        bdPhotos_Helper_Image::OPTION_HEIGHT => max($spThumbnailWidth, $spThumbnailHeight),
+                        bdPhotos_Helper_Image::OPTION_THUMBNAIL_FIXED_SHORTER_SIDE => true,
+                        bdPhotos_Helper_Image::OPTION_DROP_FRAMES => true,
                     );
                     $this->_height = 0;
                     break;
