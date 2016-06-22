@@ -62,6 +62,11 @@ class bdPhotos_XenForo_Image_Imagemagick_Pecl extends XFCP_bdPhotos_XenForo_Imag
         return true;
     }
 
+    public function bdPhotos_removeBorder()
+    {
+        // TODO
+    }
+
     public function bdPhotos_getEntropy($x, $y, $width, $height)
     {
         $this->_bdPhotos_fixOrientation();

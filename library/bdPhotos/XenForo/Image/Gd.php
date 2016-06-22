@@ -23,6 +23,113 @@ class bdPhotos_XenForo_Image_Gd extends XFCP_bdPhotos_XenForo_Image_Gd
         return false;
     }
 
+    public function bdPhotos_removeBorder()
+    {
+        $this->_bdPhotos_fixOrientation();
+
+        static $delta = 5;
+        static $maxBorderThreshold = 0.2;
+
+        if ($this->_width < $delta / $maxBorderThreshold
+            || $this->_height < $delta / $maxBorderThreshold
+        ) {
+            // image is too small, do not process
+            return false;
+        }
+
+        $rgbAtZeroZero = imagecolorat($this->_image, 0, 0);
+        $diffCount = 0;
+        if ($rgbAtZeroZero !== imagecolorat($this->_image, $this->_width - 1, 0)) {
+            $diffCount++;
+        }
+        if ($rgbAtZeroZero !== imagecolorat($this->_image, 0, $this->_height - 1)) {
+            $diffCount++;
+        }
+        if ($rgbAtZeroZero !== imagecolorat($this->_image, $this->_width - 1, $this->_height - 1)) {
+            $diffCount++;
+        }
+        if ($diffCount > 1) {
+            // 3 corners should have the same color to continue
+            return false;
+        }
+
+        $halfWidth = floor($this->_width / 2);
+        $thresholdWidth = floor($this->_width * $maxBorderThreshold);
+        $halfHeight = floor($this->_height / 2);
+        $thresholdHeight = floor($this->_height * $maxBorderThreshold);
+
+        $topThickness = $this->_bdPhotos_removeBorder_getThickness(
+            0,
+            $thresholdHeight,
+            $halfWidth - $delta,
+            $halfWidth + $delta,
+            true
+        );
+        $leftThickness = $this->_bdPhotos_removeBorder_getThickness(
+            0,
+            $thresholdWidth,
+            $halfHeight - $delta,
+            $halfHeight + $delta,
+            false
+        );
+        $bottomThickness = $this->_bdPhotos_removeBorder_getThickness(
+            $this->_height - 1,
+            $this->_height - $thresholdHeight,
+            $halfWidth - $delta,
+            $halfWidth + $delta,
+            true
+        );
+        $rightThickness = $this->_bdPhotos_removeBorder_getThickness(
+            $this->_width - 1,
+            $this->_width - $thresholdWidth,
+            $halfHeight - $delta,
+            $halfHeight + $delta,
+            false
+        );
+
+        if ($topThickness === 0
+            && $leftThickness === 0
+            && $bottomThickness === 0
+            && $rightThickness === 0
+        ) {
+            return false;
+        }
+
+        $this->crop(
+            $leftThickness,
+            $topThickness,
+            $this->_width - $leftThickness - $rightThickness,
+            $this->_height - $topThickness - $bottomThickness
+        );
+
+        return true;
+    }
+
+    protected function _bdPhotos_removeBorder_getThickness($i0, $i1, $j0, $j1, $horizontalThickness)
+    {
+        $iDelta = $i1 > $i0 ? 1 : -1;
+        $jDelta = $j1 > $j0 ? 1 : -1;
+
+        for ($i = $i0; $i != $i1; $i += $iDelta) {
+            $firstRgb = null;
+            for ($j = $j0; $j != $j1; $j += $jDelta) {
+                if ($horizontalThickness) {
+                    $rgb = imagecolorat($this->_image, $j, $i);
+                } else {
+                    $rgb = imagecolorat($this->_image, $i, $j);
+                }
+
+                if ($firstRgb === null) {
+                    $firstRgb = $rgb;
+                } elseif ($firstRgb !== $rgb) {
+                    return ceil(abs($i - $i0) * 1.1);
+                }
+            }
+        }
+
+        return ceil(abs($i - $i0) * 1.3);
+    }
+
     public function bdPhotos_getEntropy()
     {
         $this->_bdPhotos_fixOrientation();

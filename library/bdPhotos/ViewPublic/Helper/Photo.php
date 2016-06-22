@@ -152,6 +152,8 @@ class bdPhotos_ViewPublic_Helper_Photo
                             'height' => $spThumbnailHeight,
                             bdPhotos_Helper_Image::OPTION_CROP => true,
                             bdPhotos_Helper_Image::OPTION_DROP_FRAMES => true,
+                            bdPhotos_Helper_Image::OPTION_REMOVE_BORDER =>
+                                !!XenForo_Template_Helper_Core::styleProperty('bdPhotos_thumbnailRemoveBorder'),
                         );
                         $this->_height = 0;
 
@@ -178,6 +180,8 @@ class bdPhotos_ViewPublic_Helper_Photo
                         bdPhotos_Helper_Image::OPTION_HEIGHT => max($spThumbnailWidth, $spThumbnailHeight),
                         bdPhotos_Helper_Image::OPTION_THUMBNAIL_FIXED_SHORTER_SIDE => true,
                         bdPhotos_Helper_Image::OPTION_DROP_FRAMES => true,
+                        bdPhotos_Helper_Image::OPTION_REMOVE_BORDER =>
+                            !!XenForo_Template_Helper_Core::styleProperty('bdPhotos_thumbnailRemoveBorder'),
                     );
                     $this->_height = 0;
                     break;

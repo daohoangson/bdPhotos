@@ -16,7 +16,7 @@ class bdPhotos_DataWriter_Photo extends XenForo_DataWriter
         $photoId = $this->get('photo_id');
 
         foreach ($photoInput as $key => $value) {
-            if (is_array($value) AND isset($value[$photoId]) AND strval($value[$photoId]) !== '') {
+            if (is_array($value) && !empty($value[$photoId])) {
                 if ($key == self::EXTRA_DATA_ROI) {
                     $this->setExtraData(self::EXTRA_DATA_ROI, $value[$photoId]);
 

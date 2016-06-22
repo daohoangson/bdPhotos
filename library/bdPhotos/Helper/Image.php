@@ -10,6 +10,7 @@ class bdPhotos_Helper_Image
     const OPTION_CROP = 'crop';
     const OPTION_THUMBNAIL_FIXED_SHORTER_SIDE = 'thumbnailFixedShorterSide';
     const OPTION_DROP_FRAMES = 'dropFrames';
+    const OPTION_REMOVE_BORDER = 'removeBorder';
     const OPTION_ROI = 'roi';
     const OPTION_GENERATE_2X = 'generate2x';
 
@@ -214,6 +215,10 @@ class bdPhotos_Helper_Image
             self::OPTION_ROI => false,
             self::OPTION_THUMBNAIL_FIXED_SHORTER_SIDE => false,
         ), $options);
+
+        if (!empty($options[self::OPTION_REMOVE_BORDER])) {
+            $image->bdPhotos_removeBorder();
+        }
 
         if ($width > 0 AND $height > 0) {
             if (!empty($options[self::OPTION_CROP])) {
