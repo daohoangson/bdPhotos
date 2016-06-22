@@ -4,11 +4,7 @@ class bdPhotos_Helper_Image
 {
     const OPTION_MANUAL_ORIENTATION = 'manualOrientation';
 
-    const OPTION_WIDTH = 'width';
-    const OPTION_HEIGHT = 'height';
     const OPTION_INPUT_TYPE = 'inputType';
-    const OPTION_CROP = 'crop';
-    const OPTION_THUMBNAIL_FIXED_SHORTER_SIDE = 'thumbnailFixedShorterSide';
     const OPTION_DROP_FRAMES = 'dropFrames';
     const OPTION_REMOVE_BORDER = 'removeBorder';
     const OPTION_ROI = 'roi';
@@ -118,33 +114,65 @@ class bdPhotos_Helper_Image
         return substr($path, 0, strrpos($path, '.')) . '@2x' . substr($path, strrpos($path, '.'));
     }
 
-    /**
-     * @param string $inPath
-     * @param string $extension
-     * @param int|array $width
-     * @param int $height
-     * @param string $outPath
-     * @param array $options
-     * @return int
-     */
-    public static function resizeAndCrop($inPath, $extension, &$width, &$height, $outPath, array $options = array())
+    public static function calculateSizeForFixedShorterSize($width, $height, $shortSideLength)
+    {
+        if ($height == 0) {
+            throw new XenForo_Exception('Invalid height.');
+        }
+
+        if ($shortSideLength < 10) {
+            $shortSideLength = 10;
+        }
+
+        $ratio = $width / $height;
+        if ($ratio > 1) {
+            // landscape
+            $width = $shortSideLength * $ratio;
+            $height = $shortSideLength;
+        } else {
+            $width = $shortSideLength;
+            $height = max(1, $shortSideLength / $ratio);
+        }
+
+        return array(intval($width), intval($height));
+    }
+
+    public static function calculateSizeForBoxed($width, $height, $boxWidth, $boxHeight)
+    {
+        if ($height == 0 || $boxHeight == 0) {
+            throw new XenForo_Exception('Invalid height.');
+        }
+
+        $ratio = $width / $height;
+        $boxRatio = $boxWidth / $boxHeight;
+
+        if ($ratio > $boxRatio) {
+            // too wide
+            $width = min($width, $boxWidth);
+            $height = max(1, $width / $ratio);
+        } else {
+            $height = min($height, $boxHeight);
+            $width = max(1, $height * $ratio);
+        }
+
+        return array(intval($width), intval($height));
+    }
+
+    public static function calculateSizeForCrop($width, $height, $cropWidth, $cropHeight)
+    {
+        $width = min($width, $cropWidth);
+        $height = min($height, $cropHeight);
+
+        return array(intval($width), intval($height));
+    }
+
+    public static function prepareImage($inPath, $extension, &$width, &$height, $outPath, array $options = array())
     {
         $result = 0;
 
         $inputType = self::getInputTypeFromExtension($extension);
-        if (is_array($width)
-            && empty($height)
-        ) {
-            // support setting additional data via an array as $width
-            $array = $width;
-            $width = $array[self::OPTION_WIDTH];
-            $height = $array[self::OPTION_HEIGHT];
-
-            if (isset($array[self::OPTION_INPUT_TYPE])) {
-                $inputType = $array[self::OPTION_INPUT_TYPE];
-            }
-
-            $options = array_merge($options, $array);
+        if (isset($options[self::OPTION_INPUT_TYPE])) {
+            $inputType = $options[self::OPTION_INPUT_TYPE];
         }
         if (empty($inputType)) {
             return $result;
@@ -172,7 +200,6 @@ class bdPhotos_Helper_Image
         }
 
         if (!$generateThumbnail && !$generate2x) {
-            // nothing to do
             return $result;
         }
 
@@ -197,16 +224,20 @@ class bdPhotos_Helper_Image
         self::_configureImageFromOptions($image, $options);
 
         if (!empty($options[self::OPTION_DROP_FRAMES])) {
-            if ($generateThumbnail) {
-                if ($image->bdPhotos_dropFramesLeavingThree()) {
-                    $imageHasBeenChanged = true;
-                }
+            if ($image->bdPhotos_dropFramesLeavingThree()) {
+                $imageHasBeenChanged = true;
+            }
+        }
+
+        if (!empty($options[self::OPTION_REMOVE_BORDER])) {
+            if (self::removeBorder($image)) {
+                $imageHasBeenChanged = true;
             }
         }
 
         if ($generate2x) {
-            $imageHasBeenChanged = $imageHasBeenChanged
-                || self::resizeAndCropImage($image, $width2x, $height2x, $generate2x, $options);
+            $imageHasBeenChanged = self::cropImage($image, $width2x, $height2x, $options)
+                || $imageHasBeenChanged;
             self::renameOrCopyImage($image, $inPath, $inputType,
                 $outPath2x, $generate2x, $imageHasBeenChanged);
             $result |= self::RESULT_2X_READY;
@@ -214,8 +245,8 @@ class bdPhotos_Helper_Image
         }
 
         if ($generateThumbnail) {
-            $imageHasBeenChanged = $imageHasBeenChanged
-                || self::resizeAndCropImage($image, $width, $height, $generateThumbnail, $options);
+            $imageHasBeenChanged = self::cropImage($image, $width, $height, $options)
+                || $imageHasBeenChanged;
             self::renameOrCopyImage($image, $inPath, $inputType,
                 $outPath, $generateThumbnail, $imageHasBeenChanged);
             $result |= self::RESULT_THUMBNAIL_READY;
@@ -225,148 +256,71 @@ class bdPhotos_Helper_Image
         return $result;
     }
 
-    public static function resizeAndCropImage(&$image, &$width, &$height, $generate = true, array $options = array())
+    public static function cropImage(&$image, $width, $height, array $options = array())
     {
         /** @var bdPhotos_XenForo_Image_Gd $image */
-        $generated = false;
-        $options = array_merge(array(
-            self::OPTION_CROP => false,
-            self::OPTION_ROI => false,
-            self::OPTION_THUMBNAIL_FIXED_SHORTER_SIDE => false,
-        ), $options);
+        $result = false;
 
-        if (!empty($options[self::OPTION_REMOVE_BORDER])) {
-            self::removeBorder($image);
-        }
+        $origRatio = round($image->getWidth() / $image->getHeight(), 1);
+        $cropRatio = round($width / $height, 1);
 
-        if ($width > 0 AND $height > 0) {
-            if (!empty($options[self::OPTION_CROP])) {
-                $origRatio = round($image->getWidth() / $image->getHeight(), 1);
-                $cropRatio = round($width / $height, 1);
+        // crop mode
+        if ($origRatio != $cropRatio
+            && !empty($options[self::OPTION_ROI])
+        ) {
+            // smart cropping using ROI information
+            $roiX = floor($image->getWidth() * $options[self::OPTION_ROI][0]);
+            $roiY = floor($image->getHeight() * $options[self::OPTION_ROI][1]);
 
-                // crop mode
-                if ($origRatio != $cropRatio AND !empty($options[self::OPTION_ROI])) {
-                    // smart cropping using ROI information
-                    $roiX = floor($image->getWidth() * $options[self::OPTION_ROI][0]);
-                    $roiY = floor($image->getHeight() * $options[self::OPTION_ROI][1]);
-
-                    if ($origRatio > $cropRatio) {
-                        $cropHeight = $image->getHeight();
-                        $cropWidth = floor($cropHeight * $cropRatio);
-                    } else {
-                        $cropWidth = $image->getWidth();
-                        $cropHeight = floor($cropWidth / $cropRatio);
-                    }
-
-                    $cropX = min(max(0, floor($roiX - $cropWidth / 2)), $image->getWidth() - $cropWidth);
-                    $cropY = min(max(0, floor($roiY - $cropHeight / 2)), $image->getHeight() - $cropHeight);
-
-                    if ($cropX != 0 OR $cropY != 0 OR $cropWidth != $image->getWidth() OR $cropHeight != $image->getHeight()) {
-                        if ($generate) {
-                            $image->crop($cropX, $cropY, $cropWidth, $cropHeight);
-                            $generated = true;
-                        }
-                    }
-
-                    if ($width != $image->getWidth() OR $height != $image->getHeight()) {
-                        if ($generate) {
-                            $image->bdPhotos_thumbnail($width, $height);
-                            $generated = true;
-                        }
-                    }
-                } else {
-                    if ($origRatio > $cropRatio) {
-                        $thumHeight = $height;
-                        $thumWidth = $height * $origRatio;
-                    } else {
-                        $thumWidth = $width;
-                        $thumHeight = $width / $origRatio;
-                    }
-
-                    if ($thumWidth != $image->getWidth() OR $thumHeight != $image->getHeight()) {
-                        if ($generate) {
-                            $image->bdPhotos_thumbnail($thumWidth, $thumHeight);
-                            $generated = true;
-                        }
-                    }
-
-                    if ($width != $image->getWidth() OR $height != $image->getHeight()) {
-                        if ($generate) {
-                            $image->crop(0, 0, $width, $height);
-                            $generated = true;
-                        }
-                    }
-                }
+            if ($origRatio > $cropRatio) {
+                $cropHeight = $image->getHeight();
+                $cropWidth = floor($cropHeight * $cropRatio);
             } else {
-                if (!empty($options[self::OPTION_THUMBNAIL_FIXED_SHORTER_SIDE])) {
-                    if ($image->getWidth() > $width OR $image->getHeight() > $height) {
-                        if ($width < 10) {
-                            $shortSideLength = 10;
-                        } else {
-                            $shortSideLength = $width;
-                        }
-
-                        if ($generate) {
-                            $image->thumbnailFixedShorterSide($shortSideLength);
-                            $generated = true;
-                        }
-
-                        $ratio = $image->getWidth() / $image->getHeight();
-                        if ($ratio > 1) {
-                            // landscape
-                            $width = $shortSideLength * $ratio;
-                            $height = $shortSideLength;
-                        } else {
-                            $width = $shortSideLength;
-                            $height = max(1, $shortSideLength / $ratio);
-                        }
-                    }
-                } else {
-                    // resize and make sure both width and height don't exceed the configured values
-                    $origRatio = $image->getWidth() / $image->getHeight();
-
-                    $thumWidth = $width;
-                    $thumHeight = $thumWidth / $origRatio;
-
-                    if ($thumHeight > $height) {
-                        $thumHeight = $height;
-                        $thumWidth = $thumHeight * $origRatio;
-                    }
-
-                    if (($thumWidth != $image->getWidth() OR $thumHeight != $image->getHeight()) AND $generate) {
-                        $image->bdPhotos_thumbnail($thumWidth, $thumHeight);
-                        $generated = true;
-                    }
-
-                    $width = $thumWidth;
-                    $height = $thumHeight;
-                }
-            }
-        } elseif ($height > 0) {
-            $targetHeight = $height;
-            $targetWidth = $targetHeight / $image->getHeight() * $image->getWidth();
-
-            if (($targetWidth != $image->getWidth() OR $targetHeight != $image->getHeight()) AND $generate) {
-                $image->bdPhotos_thumbnail($targetWidth, $targetHeight);
-                $generated = true;
+                $cropWidth = $image->getWidth();
+                $cropHeight = floor($cropWidth / $cropRatio);
             }
 
-            $width = $targetWidth;
-            $height = $targetHeight;
-        } elseif ($width > 0) {
-            $targetWidth = $width;
-            $targetHeight = $targetWidth / $image->getWidth() * $image->getHeight();
+            $cropX = min(max(0, floor($roiX - $cropWidth / 2)), $image->getWidth() - $cropWidth);
+            $cropY = min(max(0, floor($roiY - $cropHeight / 2)), $image->getHeight() - $cropHeight);
 
-            if (($targetWidth != $image->getWidth() OR $targetHeight != $image->getHeight()) AND $generate) {
-                $image->bdPhotos_thumbnail($targetWidth, $targetHeight);
-                $generated = true;
+            if ($cropX != 0
+                || $cropY != 0
+                || $cropWidth != $image->getWidth()
+                || $cropHeight != $image->getHeight()
+            ) {
+                $image->crop($cropX, $cropY, $cropWidth, $cropHeight);
+                $result = true;
             }
 
-            $width = $targetWidth;
-            $height = $targetHeight;
+            if ($width != $image->getWidth()
+                || $height != $image->getHeight()
+            ) {
+                $image->bdPhotos_thumbnail($width, $height);
+                $result = true;
+            }
+        } else {
+            if ($origRatio > $cropRatio) {
+                $thumbHeight = $height;
+                $thumbWidth = $height * $origRatio;
+            } else {
+                $thumbWidth = $width;
+                $thumbHeight = $width / $origRatio;
+            }
+
+            if ($thumbWidth != $image->getWidth()
+                || $thumbHeight != $image->getHeight()
+            ) {
+                $image->bdPhotos_thumbnail($thumbWidth, $thumbHeight);
+                $result = true;
+            }
+
+            if ($width != $image->getWidth() OR $height != $image->getHeight()) {
+                $image->crop(0, 0, $width, $height);
+                $result = true;
+            }
         }
 
-        return $generated;
+        return $result;
     }
 
     public static function renameOrCopyImage(&$image, $inPath, $inputType, $outPath, $generate, $changed)

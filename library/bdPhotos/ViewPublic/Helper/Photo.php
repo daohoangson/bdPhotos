@@ -19,8 +19,7 @@ class bdPhotos_ViewPublic_Helper_Photo
     protected $_data;
     protected $_template;
     protected $_outputAttributes;
-    protected $_width = 0;
-    protected $_height = 0;
+    protected $_size = null;
     protected $_sizePreset = self::SIZE_PRESET_THUMBNAIL;
     protected $_options = array();
 
@@ -51,7 +50,7 @@ class bdPhotos_ViewPublic_Helper_Photo
         }
 
         if (isset($options['size'])) {
-            $this->setSize($options['size'][0], $options['size'][1]);
+            $this->setSize($options['size']);
             unset($options['size']);
         } elseif (isset($options['size_preset'])) {
             $this->setSizePreset($options['size_preset']);
@@ -106,10 +105,9 @@ class bdPhotos_ViewPublic_Helper_Photo
         $this->_outputAttributes = $outputAttributes;
     }
 
-    public function setSize($width, $height)
+    public function setSize($size)
     {
-        $this->_width = $width;
-        $this->_height = $height;
+        $this->_size = $size;
     }
 
     public function setSizePreset($sizePreset)
@@ -139,54 +137,57 @@ class bdPhotos_ViewPublic_Helper_Photo
         $width = 0;
         $height = 0;
 
-        if ($this->_width === self::SIZE_ORIGINAL AND $this->_height === self::SIZE_ORIGINAL) {
+        $metadataArray = array();
+        if (!empty($this->_data['metadataArray'])) {
+            $metadataArray = $this->_data['metadataArray'];
+        }
+
+        if ($this->_size === self::SIZE_ORIGINAL) {
             $url = XenForo_Link::buildPublicLink('full:attachments', $this->_data);
             $width = $this->_data['width'];
             $height = $this->_data['height'];
-        } elseif (!($this->_width > 0) AND !($this->_height > 0)) {
+        } elseif ($this->_size === null) {
             switch ($this->_sizePreset) {
                 case self::SIZE_PRESET_THUMBNAIL:
-                    $spThumbnailWidth = XenForo_Template_Helper_Core::styleProperty('bdPhotos_thumbnailWidth');
-                    $spThumbnailHeight = XenForo_Template_Helper_Core::styleProperty('bdPhotos_thumbnailHeight');
+                    $this->_size = bdPhotos_Helper_Image::calculateSizeForCrop(
+                        $this->_data['width'], $this->_data['height'],
+                        XenForo_Template_Helper_Core::styleProperty('bdPhotos_thumbnailWidth'),
+                        XenForo_Template_Helper_Core::styleProperty('bdPhotos_thumbnailHeight')
+                    );
 
-                    if (!empty($spThumbnailWidth) AND !empty($spThumbnailHeight)) {
-                        $this->_width = array(
-                            'width' => $spThumbnailWidth,
-                            'height' => $spThumbnailHeight,
-                            bdPhotos_Helper_Image::OPTION_CROP => true,
-                            bdPhotos_Helper_Image::OPTION_DROP_FRAMES => true,
-                            bdPhotos_Helper_Image::OPTION_REMOVE_BORDER =>
-                                !!XenForo_Template_Helper_Core::styleProperty('bdPhotos_thumbnailRemoveBorder'),
+                    $this->_options += array(
+                        bdPhotos_Helper_Image::OPTION_DROP_FRAMES => true,
+                        bdPhotos_Helper_Image::OPTION_REMOVE_BORDER =>
+                            !!XenForo_Template_Helper_Core::styleProperty('bdPhotos_thumbnailRemoveBorder')
+                    );
+
+                    if (!empty($metadataArray[bdPhotos_Helper_Image::OPTION_ROI])) {
+                        $this->_options += array(
+                            bdPhotos_Helper_Image::OPTION_ROI =>
+                                $metadataArray[bdPhotos_Helper_Image::OPTION_ROI]
                         );
-                        $this->_height = 0;
-
                     }
                     break;
                 case self::SIZE_PRESET_VIEW:
-                    $spViewWidth = XenForo_Template_Helper_Core::styleProperty('bdPhotos_viewWidth');
-                    $spViewHeight = XenForo_Template_Helper_Core::styleProperty('bdPhotos_viewHeight');
-
-                    if (!empty($spViewWidth) AND !empty($spViewHeight)) {
-                        $this->_width = array(
-                            bdPhotos_Helper_Image::OPTION_WIDTH => $spViewWidth,
-                            bdPhotos_Helper_Image::OPTION_HEIGHT => $spViewHeight,
-                        );
-                        $this->_height = 0;
-                    }
+                    $this->_size = bdPhotos_Helper_Image::calculateSizeForBoxed(
+                        $this->_data['width'], $this->_data['height'],
+                        XenForo_Template_Helper_Core::styleProperty('bdPhotos_viewWidth'),
+                        XenForo_Template_Helper_Core::styleProperty('bdPhotos_viewHeight')
+                    );
                     break;
                 case self::SIZE_PRESET_EDITOR:
-                    $spThumbnailWidth = XenForo_Template_Helper_Core::styleProperty('bdPhotos_thumbnailWidth');
-                    $spThumbnailHeight = XenForo_Template_Helper_Core::styleProperty('bdPhotos_thumbnailHeight');
+                    $this->_size = bdPhotos_Helper_Image::calculateSizeForFixedShorterSize(
+                        $this->_data['width'],
+                        $this->_data['height'],
+                        max(XenForo_Template_Helper_Core::styleProperty('bdPhotos_thumbnailWidth'),
+                            XenForo_Template_Helper_Core::styleProperty('bdPhotos_thumbnailHeight'))
+                    );
 
-                    $this->_width = array(
-                        bdPhotos_Helper_Image::OPTION_WIDTH => max($spThumbnailWidth, $spThumbnailHeight),
-                        bdPhotos_Helper_Image::OPTION_HEIGHT => max($spThumbnailWidth, $spThumbnailHeight),
-                        bdPhotos_Helper_Image::OPTION_THUMBNAIL_FIXED_SHORTER_SIDE => true,
+                    $this->_options += array(
                         bdPhotos_Helper_Image::OPTION_DROP_FRAMES => true,
                         bdPhotos_Helper_Image::OPTION_REMOVE_BORDER =>
-                            !!XenForo_Template_Helper_Core::styleProperty('bdPhotos_thumbnailRemoveBorder'),
+                            !!XenForo_Template_Helper_Core::styleProperty('bdPhotos_thumbnailRemoveBorder')
                     );
-                    $this->_height = 0;
                     break;
             }
 
@@ -194,55 +195,39 @@ class bdPhotos_ViewPublic_Helper_Photo
 
         if (!empty($url)) {
             // nothing to do
-        } elseif (empty($this->_width) AND empty($this->_height)) {
+        } elseif ($this->_size === null) {
             if (!empty($this->_data['thumbnailUrl'])) {
                 $url = XenForo_Link::convertUriToAbsoluteUri($this->_data['thumbnailUrl'], true);
                 $width = $this->_data['thumbnail_width'];
                 $height = $this->_data['thumbnail_height'];
             }
-        } else {
-            if (!empty($this->_data['metadataArray'])) {
-                $metadata = $this->_data['metadataArray'];
-            } else {
-                $metadata = array();
-            }
-
-            $filePath = bdPhotos_Helper_Attachment::getUsableFilePath($this->_getAttachmentModel(), $this->_data, $metadata);
-            if (file_exists($filePath) AND !empty($this->_data['filename'])) {
+        } elseif (!empty($this->_data['filename'])) {
+            $filePath = bdPhotos_Helper_Attachment::getUsableFilePath(
+                $this->_getAttachmentModel(), $this->_data, $metadataArray);
+            if (file_exists($filePath)) {
                 $extension = XenForo_Helper_File::getFileExtension($this->_data['filename']);
+                $cachePath = self::_getCachePath($filePath, $extension, $this->_size, $this->_options);
+                $url = self::_getCacheUrl($filePath, $extension, $this->_size, $this->_options);
 
-                $options = array();
-                if (!empty($metadata[bdPhotos_Helper_Image::OPTION_ROI])) {
-                    $options[bdPhotos_Helper_Image::OPTION_ROI] = $metadata[bdPhotos_Helper_Image::OPTION_ROI];
-                }
-
-                $cachePath = self::_getCachePath($filePath, $extension, $this->_width, $this->_height, $options);
-                $url = self::_getCacheUrl($filePath, $extension, $this->_width, $this->_height, $options);
-
-                if (!isset($options[bdPhotos_Helper_Image::OPTION_GENERATE_2X])
-                    && $this->_template === self::$defaultTemplate
+                if ($this->_template === self::$defaultTemplate
                     && !!XenForo_Template_Helper_Core::styleProperty('bdPhotos_view2x')
                     && self::$_generated2xCount < self::GENERATED_2X_PER_REQUEST
                 ) {
-                    $options[bdPhotos_Helper_Image::OPTION_GENERATE_2X] = true;
+                    $this->_options += array(bdPhotos_Helper_Image::OPTION_GENERATE_2X => true);
                 }
 
-                $result = bdPhotos_Helper_Image::resizeAndCrop($filePath, $extension, $this->_width, $this->_height,
-                    $cachePath, $options);
+                list($width, $height) = $this->_size;
+                $result = bdPhotos_Helper_Image::prepareImage($filePath,
+                    $extension, $width, $height, $cachePath, $this->_options);
 
-                if ($result & bdPhotos_Helper_Image::RESULT_THUMBNAIL_READY) {
-                    $width = $this->_width;
-                    $height = $this->_height;
-                } else {
+                if (!($result & bdPhotos_Helper_Image::RESULT_THUMBNAIL_READY)) {
                     $url = false;
                 }
-
                 if ($result & bdPhotos_Helper_Image::RESULT_2X_READY) {
                     $url2x = bdPhotos_Helper_Image::getPath2x($url);
-
-                    if ($result & bdPhotos_Helper_Image::RESULT_GENERATED_2X) {
-                        self::$_generated2xCount++;
-                    }
+                }
+                if ($result & bdPhotos_Helper_Image::RESULT_GENERATED_2X) {
+                    self::$_generated2xCount++;
                 }
             }
         }
@@ -275,7 +260,8 @@ class bdPhotos_ViewPublic_Helper_Photo
                 }
 
                 if (!empty($photoIds)) {
-                    $photos = $this->_getPhotoModel()->getPhotos(array('photo_id' => $photoIds), array('join' => bdPhotos_Model_Photo::FETCH_ATTACHMENT + bdPhotos_Model_Photo::FETCH_ALBUM));
+                    $photos = $this->_getPhotoModel()->getPhotos(array('photo_id' => $photoIds),
+                        array('join' => bdPhotos_Model_Photo::FETCH_ATTACHMENT + bdPhotos_Model_Photo::FETCH_ALBUM));
                     foreach ($photos as &$photo) {
                         $photo = $this->_getPhotoModel()->preparePhoto($photo, $photo);
                         self::$_cachedData[$photo['photo_id']] = $photo;
@@ -373,34 +359,39 @@ class bdPhotos_ViewPublic_Helper_Photo
     protected static function _tryToConvertUrlToPath($url)
     {
         if (strpos($url, sprintf('%s/bdPhotos', XenForo_Application::$externalDataUrl)) === 0) {
-            return substr_replace($url, XenForo_Application::$externalDataPath, 0, strlen(XenForo_Application::$externalDataUrl));
+            return substr_replace($url, XenForo_Application::$externalDataPath, 0,
+                strlen(XenForo_Application::$externalDataUrl));
         }
 
         return $url;
     }
 
-    protected static function _getCachePath($filePath, $extension, $width, $height, array $options = array())
+    protected static function _getCachePath($filePath, $extension, array $size, array $options = array())
     {
-        return sprintf('%s/%s', XenForo_Application::$externalDataPath, self::_getCachePartialPath($filePath, $extension, $width, $height, $options));
+        return sprintf('%s/%s', XenForo_Application::$externalDataPath,
+            self::_getCachePartialPath($filePath, $extension, $size, $options));
     }
 
-    protected static function _getCacheUrl($filePath, $extension, $width, $height, array $options = array())
+    protected static function _getCacheUrl($filePath, $extension, array $size, array $options = array())
     {
-        return sprintf('%s/%s', XenForo_Application::$externalDataUrl, self::_getCachePartialPath($filePath, $extension, $width, $height, $options));
+        return sprintf('%s/%s', XenForo_Application::$externalDataUrl,
+            self::_getCachePartialPath($filePath, $extension, $size, $options));
     }
 
-    protected static function _getCachePartialPath($filePath, $extension, $width, $height, array $options = array())
+    protected static function _getCachePartialPath($filePath, $extension, array $size, array $options = array())
     {
-        $filePathHash = md5($filePath . serialize($options));
+        ksort($options);
+        $optionsAsString = serialize($options);
+
+        $filePathHash = md5($filePath . $optionsAsString);
         $divider = substr(md5($filePathHash), 0, 1);
 
-        if (is_numeric($width) AND is_numeric($height)) {
-            return sprintf('bdPhotos/%5$s/%1$s_%3$d_%4$d.%2$s', $filePathHash, $extension, $width, $height, $divider);
+        if (empty($options)) {
+            return sprintf('bdPhotos/%5$s/%1$s_%3$d_%4$d.%2$s',
+                $filePathHash, $extension, $size[0], $size[1], $divider);
         } else {
-            return sprintf('bdPhotos/%4$s/%1$s_%3$s.%2$s', $filePathHash, $extension, md5(serialize(array(
-                $width,
-                $height
-            ))), $divider);
+            return sprintf('bdPhotos/%4$s/%1$s_%3$s.%2$s',
+                $filePathHash, $extension, md5($optionsAsString), $divider);
         }
     }
 

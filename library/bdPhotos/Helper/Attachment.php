@@ -59,14 +59,9 @@ class bdPhotos_Helper_Attachment
             bdPhotos_Helper_Image::prepareOptionsFromExifData($options, $metadata['exif']);
         }
 
-        $width = array(
-            bdPhotos_Helper_Image::OPTION_WIDTH => 1024,
-            bdPhotos_Helper_Image::OPTION_HEIGHT => 1024,
-            bdPhotos_Helper_Image::OPTION_THUMBNAIL_FIXED_SHORTER_SIDE => true,
-        );
-        $height = 0;
-
-        if (bdPhotos_Helper_Image::resizeAndCrop($filePath, $extension, $width, $height, $usableFilePath, $options)) {
+        list($width, $height) = bdPhotos_Helper_Image::calculateSizeForFixedShorterSize(
+            $attachment['width'], $attachment['height'], 1024);
+        if (bdPhotos_Helper_Image::prepareImage($filePath, $extension, $width, $height, $usableFilePath, $options)) {
             return $usableFilePath;
         }
 
