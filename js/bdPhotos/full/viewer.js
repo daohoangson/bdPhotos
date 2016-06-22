@@ -294,7 +294,8 @@
                             }, '', this.href);
                     }
 
-                    document.title = this.$trigger.data('overlay').getConf().title;
+                    var $title = $('<p />').html(this.$trigger.data('overlay').getConf().title);
+                    document.title = $title.text();
                 }
 
                 $(window).bind('popstate', this.windowPopStateContext);
