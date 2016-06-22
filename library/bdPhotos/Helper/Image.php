@@ -236,7 +236,7 @@ class bdPhotos_Helper_Image
         ), $options);
 
         if (!empty($options[self::OPTION_REMOVE_BORDER])) {
-            $image->bdPhotos_removeBorder();
+            self::removeBorder($image);
         }
 
         if ($width > 0 AND $height > 0) {
@@ -405,6 +405,119 @@ class bdPhotos_Helper_Image
         }
 
         return $tempFile;
+    }
+
+    public static function removeBorder(&$image)
+    {
+        /** @var bdPhotos_XenForo_Image_Gd $image */
+        $image->bdPhotos_fixOrientation();
+
+        static $delta = 5;
+        static $maxBorderThreshold = 0.2;
+
+        if ($image->getWidth() < $delta / $maxBorderThreshold
+            || $image->getHeight() < $delta / $maxBorderThreshold
+        ) {
+            // image is too small, do not process
+            return false;
+        }
+
+        $pixelAtZeroZero = $image->bdPhotos_getPixelValue(0, 0);
+        $diffCount = 0;
+        if ($pixelAtZeroZero !== $image->bdPhotos_getPixelValue($image->getWidth() - 1, 0)) {
+            $diffCount++;
+        }
+        if ($pixelAtZeroZero !== $image->bdPhotos_getPixelValue(0, $image->getHeight() - 1)) {
+            $diffCount++;
+        }
+        if ($pixelAtZeroZero !== $image->bdPhotos_getPixelValue($image->getWidth() - 1, $image->getHeight() - 1)) {
+            $diffCount++;
+        }
+        if ($diffCount > 1) {
+            // 3 corners should have the same color to continue
+            return false;
+        }
+
+        $halfWidth = floor($image->getWidth() / 2);
+        $thresholdWidth = floor($image->getWidth() * $maxBorderThreshold);
+        $halfHeight = floor($image->getHeight() / 2);
+        $thresholdHeight = floor($image->getHeight() * $maxBorderThreshold);
+
+        $topThickness = self::_removeBorder_getThickness(
+            $image,
+            0,
+            $thresholdHeight,
+            $halfWidth - $delta,
+            $halfWidth + $delta,
+            true
+        );
+        $leftThickness = self::_removeBorder_getThickness(
+            $image,
+            0,
+            $thresholdWidth,
+            $halfHeight - $delta,
+            $halfHeight + $delta,
+            false
+        );
+        $bottomThickness = self::_removeBorder_getThickness(
+            $image,
+            $image->getHeight() - 1,
+            $image->getHeight() - $thresholdHeight,
+            $halfWidth - $delta,
+            $halfWidth + $delta,
+            true
+        );
+        $rightThickness = self::_removeBorder_getThickness(
+            $image,
+            $image->getWidth() - 1,
+            $image->getWidth() - $thresholdWidth,
+            $halfHeight - $delta,
+            $halfHeight + $delta,
+            false
+        );
+
+        if ($topThickness === 0
+            && $leftThickness === 0
+            && $bottomThickness === 0
+            && $rightThickness === 0
+        ) {
+            return false;
+        }
+
+        $image->crop(
+            $leftThickness,
+            $topThickness,
+            $image->getWidth() - $leftThickness - $rightThickness,
+            $image->getHeight() - $topThickness - $bottomThickness
+        );
+
+        return true;
+    }
+
+    protected static function _removeBorder_getThickness(&$image, $i0, $i1, $j0, $j1, $horizontalThickness)
+    {
+        /** @var bdPhotos_XenForo_Image_Gd $image */
+        $iDelta = $i1 > $i0 ? 1 : -1;
+        $jDelta = $j1 > $j0 ? 1 : -1;
+
+        for ($i = $i0; $i != $i1; $i += $iDelta) {
+            $firstRgb = null;
+            for ($j = $j0; $j != $j1; $j += $jDelta) {
+                if ($horizontalThickness) {
+                    $rgb = $image->bdPhotos_getPixelValue($j, $i);
+                } else {
+                    $rgb = $image->bdPhotos_getPixelValue($i, $j);
+                }
+
+                if ($firstRgb === null) {
+                    $firstRgb = $rgb;
+                } elseif ($firstRgb !== $rgb) {
+                    return ceil(abs($i - $i0) * 1.1);
+                }
+            }
+        }
+
+        return ceil(abs($i - $i0) * 1.3);
     }
 
     protected static function _configureImageFromOptions(XenForo_Image_Abstract $image, array $options)

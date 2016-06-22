@@ -6,7 +6,7 @@ class bdPhotos_XenForo_Image_Imagemagick_Pecl extends XFCP_bdPhotos_XenForo_Imag
 
     public function bdPhotos_dropFramesLeavingThree()
     {
-        $this->_bdPhotos_fixOrientation();
+        $this->bdPhotos_fixOrientation();
 
         $count = $this->_image->getNumberImages();
         if ($count <= 3) {
@@ -53,14 +53,9 @@ class bdPhotos_XenForo_Image_Imagemagick_Pecl extends XFCP_bdPhotos_XenForo_Imag
         return true;
     }
 
-    public function bdPhotos_removeBorder()
-    {
-        // TODO
-    }
-
     public function bdPhotos_getEntropy($x, $y, $width, $height)
     {
-        $this->_bdPhotos_fixOrientation();
+        $this->bdPhotos_fixOrientation();
 
         $pixels = array();
         foreach ($this->_image AS $frame) {
@@ -95,6 +90,16 @@ class bdPhotos_XenForo_Image_Imagemagick_Pecl extends XFCP_bdPhotos_XenForo_Imag
         return -$sum;
     }
 
+    public function bdPhotos_getPixelValue($x, $y)
+    {
+        foreach ($this->_image AS $frame) {
+            $pixel = $frame->getImagePixelColor($x, $y);
+            return implode('', $pixel->getColor());
+        }
+
+        return '';
+    }
+
     public function bdPhotos_setManualOrientation($orientation)
     {
         if (!bdPhotos_Option::get('doExifRotate')) {
@@ -119,7 +124,7 @@ class bdPhotos_XenForo_Image_Imagemagick_Pecl extends XFCP_bdPhotos_XenForo_Imag
 
     public function bdPhotos_strip()
     {
-        $this->_bdPhotos_fixOrientation();
+        $this->bdPhotos_fixOrientation();
 
         foreach ($this->_image AS $frame) {
             $frame->stripImage();
@@ -130,7 +135,7 @@ class bdPhotos_XenForo_Image_Imagemagick_Pecl extends XFCP_bdPhotos_XenForo_Imag
 
     public function bdPhotos_thumbnail($width, $height)
     {
-        $this->_bdPhotos_fixOrientation();
+        $this->bdPhotos_fixOrientation();
 
         try {
             foreach ($this->_image AS $frame) {
@@ -145,7 +150,7 @@ class bdPhotos_XenForo_Image_Imagemagick_Pecl extends XFCP_bdPhotos_XenForo_Imag
         return true;
     }
 
-    protected function _bdPhotos_fixOrientation()
+    public function bdPhotos_fixOrientation()
     {
         if (!empty($this->_bdPhotos_manualOrientation)) {
             $pixel = new ImagickPixel();
@@ -172,28 +177,28 @@ class bdPhotos_XenForo_Image_Imagemagick_Pecl extends XFCP_bdPhotos_XenForo_Imag
 
     public function thumbnail($maxWidth, $maxHeight = 0)
     {
-        $this->_bdPhotos_fixOrientation();
+        $this->bdPhotos_fixOrientation();
 
         return parent::thumbnail($maxWidth, $maxHeight);
     }
 
     public function thumbnailFixedShorterSide($shortSideWidth)
     {
-        $this->_bdPhotos_fixOrientation();
+        $this->bdPhotos_fixOrientation();
 
         return parent::thumbnailFixedShorterSide($shortSideWidth);
     }
 
     public function crop($x, $y, $width, $height)
     {
-        $this->_bdPhotos_fixOrientation();
+        $this->bdPhotos_fixOrientation();
 
         parent::crop($x, $y, $width, $height);
     }
 
     public function output($outputType, $outputFile = null, $quality = 85)
     {
-        $this->_bdPhotos_fixOrientation();
+        $this->bdPhotos_fixOrientation();
 
         return parent::output($outputType, $outputFile, $quality);
     }
