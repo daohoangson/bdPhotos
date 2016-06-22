@@ -216,8 +216,13 @@ class bdPhotos_ViewPublic_Helper_Photo
                 $cachePath = self::_getCachePath($filePath, $extension, $this->_width, $this->_height, $options);
                 $url = self::_getCacheUrl($filePath, $extension, $this->_width, $this->_height, $options);
 
-                if ($this->_template === self::$defaultTemplate) {
+                if (!isset($options[bdPhotos_Helper_Image::OPTION_GENERATE_2X])
+                    && $this->_template === self::$defaultTemplate
+                    && !!XenForo_Template_Helper_Core::styleProperty('bdPhotos_view2x')
+                ) {
                     $options[bdPhotos_Helper_Image::OPTION_GENERATE_2X] = true;
+                }
+                if (!empty($options[bdPhotos_Helper_Image::OPTION_GENERATE_2X])) {
                     $url2x = bdPhotos_Helper_Image::getPath2x($url);
                 }
 

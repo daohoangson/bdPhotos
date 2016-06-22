@@ -418,6 +418,8 @@ step=1024</edit_format_params>
     <phrase title="style_property_bdPhotos_thumbnailRemoveBorder_master" version_id="5" version_string="0.9.2"><![CDATA[Thumbnail: Remove Border]]></phrase>
     <phrase title="style_property_bdPhotos_thumbnailWidth_description_master" version_id="1" version_string="0.9-dev"><![CDATA[]]></phrase>
     <phrase title="style_property_bdPhotos_thumbnailWidth_master" version_id="1" version_string="0.9-dev"><![CDATA[Thumbnail Width]]></phrase>
+    <phrase title="style_property_bdPhotos_view2x_description_master" version_id="5" version_string="0.9.2"><![CDATA[Enable this style property to render an additional retina-friendly version for photos. Retina files are twice as big so this will affect server performance and requires extra storage.]]></phrase>
+    <phrase title="style_property_bdPhotos_view2x_master" version_id="5" version_string="0.9.2"><![CDATA[View: Retina Photo]]></phrase>
     <phrase title="style_property_bdPhotos_viewHeight_description_master" version_id="4" version_string="0.9.1b"><![CDATA[The maximum height for photos in viewer.]]></phrase>
     <phrase title="style_property_bdPhotos_viewHeight_master" version_id="4" version_string="0.9.1b"><![CDATA[View Height]]></phrase>
     <phrase title="style_property_bdPhotos_viewWidth_description_master" version_id="4" version_string="0.9.1b"><![CDATA[The maximum width for photos in viewer.]]></phrase>
@@ -441,6 +443,7 @@ step=1024</edit_format_params>
     <property property_name="bdPhotos_viewWidth" property_type="scalar" definition="1" group_name="bdPhotos" title="View Width" description="The maximum width for photos in viewer." css_components="" scalar_type="number" scalar_parameters="" display_order="1000" sub_group="view"><![CDATA[1200]]></property>
     <property property_name="bdPhotos_viewHeight" property_type="scalar" definition="1" group_name="bdPhotos" title="View Height" description="The maximum height for photos in viewer." css_components="" scalar_type="number" scalar_parameters="" display_order="1000" sub_group="view"><![CDATA[800]]></property>
     <property property_name="bdPhotos_thumbnailRemoveBorder" property_type="scalar" definition="1" group_name="bdPhotos" title="Thumbnail: Remove Border" description="Enable this style property to try to remove border from photos. The algorithm for this is not perfect and may cause server performance issue." css_components="" scalar_type="boolean" scalar_parameters="" display_order="1010" sub_group="thumbnail"><![CDATA[1]]></property>
+    <property property_name="bdPhotos_view2x" property_type="scalar" definition="1" group_name="bdPhotos" title="View: Retina Photo" description="Enable this style property to render an additional retina-friendly version for photos. Retina files are twice as big so this will affect server performance and requires extra storage." css_components="" scalar_type="boolean" scalar_parameters="" display_order="1010" sub_group="view"><![CDATA[1]]></property>
     <group group_name="bdPhotos" display_order="9999">
       <title>[bd] Photos</title>
       <description></description>
