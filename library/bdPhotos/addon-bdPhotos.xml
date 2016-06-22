@@ -437,7 +437,7 @@ step=1024</edit_format_params>
       <prefix original_prefix="photo-locations" class="bdPhotos_Route_PrefixAdmin_Location" build_link="data_only"/>
     </route_type>
     <route_type type="public">
-      <prefix original_prefix="photos" class="bdPhotos_Route_Prefix_Photos" build_link="data_only"/>
+      <prefix original_prefix="photos" class="bdPhotos_Route_Prefix_Photos" build_link="all"/>
       <prefix original_prefix="photos-meta" class="bdPhotos_Route_Prefix_Metadata" build_link="all"/>
     </route_type>
   </route_prefixes>

@@ -32,13 +32,18 @@ class bdPhotos_Route_Prefix_Photos implements XenForo_Route_Interface
             $action = $router->resolveActionWithIntegerParam($routePath, $request, 'photo_id');
         }
 
+        $action = $router->resolveActionAsPageNumber($action, $request);
+
         return $router->getRouteMatch($controller, $action, bdPhotos_Option::get('navTabId'));
     }
 
     public function buildLink($originalPrefix, $outputPrefix, $action, $extension, $data, array &$extraParams)
     {
+        $action = XenForo_Link::getPageNumberAsAction($action, $extraParams);
+
         if (!empty($data['location_id'])) {
-            $data['locationNameFormatted'] = XenForo_Template_Helper_Core::callHelper('bdPhotos_formatLocationName', array($data));
+            $data['locationNameFormatted'] = XenForo_Template_Helper_Core::callHelper(
+                'bdPhotos_formatLocationName', array($data));
         }
 
         $link = XenForo_Link::buildSubComponentLink($this->_subComponents, $outputPrefix, $action, $extension, $data);
@@ -53,7 +58,12 @@ class bdPhotos_Route_Prefix_Photos implements XenForo_Route_Interface
                 unset($extraParams['setString']);
             }
 
-            $link = XenForo_Link::buildBasicLinkWithIntegerParam($outputPrefix, $action, $extension, $data, 'photo_id');
+            if (isset($data['photo_id'])) {
+                $link = XenForo_Link::buildBasicLinkWithIntegerParam($outputPrefix,
+                    $action, $extension, $data, 'photo_id');
+            } else {
+                $link = XenForo_Link::buildBasicLink($outputPrefix, $action, $extension);
+            }
         }
 
         return $link;
