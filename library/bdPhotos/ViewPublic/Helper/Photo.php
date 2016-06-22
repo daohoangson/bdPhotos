@@ -7,9 +7,12 @@ class bdPhotos_ViewPublic_Helper_Photo
     const SIZE_PRESET_EDITOR = 'editor';
     const SIZE_PRESET_VIEW = 'view';
 
+    const GENERATED_2X_PER_REQUEST = 5;
+
     public static $defaultTemplate = 'bdphotos_common_photo';
 
     protected static $_cachedData = array();
+    protected static $_generated2xCount = 0;
 
     protected $_view;
     protected $_photoId;
@@ -219,18 +222,27 @@ class bdPhotos_ViewPublic_Helper_Photo
                 if (!isset($options[bdPhotos_Helper_Image::OPTION_GENERATE_2X])
                     && $this->_template === self::$defaultTemplate
                     && !!XenForo_Template_Helper_Core::styleProperty('bdPhotos_view2x')
+                    && self::$_generated2xCount < self::GENERATED_2X_PER_REQUEST
                 ) {
                     $options[bdPhotos_Helper_Image::OPTION_GENERATE_2X] = true;
                 }
-                if (!empty($options[bdPhotos_Helper_Image::OPTION_GENERATE_2X])) {
-                    $url2x = bdPhotos_Helper_Image::getPath2x($url);
-                }
 
-                if (bdPhotos_Helper_Image::resizeAndCrop($filePath, $extension, $this->_width, $this->_height, $cachePath, $options)) {
+                $result = bdPhotos_Helper_Image::resizeAndCrop($filePath, $extension, $this->_width, $this->_height,
+                    $cachePath, $options);
+
+                if ($result & bdPhotos_Helper_Image::RESULT_THUMBNAIL_READY) {
                     $width = $this->_width;
                     $height = $this->_height;
                 } else {
                     $url = false;
+                }
+
+                if ($result & bdPhotos_Helper_Image::RESULT_2X_READY) {
+                    $url2x = bdPhotos_Helper_Image::getPath2x($url);
+
+                    if ($result & bdPhotos_Helper_Image::RESULT_GENERATED_2X) {
+                        self::$_generated2xCount++;
+                    }
                 }
             }
         }

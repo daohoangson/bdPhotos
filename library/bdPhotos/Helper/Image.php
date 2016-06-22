@@ -14,6 +14,11 @@ class bdPhotos_Helper_Image
     const OPTION_ROI = 'roi';
     const OPTION_GENERATE_2X = 'generate2x';
 
+    const RESULT_THUMBNAIL_READY = 0x01;
+    const RESULT_GENERATED_THUMBNAIL = 0x02;
+    const RESULT_2X_READY = 0x04;
+    const RESULT_GENERATED_2X = 0x08;
+
     public static function detectROI($path, $extension, array $options = array())
     {
         // ideas from
@@ -113,18 +118,23 @@ class bdPhotos_Helper_Image
         return substr($path, 0, strrpos($path, '.')) . '@2x' . substr($path, strrpos($path, '.'));
     }
 
+    /**
+     * @param string $inPath
+     * @param string $extension
+     * @param int|array $width
+     * @param int $height
+     * @param string $outPath
+     * @param array $options
+     * @return int
+     */
     public static function resizeAndCrop($inPath, $extension, &$width, &$height, $outPath, array $options = array())
     {
+        $result = 0;
+
         $inputType = self::getInputTypeFromExtension($extension);
-
-        $_generateThumbnail = true;
-        $_imageHasBeenChanged = false;
-
-        $outPath2x = '';
-        $_generateThumbnail2x = true;
-        $_image2xHasBeenChanged = false;
-
-        if (is_array($width) AND empty($height)) {
+        if (is_array($width)
+            && empty($height)
+        ) {
             // support setting additional data via an array as $width
             $array = $width;
             $width = $array[self::OPTION_WIDTH];
@@ -136,74 +146,83 @@ class bdPhotos_Helper_Image
 
             $options = array_merge($options, $array);
         }
-
         if (empty($inputType)) {
-            return false;
+            return $result;
         }
 
+        $generateThumbnail = true;
         if (file_exists($outPath)) {
-            $_generateThumbnail = false;
+            $generateThumbnail = false;
+            $result |= self::RESULT_THUMBNAIL_READY;
         }
 
-        if (!empty($options[self::OPTION_GENERATE_2X])) {
-            $outPath2x = self::getPath2x($outPath);
-            if (file_exists($outPath2x)) {
-                $_generateThumbnail2x = false;
-            }
-        } else {
-            $_generateThumbnail2x = false;
+        $width2x = $width * 2;
+        $height2x = $height * 2;
+        $outPath2x = self::getPath2x($outPath);
+        $generate2x = false;
+        if ($result & self::RESULT_THUMBNAIL_READY
+            && file_exists($outPath2x)
+        ) {
+            $result |= self::RESULT_2X_READY;
+        }
+        if (!empty($options[self::OPTION_GENERATE_2X])
+            && !($result & self::RESULT_2X_READY)
+        ) {
+            $generate2x = true;
         }
 
-        if (!$_generateThumbnail && !$_generateThumbnail2x) {
+        if (!$generateThumbnail && !$generate2x) {
             // nothing to do
-            return true;
+            return $result;
         }
 
         /** @var bdPhotos_XenForo_Image_Gd $image */
         $image = XenForo_Image_Abstract::createFromFile($inPath, $inputType);
         if (empty($image)) {
-            return false;
+            return $result;
+        }
+        $imageHasBeenChanged = false;
+
+        if ($generate2x) {
+            if ($width2x > $image->getWidth()
+                || $height2x > $image->getWidth()
+            ) {
+                $generate2x = false;
+            }
         }
 
-        $image2x = null;
-        $width2x = $width * 2;
-        $height2x = $height * 2;
-        if ($outPath2x AND $_generateThumbnail2x) {
-            $image2x = $image->bdPhotos_copy();
-        }
-
-        self::_configureImageFromOptions($image, $options);
-        if (!empty($image2x)) {
-            self::_configureImageFromOptions($image2x, $options);
-        }
-
-        // try to request longer time limit
+        // try to request long time limit
         @set_time_limit(60);
 
+        self::_configureImageFromOptions($image, $options);
+
         if (!empty($options[self::OPTION_DROP_FRAMES])) {
-            if ($_generateThumbnail) {
+            if ($generateThumbnail) {
                 if ($image->bdPhotos_dropFramesLeavingThree()) {
-                    $_imageHasBeenChanged = true;
-                }
-            }
-            if (!empty($image2x)) {
-                if ($image2x->bdPhotos_dropFramesLeavingThree()) {
-                    $_image2xHasBeenChanged = true;
+                    $imageHasBeenChanged = true;
                 }
             }
         }
 
-        $_imageHasBeenChanged = $_imageHasBeenChanged || self::resizeAndCropImage($image, $width, $height, $_generateThumbnail, $options);
-        if (!empty($image2x)) {
-            $_image2xHasBeenChanged = $_image2xHasBeenChanged || self::resizeAndCropImage($image2x, $width2x, $height2x, $_generateThumbnail2x, $options);
+        if ($generate2x) {
+            $imageHasBeenChanged = $imageHasBeenChanged
+                || self::resizeAndCropImage($image, $width2x, $height2x, $generate2x, $options);
+            self::renameOrCopyImage($image, $inPath, $inputType,
+                $outPath2x, $generate2x, $imageHasBeenChanged);
+            $result |= self::RESULT_2X_READY;
+            $result |= self::RESULT_GENERATED_2X;
         }
 
-        self::renameOrCopyImage($image, $inPath, $inputType, $outPath, $_generateThumbnail, $_imageHasBeenChanged);
-        if (!empty($image2x)) {
-            self::renameOrCopyImage($image2x, $inPath, $inputType, $outPath2x, $_generateThumbnail2x, $_image2xHasBeenChanged);
+        if ($generateThumbnail) {
+            $imageHasBeenChanged = $imageHasBeenChanged
+                || self::resizeAndCropImage($image, $width, $height, $generateThumbnail, $options);
+            self::renameOrCopyImage($image, $inPath, $inputType,
+                $outPath, $generateThumbnail, $imageHasBeenChanged);
+            $result |= self::RESULT_THUMBNAIL_READY;
+            $result |= self::RESULT_GENERATED_THUMBNAIL;
         }
 
-        return true;
+        return $result;
     }
 
     public static function resizeAndCropImage(&$image, &$width, &$height, $generate = true, array $options = array())
@@ -353,16 +372,14 @@ class bdPhotos_Helper_Image
     public static function renameOrCopyImage(&$image, $inPath, $inputType, $outPath, $generate, $changed)
     {
         /** @var bdPhotos_XenForo_Image_Gd $image */
-        if ($changed) {
-            XenForo_Helper_File::createDirectory(dirname($outPath), true);
+        XenForo_Helper_File::createDirectory(dirname($outPath), true);
 
+        if ($changed) {
             $tempFile = tempnam(XenForo_Helper_File::getTempDir(), 'xf');
             $image->output($inputType, $tempFile);
 
             XenForo_Helper_File::safeRename($tempFile, $outPath);
         } elseif ($generate) {
-            XenForo_Helper_File::createDirectory(dirname($outPath), true);
-
             @copy($inPath, $outPath);
         }
     }
