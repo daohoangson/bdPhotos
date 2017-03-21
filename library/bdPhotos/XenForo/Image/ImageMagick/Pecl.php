@@ -1,6 +1,6 @@
 <?php
 
-class bdPhotos_XenForo_Image_Imagemagick_Pecl extends XFCP_bdPhotos_XenForo_Image_Imagemagick_Pecl
+class bdPhotos_XenForo_Image_ImageMagick_Pecl extends XFCP_bdPhotos_XenForo_Image_ImageMagick_Pecl
 {
     protected $_bdPhotos_manualOrientation = false;
 
